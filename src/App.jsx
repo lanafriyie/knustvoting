@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
 import Sidebar from './components/Sidebar';
-import SecureVote from './components/SecureVote';
+import Dashboard from './components/Dashboard';
+import SecureVoteModule from './components/SecureVoteModule';
 import Ballot from './components/Ballot';
 import ECAdmin from './components/ECAdmin';
 import CandidateAgentRoom from './components/CandidateAgentRoom';
@@ -15,9 +16,30 @@ export default function App() {
   const [isCandidateAgent, setIsCandidateAgent] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
   const [currentView, setCurrentView] = useState('student');  // 'student' or 'ec-admin'
-  
+
   // Use EC authorization hook for dual-identity detection
   const { hasECAccess, ecRole, ecJurisdictionName, checkVoteStatus, voteStatus, currentElectionId } = useECAuthorization();
+
+  // Listen for Supabase auth state changes & persist session state to localStorage
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        const userObj = {
+          student_id: session.user.id,
+          full_name: session.user.user_metadata?.full_name || 'Kwame Nkrumah',
+          email: session.user.email,
+          department_code: 'COE',
+          college_code: 'COE',
+          hall_code: 'UNITY',
+          year_of_study: 1,
+          level: 100,
+          biometrics_completed_current_semester: true,
+        };
+        localStorage.setItem('knust_user_session', JSON.stringify(userObj));
+      }
+    });
+    return () => subscription?.unsubscribe();
+  }, []);
 
   // Check if user is a candidate agent on app load
   useEffect(() => {
@@ -94,11 +116,11 @@ export default function App() {
   // If checking role or is candidate agent and not on candidate-agent route, show loading
   if (checkingRole) {
     return (
-      <div className="app-root" style={{ display: 'flex', minHeight: '100vh' }}>
+      <div className="app-root flex flex-row h-screen overflow-hidden bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 transition-colors duration-200">
         <Sidebar navigate={navigate} />
-        <main style={{ flex: 1, padding: 24, background: '#F4F6F8' }}>
+        <main className="flex-1 p-6 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 overflow-y-auto">
           <div style={{ textAlign: 'center', paddingTop: 40 }}>
-            <p>Loading your portal...</p>
+            <p className="text-gray-600 dark:text-slate-400">Loading your portal...</p>
           </div>
         </main>
       </div>
@@ -106,61 +128,33 @@ export default function App() {
   }
 
   return (
-    <div className="app-root" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Top App Bar */}
-      <div style={{
-        background: '#004D25',
-        color: '#fff',
-        padding: '12px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        borderBottom: '2px solid #003a1a',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 20 }}>🗳️</span>
-          <h1 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>KNUST Elections</h1>
-        </div>
+    <div className="app-root flex flex-row h-screen overflow-hidden bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 transition-colors duration-200">
+      <Sidebar
+        navigate={navigate}
+        hasECAccess={hasECAccess}
+        ecRole={ecRole}
+        ecJurisdictionName={ecJurisdictionName}
+        currentView={currentView}
+        onViewChange={handleViewChange}
+      />
 
-        {/* Role Switcher - only visible if user has EC access */}
-        <AppBarRoleSwitcher
-          hasECAccess={hasECAccess}
-          ecRole={ecRole}
-          ecJurisdictionName={ecJurisdictionName}
-          currentView={currentView}
-          onViewChange={handleViewChange}
-        />
-      </div>
-
-      {/* Main Content Area */}
-      <div style={{ display: 'flex', flex: 1 }}>
-        <Sidebar navigate={navigate} />
-
-        <main style={{ flex: 1, padding: 24, background: '#F4F6F8', overflowY: 'auto' }}>
-          {isBallot ? (
-            <Ballot electionId={ballotId} onBack={() => navigate('/secure-vote')} />
-          ) : currentView === 'ec-admin' && route === '/ec-admin' ? (
-            <ECAdmin navigate={navigate} />
-          ) : route === '/secure-vote' || (hasECAccess && currentView === 'student') ? (
-            <SecureVote navigate={navigate} />
-          ) : route === '/candidate-agent' ? (
-            <CandidateAgentRoom navigate={navigate} />
-          ) : route === '/candidate-agent/unauthorized' ? (
-            <Unauthorized onBack={() => navigate('/')} />
-          ) : route === '/ec-admin/unauthorized' ? (
-            <Unauthorized onBack={() => navigate('/')} />
-          ) : (
-            <div>
-              <h1>Welcome to the Student Portal</h1>
-              <p>This is the main content area. Use the navigation on the left to open modules.</p>
-              <section>
-                <h2>Secure Vote</h2>
-                <p>Click Governance → Secure Vote in the sidebar to trigger step-up authentication and access the module.</p>
-              </section>
-            </div>
-          )}
-        </main>
-      </div>
+      <main className="app-main-content flex-1 p-6 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 overflow-y-auto transition-colors duration-200">
+        {isBallot ? (
+          <Ballot electionId={ballotId} onBack={() => navigate('/secure-vote')} />
+        ) : currentView === 'ec-admin' && route === '/ec-admin' ? (
+          <ECAdmin navigate={navigate} />
+        ) : route === '/secure-vote' || route === '/governance/secure-vote' || (hasECAccess && currentView === 'student') ? (
+          <SecureVoteModule navigate={navigate} />
+        ) : route === '/candidate-agent' ? (
+          <CandidateAgentRoom navigate={navigate} />
+        ) : route === '/candidate-agent/unauthorized' ? (
+          <Unauthorized onBack={() => navigate('/')} />
+        ) : route === '/ec-admin/unauthorized' ? (
+          <Unauthorized onBack={() => navigate('/')} />
+        ) : (
+          <Dashboard navigate={navigate} />
+        )}
+      </main>
     </div>
   );
 }

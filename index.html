@@ -1,11 +1,45 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Secure Vote</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              knust: {
+                maroon: '#8B0000',
+                maroonDark: '#6B0000',
+                gold: '#D4AF37'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <script>
+      // Sync dark mode class with system preference or localStorage
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!('theme' in localStorage)) {
+          if (e.matches) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+      });
+    </script>
   </head>
-  <body>
+  <body class="bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 antialiased min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/index.jsx"></script>
   </body>

@@ -3,6 +3,7 @@ import VirtualQueue from './VirtualQueue';
 import useStudentSession from '../hooks/useStudentSession';
 import { supabase } from '../lib/supabaseClient';
 import ConstituencyModal from './ConstituencyModal';
+import StepUpAuthModal from './StepUpAuthModal';
 import { submitAnonymousVote } from '../lib/votingService';
 import {
   checkElectionEligibility,
@@ -28,7 +29,19 @@ export default function SecureVote({ navigate }) {
   const [showConstituencyModal, setShowConstituencyModal] = useState(false);
   const [userRoles, setUserRoles] = useState([]);
   const [receipt, setReceipt] = useState(null);
-  const { student: sessionStudent } = useStudentSession();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { student: sessionStudent, loading: sessionLoading } = useStudentSession();
+
+  // Helper to read active session from state or localStorage
+  const getActiveUser = () => {
+    if (sessionStudent) return sessionStudent;
+    try {
+      const stored = localStorage.getItem('knust_user_session');
+      return stored ? JSON.parse(stored) : null;
+    } catch (e) {
+      return null;
+    }
+  };
 
   // Map sessionStudent into local student shape when available
   useEffect(() => {
@@ -81,9 +94,12 @@ export default function SecureVote({ navigate }) {
     }
   }, [sessionStudent]);
 
+  // PAGE-LEVEL SESSION GUARD
+  const activeSession = getActiveUser();
+
   // Default mock student if offline / initial load
   useEffect(() => {
-    if (!student) {
+    if (!student && activeSession) {
       setStudent({
         name: 'Kwame Nkrumah',
         studentId: '20894512',
@@ -100,7 +116,43 @@ export default function SecureVote({ navigate }) {
         year_of_study: 1
       });
     }
-  }, [student]);
+  }, [student, activeSession]);
+
+  if (!sessionLoading && !activeSession) {
+    return (
+      <div className="sv-access-denied-wrapper" style={{ padding: '40px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <div className="sv-card" style={{ maxWidth: '520px', width: '100%', textAlign: 'center', padding: '36px 28px', borderTop: '4px solid #8B0000', borderRadius: '16px', background: '#ffffff', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}>
+          <div style={{ fontSize: '54px', marginBottom: '16px' }}>🔒</div>
+          <h2 style={{ color: '#8B0000', margin: '0 0 12px 0', fontSize: '24px', fontWeight: '800' }}>Access Denied</h2>
+          <p style={{ color: '#4A4A4A', fontSize: '15px', lineHeight: '1.5', marginBottom: '20px' }}>
+            You must be logged in with an active session to access the <strong>KNUST Secure Vote</strong> voting module.
+          </p>
+
+          <div style={{ background: '#FFF0F0', border: '1.5px solid #C62828', color: '#C62828', padding: '12px 16px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', marginBottom: '24px' }}>
+            ⚠️ No active session. Please log in first.
+          </div>
+
+          <button
+            className="sv-btn-card primary"
+            onClick={() => setIsAuthModalOpen(true)}
+            style={{ width: '100%', padding: '12px 24px', fontSize: '16px', fontWeight: '800', background: 'linear-gradient(135deg, #4A0000 0%, #8B0000 100%)', color: '#ffffff', border: 'none', borderRadius: '10px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(139, 0, 0, 0.3)' }}
+          >
+            🔑 Log In / Authenticate
+          </button>
+
+          <StepUpAuthModal
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+            initialError="No active session. Please log in first."
+            onSuccess={() => {
+              setIsAuthModalOpen(false);
+              window.location.reload();
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   // Election schedule list loaded from Supabase schema
   const [elections, setElections] = useState([]);
@@ -236,7 +288,7 @@ const mapped = data.map(e => {
     return (
       <div className="sv-dashboard">
         <div className="sv-header">
-          <h1>🗳️ SECURE VOTE - DASHBOARD</h1>
+          <h1>🗳️ Secure Vote Portal</h1>
           <p>Virtual Queue — High Traffic Protection Mode</p>
         </div>
         <VirtualQueue onReady={() => {
@@ -252,7 +304,7 @@ const mapped = data.map(e => {
       {/* ── Dashboard Header ── */}
       <div className="sv-header-banner">
         <div>
-          <h1 className="sv-title">🗳️ SECURE VOTE - DASHBOARD</h1>
+          <h1 className="sv-title">🗳️ Secure Vote Portal</h1>
           <p className="sv-subtitle">KNUST Electoral Management &amp; Student Verification System</p>
         </div>
         <button
@@ -264,17 +316,17 @@ const mapped = data.map(e => {
         </button>
       </div>
 
-{/* ── Top Card: Biometric & Status Checker ── */}
+      {/* ── Top Card: Biometric & Status Checker ── */}
       <div className="sv-card sv-verify-card-full" role="region" aria-label="Biometric & Status Checker">
         <div className="sv-card-title-bar">
-          <h2>🎫 BIOMETRIC &amp; STATUS CHECKER</h2>
+          <h2>🎫 Biometric &amp; Status Checker</h2>
           {biometricsOk ? (
             <div className="sv-badge sv-badge-green">
-              ✅ CURRENT SEMESTER VERIFIED
+              ✅ Current Semester Verified
             </div>
           ) : (
             <div className="sv-badge sv-badge-red">
-              ❌ BIOMETRICS PENDING
+              ❌ Biometrics Pending
             </div>
           )}
         </div>
@@ -333,7 +385,7 @@ const mapped = data.map(e => {
 
       {/* ── Schedule Section Title ── */}
       <div className="sv-section-header">
-        <h2>UPCOMING &amp; ACTIVE ELECTIONS</h2>
+        <h2>Upcoming &amp; Active Elections</h2>
       </div>
 
       {/* ── Schedule Cards Grid ── */}

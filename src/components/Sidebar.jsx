@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import StepUpAuthModal from './StepUpAuthModal';
 import AppBarRoleSwitcher from './AppBarRoleSwitcher';
+import SidebarSearch from './SidebarSearch';
 import '../styles/SecureVote.css';
 
 export default function Sidebar({
@@ -14,8 +15,8 @@ export default function Sidebar({
 }) {
   const [isStepUpOpen, setStepUpOpen] = useState(false);
 
-function handleSecureVoteClick(e) {
-    e.preventDefault();
+  function handleSecureVoteClick(e) {
+    if (e && e.preventDefault) e.preventDefault();
     setStepUpOpen(true);
     closeDrawer();
   }
@@ -47,11 +48,12 @@ function handleSecureVoteClick(e) {
         onViewChange={onViewChange}
       />
 
-      {/* Pill-shaped search bar */}
-      <div className="sv-search" role="search">
-        <span aria-hidden="true">🔍</span>
-        <input type="search" placeholder="Search modules…" aria-label="Search modules" />
-      </div>
+      {/* Real-time Search Autocomplete */}
+      <SidebarSearch
+        navigate={navigate}
+        onNavigate={onNavigate}
+        onSecureVoteClick={handleSecureVoteClick}
+      />
 
       <ul className="sidebar-list">
 
