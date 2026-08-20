@@ -1,13 +1,59 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Secure Vote</title>
-    <script type="module" crossorigin src="/assets/index-CeOSweMl.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DyC9K0-u.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              knust: {
+                maroon: '#8B0000',
+                maroonDark: '#6B0000',
+                gold: '#D4AF37'
+              },
+              maroon: {
+                50: '#fdf2f4',
+                100: '#fce7ea',
+                200: '#f9d2d9',
+                300: '#f4adbb',
+                400: '#eb7b93',
+                500: '#dd4d6e',
+                600: '#A51C1C',
+                700: '#8B0000',
+                800: '#6B0000',
+                900: '#4A0000',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <script>
+      // Sync dark mode class with system preference or localStorage
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!('theme' in localStorage)) {
+          if (e.matches) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+      });
+    </script>
+    <script type="module" crossorigin src="/assets/index-B9y7vkxN.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Bw1TiCoh.css">
   </head>
-  <body>
-    <div id="root"></div>
+  <body class="bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 antialiased min-h-screen">
+    <div id="root"></div>
   </body>
 </html>

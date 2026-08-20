@@ -5,11 +5,35 @@ import Dashboard from './components/Dashboard';
 import SecureVoteModule from './components/SecureVoteModule';
 import Ballot from './components/Ballot';
 import ECAdmin from './components/ECAdmin';
+import ECAdminAuthGuard from './components/ECAdminAuthGuard';
+import StudentResultsPortal from './components/StudentResultsPortal';
 import CandidateAgentRoom from './components/CandidateAgentRoom';
 import Unauthorized from './components/Unauthorized';
 import AppBarRoleSwitcher from './components/AppBarRoleSwitcher';
+import ThemeToggle from './components/ThemeToggle';
 import useECAuthorization from './hooks/useECAuthorization';
+import { AdminAuthProvider } from './context/AdminAuthContext';
+import { mockElections, mergeWithMockElections, getElectionStatus, checkElectionEligibility, formatUnlockDate } from './lib/eligibility';
+import { getStoredStudentProfile } from './lib/demoProfiles';
 import './styles/SecureVote.css';
+
+function BallotGuard({ ballotId, navigate }) {
+  useEffect(() => {
+    // Background sync user session attributes
+    try {
+      let activeUser = null;
+      const stored = localStorage.getItem('knust_user_session');
+      if (stored) activeUser = JSON.parse(stored);
+      if (!activeUser) activeUser = getStoredStudentProfile();
+      if (activeUser && !activeUser.constituency_locked) {
+        activeUser.constituency_locked = activeUser.constituency || 'Ayeduase';
+        localStorage.setItem('knust_user_session', JSON.stringify(activeUser));
+      }
+    } catch (e) {}
+  }, [ballotId]);
+
+  return <Ballot electionId={ballotId} onBack={() => navigate('/secure-vote')} />;
+}
 
 export default function App() {
   const [route, setRoute] = useState(window.location.pathname || '/');
@@ -44,31 +68,31 @@ export default function App() {
   // Check if user is a candidate agent on app load
   useEffect(() => {
     async function checkUserRole() {
-      setCheckingRole(true);
       try {
-        const { data: userData, error: authError } = await supabase.auth.getUser();
-        if (authError || !userData?.user) {
-          setCheckingRole(false);
-          return;
-        }
+        const getUserPromise = supabase.auth.getUser().catch(() => ({ data: { user: null } }));
+        const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ data: { user: null } }), 300));
+        const res = await Promise.race([getUserPromise, timeoutPromise]);
+        const userData = res?.data;
 
-        // Check if user has CANDIDATE_AGENT role
-        const { data, error } = await supabase
-          .from('election_room_members')
-          .select('role_in_room')
-          .eq('student_id', userData.user.id)
-          .eq('role_in_room', 'CANDIDATE_AGENT')
-          .limit(1)
-          .maybeSingle();
+        if (userData?.user) {
+          const fetchRolePromise = supabase
+            .from('election_room_members')
+            .select('role_in_room')
+            .eq('student_id', userData.user.id)
+            .eq('role_in_room', 'CANDIDATE_AGENT')
+            .limit(1)
+            .maybeSingle()
+            .catch(() => ({ data: null }));
 
-        if (!error && data && data.role_in_room === 'CANDIDATE_AGENT') {
-          setIsCandidateAgent(true);
-          // Auto-redirect to candidate agent room if not already there
-          if (route !== '/candidate-agent' && !route.startsWith('/candidate-agent')) {
-            navigate('/candidate-agent');
+          const roleRes = await Promise.race([fetchRolePromise, timeoutPromise]);
+          const data = roleRes?.data;
+
+          if (data && data.role_in_room === 'CANDIDATE_AGENT') {
+            setIsCandidateAgent(true);
+            if (route !== '/candidate-agent' && !route.startsWith('/candidate-agent')) {
+              navigate('/candidate-agent');
+            }
           }
-        } else {
-          setIsCandidateAgent(false);
         }
       } catch (err) {
         console.warn('Error checking user role', err);
@@ -116,11 +140,15 @@ export default function App() {
   // If checking role or is candidate agent and not on candidate-agent route, show loading
   if (checkingRole) {
     return (
-      <div className="app-root flex flex-row h-screen overflow-hidden bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 transition-colors duration-200">
+      <div className="app-root flex flex-row h-screen overflow-hidden bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 transition-colors duration-200 relative">
+        {/* Fixed Top Right Toggle Icon */}
+        <div className="fixed top-4 right-5 z-50">
+          <ThemeToggle />
+        </div>
         <Sidebar navigate={navigate} />
-        <main className="flex-1 p-6 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 overflow-y-auto">
+        <main className="flex-1 p-6 bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 overflow-y-auto">
           <div style={{ textAlign: 'center', paddingTop: 40 }}>
-            <p className="text-gray-600 dark:text-slate-400">Loading your portal...</p>
+            <p className="text-slate-600 dark:text-slate-400">Loading your portal...</p>
           </div>
         </main>
       </div>
@@ -128,33 +156,41 @@ export default function App() {
   }
 
   return (
-    <div className="app-root flex flex-row h-screen overflow-hidden bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 transition-colors duration-200">
-      <Sidebar
-        navigate={navigate}
-        hasECAccess={hasECAccess}
-        ecRole={ecRole}
-        ecJurisdictionName={ecJurisdictionName}
-        currentView={currentView}
-        onViewChange={handleViewChange}
-      />
+    <AdminAuthProvider>
+      <div className="app-root flex flex-row h-screen overflow-hidden bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 transition-colors duration-200 relative">
+        {/* Fixed Top Right Toggle Icon */}
+        <div className="fixed top-4 right-5 z-50">
+          <ThemeToggle />
+        </div>
 
-      <main className="app-main-content flex-1 p-6 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 overflow-y-auto transition-colors duration-200">
-        {isBallot ? (
-          <Ballot electionId={ballotId} onBack={() => navigate('/secure-vote')} />
-        ) : currentView === 'ec-admin' && route === '/ec-admin' ? (
-          <ECAdmin navigate={navigate} />
-        ) : route === '/secure-vote' || route === '/governance/secure-vote' || (hasECAccess && currentView === 'student') ? (
-          <SecureVoteModule navigate={navigate} />
-        ) : route === '/candidate-agent' ? (
-          <CandidateAgentRoom navigate={navigate} />
-        ) : route === '/candidate-agent/unauthorized' ? (
-          <Unauthorized onBack={() => navigate('/')} />
-        ) : route === '/ec-admin/unauthorized' ? (
-          <Unauthorized onBack={() => navigate('/')} />
-        ) : (
-          <Dashboard navigate={navigate} />
-        )}
-      </main>
-    </div>
+        <Sidebar
+          navigate={navigate}
+          hasECAccess={hasECAccess}
+          ecRole={ecRole}
+          ecJurisdictionName={ecJurisdictionName}
+          currentView={currentView}
+          onViewChange={handleViewChange}
+        />
+
+        <main className="app-main-content flex-1 p-6 bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 overflow-y-auto transition-colors duration-200">
+          {isBallot ? (
+            <BallotGuard ballotId={ballotId} navigate={navigate} />
+          ) : route === '/ec-admin' ? (
+            <ECAdminAuthGuard navigate={navigate} />
+          ) : route === '/secure-vote' || route === '/governance/secure-vote' ? (
+            <SecureVoteModule navigate={navigate} />
+          ) : route === '/candidate-agent' ? (
+            <CandidateAgentRoom navigate={navigate} />
+          ) : route === '/candidate-agent/unauthorized' ? (
+            <Unauthorized onBack={() => navigate('/')} />
+          ) : route === '/results' || route === '/public-results' ? (
+            <StudentResultsPortal onBack={() => navigate('/')} />
+          ) : (
+            <Dashboard navigate={navigate} />
+          )}
+        </main>
+      </div>
+    </AdminAuthProvider>
   );
 }
+

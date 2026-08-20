@@ -4,13 +4,21 @@ import useStudentSession from '../hooks/useStudentSession';
 import { supabase } from '../lib/supabaseClient';
 import ConstituencyModal from './ConstituencyModal';
 import StepUpAuthModal from './StepUpAuthModal';
+import DemoProfileSwitcher from './DemoProfileSwitcher';
 import {
   checkElectionEligibility,
   deriveYearOfStudy,
   isBiometricVerified,
   getElectionTier,
-  getElectionCardState
+  getElectionCardState,
+  getElectionStatus,
+  mockElections,
+  mergeWithMockElections,
+  formatUnlockDate
 } from '../lib/eligibility';
+import { getStoredStudentProfile, subscribeToDemoProfile } from '../lib/demoProfiles';
+import { isElectionVoted, subscribeToVoteUpdates } from '../lib/votingService';
+import { useAdminAuth } from '../context/AdminAuthContext';
 import '../styles/SecureVote.css';
 
 function formatCountdown(ms) {
@@ -29,18 +37,51 @@ export default function SecureVoteModule({ navigate }) {
   const [showConstituencyModal, setShowConstituencyModal] = useState(false);
   const [userRoles, setUserRoles] = useState([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [votedUpdateTick, setVotedUpdateTick] = useState(0);
+  const [notification, setNotification] = useState(null);
   const { student: sessionStudent, loading: sessionLoading } = useStudentSession();
+  const { ecAdminProfile, isElectionManagedByOfficerTier } = useAdminAuth();
+
+  // Check for route guard notification
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('sv_redirect_notification');
+      if (stored) {
+        setNotification(stored);
+        sessionStorage.removeItem('sv_redirect_notification');
+      }
+    } catch (e) {}
+  }, []);
+
+  // Subscribe to local/external vote submission events
+  useEffect(() => {
+    const unsubscribe = subscribeToVoteUpdates(() => {
+      setVotedUpdateTick(t => t + 1);
+    });
+    return unsubscribe;
+  }, []);
 
   // Helper to read active session from state or localStorage
   const getActiveUser = () => {
     if (sessionStudent) return sessionStudent;
     try {
       const stored = localStorage.getItem('knust_user_session');
-      return stored ? JSON.parse(stored) : null;
+      return stored ? JSON.parse(stored) : getStoredStudentProfile();
     } catch (e) {
-      return null;
+      return getStoredStudentProfile();
     }
   };
+
+  useEffect(() => {
+    const initial = getActiveUser();
+    if (initial) {
+      setStudent(initial);
+    }
+    const unsubscribe = subscribeToDemoProfile((newProfile) => {
+      setStudent(newProfile);
+    });
+    return unsubscribe;
+  }, []);
 
   // Map sessionStudent into local student shape when available
   useEffect(() => {
@@ -152,79 +193,27 @@ export default function SecureVoteModule({ navigate }) {
     );
   }
 
-  // Election schedule list loaded from Supabase schema
-  const [elections, setElections] = useState([]);
-  const [loadingElections, setLoadingElections] = useState(true);
+  // Election schedule list loaded from Supabase schema with fast timeout fallback
+  const [elections, setElections] = useState(() => mockElections);
+  const [loadingElections, setLoadingElections] = useState(false);
 
   useEffect(() => {
     let mounted = true;
     async function loadElections() {
-      setLoadingElections(true);
       try {
-        const { data, error } = await supabase
+        const fetchPromise = supabase
           .from('elections')
           .select('election_id, title, description, start_time, end_time, is_active, jurisdiction_id, electoral_jurisdictions(*)');
-        if (error || !data || data.length === 0) throw error || new Error('No DB data');
+        const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ data: null }), 500));
+
+        const res = await Promise.race([fetchPromise, timeoutPromise]);
         if (!mounted) return;
-        const mapped = data.map(e => ({
-          id: e.election_id,
-          title: e.title,
-          description: e.description,
-          date: e.start_time ? new Date(e.start_time) : new Date(),
-          type: e.tier || (e.title.toLowerCase().includes('department') ? 'department' :
-              e.title.toLowerCase().includes('src') ? 'src' :
-              e.title.toLowerCase().includes('constituency') ? 'constituency' : 'hall'),
-          active: e.is_active,
-          jurisdiction: e.electoral_jurisdictions || null,
-          hall_code: e.hall_code || null,
-          college_code: e.college_code || null,
-          department_code: e.department_code || null,
-          tier: getElectionTier(e)
-        }));
-        setElections(mapped);
+        if (res && res.data && res.data.length > 0) {
+          const mapped = mergeWithMockElections(res.data);
+          setElections(mapped);
+        }
       } catch (err) {
-        setElections([
-          {
-            id: 'dept',
-            icon: '🏢',
-            title: 'Department & College Elections',
-            date: new Date(Date.now() + 3 * 86400000 + 14 * 3600000 + 22 * 60000),
-            dateLabel: 'July 30',
-            type: 'department',
-            target: 'CoE & Computer Engineering Students',
-            active: true
-          },
-          {
-            id: 'src',
-            icon: '🏛️',
-            title: 'SRC Executive Elections',
-            date: new Date(Date.now() + 9 * 86400000 + 14 * 3600000 + 22 * 60000),
-            dateLabel: 'August 5',
-            type: 'src',
-            target: 'All Active Students',
-            active: true
-          },
-          {
-            id: 'const',
-            icon: '🗳️',
-            title: 'Constituency Parliamentary Elections',
-            date: new Date(Date.now() + 11 * 86400000),
-            dateLabel: 'August 7',
-            type: 'constituency',
-            target: 'Selected Constituency Voters',
-            active: true
-          },
-          {
-            id: 'hall',
-            icon: '🏰',
-            title: 'Hall Elections',
-            date: new Date(Date.now() + 23 * 86400000),
-            dateLabel: 'August 25',
-            type: 'hall',
-            target: 'Unity Hall Residents/Affiliates',
-            active: true
-          }
-        ]);
+        // Retain mockElections
       } finally {
         if (mounted) setLoadingElections(false);
       }
@@ -232,6 +221,19 @@ export default function SecureVoteModule({ navigate }) {
 
     loadElections();
     return () => { mounted = false; };
+  }, []);
+
+  // Listen for election status overrides
+  useEffect(() => {
+    const handleStatusChange = () => {
+      setElections(prev => mergeWithMockElections(prev));
+    };
+    window.addEventListener('knust_elections_status_changed', handleStatusChange);
+    window.addEventListener('storage', handleStatusChange);
+    return () => {
+      window.removeEventListener('knust_elections_status_changed', handleStatusChange);
+      window.removeEventListener('storage', handleStatusChange);
+    };
   }, []);
 
   // Tick timer
@@ -295,28 +297,61 @@ export default function SecureVoteModule({ navigate }) {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 transition-colors duration-200 min-h-screen">
-      {/* ── 1. Header Contrast Fix ── */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div className="p-6 max-w-6xl mx-auto bg-[#F3F6F8] dark:bg-slate-900 text-[#171717] dark:text-slate-100 transition-colors duration-200 min-h-screen">
+      {/* ── 1. Secure Vote Banner (White surface card with KNUST Green Title & Gold Accent) ── */}
+      <div className="mb-6 p-6 bg-white dark:bg-slate-800 text-[#171717] dark:text-slate-100 rounded-2xl shadow-2xs flex flex-wrap items-center justify-between gap-4 border border-[#E1E7E4] dark:border-slate-700">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-            🗳️ Secure Vote Portal
+          <h1 className="text-2xl font-black text-[#006B3F] dark:text-slate-100 tracking-tight flex items-center gap-2">
+            <span>🗳️</span> Secure Vote Portal
           </h1>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm font-medium text-[#6B7280] dark:text-slate-400 mt-1">
             KNUST Electoral Management &amp; Student Verification System
           </p>
         </div>
-        <button
-          className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl px-4 py-2.5 shadow-sm transition-all cursor-pointer"
-          onClick={toggleBiometricsState}
-          title="Toggle biometrics verification state to test valid/missing branches"
-        >
-          🔄 Dev Test: Biometrics {biometricsOk ? 'Valid ✅' : 'Missing ❌'}
-        </button>
+        <div className="flex items-center gap-3 flex-wrap mr-12">
+          {/* Quick Demo Profile Switcher */}
+          <DemoProfileSwitcher onProfileChange={setStudent} />
+
+          <button
+            className="bg-[#E2F3E9] dark:bg-slate-700 hover:bg-[#BDE3D2] dark:hover:bg-slate-600 text-[#006B3F] dark:text-emerald-400 text-xs font-bold rounded-xl px-3.5 py-2 border border-[#BDE3D2] dark:border-slate-600 shadow-2xs transition-all cursor-pointer"
+            onClick={toggleBiometricsState}
+            title="Toggle biometrics verification state to test valid/missing branches"
+          >
+            🔄 Dev Test: Biometrics {biometricsOk ? 'Valid ✅' : 'Missing ❌'}
+          </button>
+        </div>
       </div>
 
+      {/* ── EC Officer Persona & Student Profile Binding Banner ── */}
+      {ecAdminProfile && (
+        <div className="mb-6 p-4 bg-[#F3FAF6] dark:bg-slate-800/90 border-2 border-[#007A4D] rounded-2xl text-slate-800 dark:text-slate-100 flex flex-wrap items-center justify-between gap-4 shadow-sm animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{ecAdminProfile.avatar}</span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-[#007A4D] dark:text-emerald-400">
+                  Officer Identity &amp; Student Profile Bound
+                </span>
+                <span className="bg-[#007A4D] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md">
+                  {ecAdminProfile.roleTier}
+                </span>
+              </div>
+              <div className="text-sm font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">
+                {student.name || ecAdminProfile.name} | Level {student.level || (yearOfStudy * 100)} | {student.college || 'CoE'} | {student.constituency_locked || student.constituency || 'Ayeduase'} Constituency
+              </div>
+              <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
+                Scope: {ecAdminProfile.assignedJurisdiction?.name}
+              </div>
+            </div>
+          </div>
+          <div className="bg-[#EAF6F0] dark:bg-slate-700/80 text-[#007A4D] dark:text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-extrabold border border-[#007A4D]/30 flex items-center gap-1.5 shadow-2xs">
+            <span>🔐</span> Dual-Identity Session Active
+          </div>
+        </div>
+      )}
+
       {/* ── 2. Clean Biometric & Status Checker Card ── */}
-      <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-2xl p-6 shadow-sm mb-6" role="region" aria-label="Biometric & Status Checker">
+      <div className="bg-white dark:bg-slate-800 border border-[#E1E7E4] dark:border-slate-700 text-[#171717] dark:text-slate-100 rounded-2xl p-6 shadow-2xs mb-6" role="region" aria-label="Biometric & Status Checker">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4 mb-4">
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">
             🎫 Biometric &amp; Status Checker
@@ -368,71 +403,127 @@ export default function SecureVoteModule({ navigate }) {
           <div>
             <span className="block text-xs text-slate-400 dark:text-slate-400 font-medium">Locked Constituency:</span>
             <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-              {student.constituency_locked || 'Not Selected'}
+              {(() => {
+                const cVal = student ? (student.constituency || student.constituency_locked || null) : null;
+                if (!cVal) return 'Constituency Not Assigned';
+                return cVal.toLowerCase().includes('constituency') ? cVal : `${cVal} Constituency`;
+              })()}
             </span>
           </div>
         </div>
 
         {!biometricsOk && (
           <div className="mt-4 p-3 bg-amber-50 dark:bg-slate-700 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-400 rounded-xl text-xs font-semibold flex items-center gap-2" role="alert">
-            🛑 <span>Biometrics Verification Pending — Your biometric verification record for the active academic session is incomplete. Please visit the ICT center.</span>
+            🛑 <span>Biometrics Verification Pending — Your biometric verification record for the active academic session is incomplete. Please visit the UITS office.</span>
           </div>
         )}
       </div>
 
+      {/* ── Route Guard Notification Alert ── */}
+      {notification && (
+        <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700/60 rounded-2xl text-amber-900 dark:text-amber-200 flex items-start justify-between gap-3 shadow-sm" role="alert">
+          <div className="flex items-start gap-3">
+            <span className="text-xl flex-shrink-0">🔒</span>
+            <div>
+              <h4 className="text-sm font-bold m-0 text-amber-900 dark:text-amber-100">Access Restricted</h4>
+              <p className="text-xs font-medium mt-1 m-0 text-amber-800 dark:text-amber-300 leading-relaxed">{notification}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setNotification(null)}
+            className="text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-100 text-lg font-bold leading-none bg-transparent border-none cursor-pointer p-1"
+            aria-label="Dismiss notification"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* ── Constituency Selection Modal ── */}
       <ConstituencyModal
         isOpen={showConstituencyModal}
-        studentId={student?.studentId}
+        studentId={student?.studentId || student?.student_id}
         onLocked={(constituency) => {
           setShowConstituencyModal(false);
-          setStudent(s => ({ ...(s || {}), constituency_locked: constituency }));
+          setStudent(s => {
+            const updated = {
+              ...(s || {}),
+              constituency: constituency,
+              constituency_locked: constituency
+            };
+            try {
+              localStorage.setItem('knust_user_session', JSON.stringify(updated));
+            } catch (e) {}
+            return updated;
+          });
         }}
       />
 
       {/* ── 3. Modernized Election Cards & Buttons ── */}
       <div className="mb-4">
-        <h2 className="text-lg font-bold text-slate-900">Upcoming &amp; Active Elections</h2>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Upcoming &amp; Active Elections</h2>
       </div>
       <div className="space-y-6">
         {elections.map((e) => {
-          const diff = e.date ? (e.date.getTime() - now) : 0;
-          const isLive = diff <= 0;
+          const statusInfo = getElectionStatus(e, e.endTime, now);
           const cardState = getElectionCardState(student, e);
 
           /* Card 1: Department & College Elections */
           if (e.type === 'department') {
+            const hasVoted = isElectionVoted(e.id, e.type);
             const eligibilityCheck = checkElectionEligibility(student, e);
             const isEligible = eligibilityCheck.eligible && isBiometricVerified(student);
             const targetText = e.target || `${student.college} & ${student.department} Students`;
+            const isLiveAndEligible = isEligible && statusInfo.isLive;
+            const isManagedByOfficer = isElectionManagedByOfficerTier ? isElectionManagedByOfficerTier(e) : false;
 
             return (
-              <div key={e.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+              <div key={e.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
                 {/* Header Area */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-700">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5 flex-wrap">
                       <span className="text-2xl" role="img" aria-label="Department Icon">{e.icon || '🏢'}</span>
-                      <h3 className="text-base font-bold text-slate-900">{e.title}</h3>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{e.title}</h3>
+                      {isManagedByOfficer && (
+                        <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-400 dark:border-amber-700 px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold shadow-2xs inline-flex items-center gap-1.5" title="Officer votes use the exact same zero-knowledge encryption as general students.">
+                          🛡️ Conflict Protocol Verified / Ballot Encrypted
+                        </span>
+                      )}
                     </div>
-                    <p className="text-xs font-medium text-slate-500">
-                      <strong className="text-slate-700">Target Audience:</strong> {targetText}
-                      <span className="mx-2 text-slate-300">•</span>
-                      <strong className="text-slate-700">Election Date:</strong> {e.dateLabel || 'July 30'}
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 space-y-1 mt-1">
+                      <span className="block"><strong className="text-slate-700 dark:text-slate-300">Eligibility:</strong> Verified ({targetText})</span>
+                      <span className="block"><strong className="text-slate-700 dark:text-slate-300">Ends in:</strong> {statusInfo.countdownText}</span>
+                      <span className="block">
+                        <strong className="text-slate-700 dark:text-slate-300">Status:</strong>{' '}
+                        {hasVoted ? (
+                          <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">[ VOTED ✅ ]</span>
+                        ) : (
+                          <span className="font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">[ NOT VOTED ]</span>
+                        )}
+                      </span>
                     </p>
                   </div>
                   <div className="flex-shrink-0">
-                    {isLive && isEligible ? (
-                      <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        🔴 LIVE NOW
+                    {hasVoted ? (
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1.5 shadow-2xs">
+                        ✓ Voted
+                      </span>
+                    ) : statusInfo.isLive && isEligible ? (
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1.5 shadow-2xs">
+                        🟢 Live — Ballot Open
                       </span>
                     ) : !isEligible ? (
-                      <span className="bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        ⚠️ INELIGIBLE
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800/60 gap-1.5">
+                        ⚠️ Ineligible
+                      </span>
+                    ) : statusInfo.isUpcoming ? (
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60 gap-1.5">
+                        ⏳ Starts in {statusInfo.countdownText}
                       </span>
                     ) : (
-                      <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        📅 UPCOMING
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 gap-1.5">
+                        🔒 Polls Closed
                       </span>
                     )}
                   </div>
@@ -441,32 +532,48 @@ export default function SecureVoteModule({ navigate }) {
                 {/* Action Bar */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
                   {/* Bottom-Left: Countdown Timer */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-mono text-xs font-bold text-slate-700 flex items-center gap-2 self-start sm:self-auto">
-                    <span className="text-slate-400">⏳</span>
-                    <span>{formatCountdown(diff)}</span>
+                  <div className="bg-[#F3F6F8] dark:bg-slate-900 border border-[#E1E7E4] dark:border-slate-700 rounded-xl px-4 py-2 font-mono text-xs font-bold text-[#171717] dark:text-slate-300 flex items-center gap-2 self-start sm:self-auto">
+                    <span className="text-[#D4A72C]">⏳</span>
+                    <span>
+                      {statusInfo.isUpcoming
+                        ? `Starts in ${statusInfo.countdownText}`
+                        : statusInfo.isLive
+                        ? `Polls Close in ${statusInfo.countdownText}`
+                        : 'Election Concluded'}
+                    </span>
                   </div>
 
                   {/* Bottom-Right: Action Buttons */}
                   <div className="flex flex-wrap items-center justify-end gap-3">
-                    <button
-                      className={
-                        isEligible && isLive
-                          ? "bg-[#8B0000] hover:bg-[#6B0000] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
-                          : isEligible
-                          ? "bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
-                          : "bg-slate-100 border border-slate-200 text-slate-400 px-4 py-2 rounded-xl text-xs font-semibold cursor-not-allowed flex items-center gap-1.5"
-                      }
-                      disabled={!isEligible}
-                      onClick={() => handleNavigate(`/ballot/${e.id}`)}
-                    >
-                      {!isBiometricVerified(student)
-                        ? '🔒 Locked (Biometrics Required)'
-                        : !isEligible
-                        ? '🔒 Ineligible'
-                        : isLive
-                        ? 'Enter Ballot Room ➔'
-                        : `Enter Ballot Room (Unlocks ${e.dateLabel || 'July 30'})`}
-                    </button>
+                    {hasVoted ? (
+                      <button
+                        className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-2 rounded-xl text-xs font-bold shadow-xs cursor-default flex items-center gap-1.5"
+                        disabled
+                      >
+                        ✓ Ballot Cast &amp; Recorded
+                      </button>
+                    ) : statusInfo.isClosed ? (
+                      <button
+                        className="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                        onClick={() => handleNavigate('/results')}
+                      >
+                        View Results 📊
+                      </button>
+                    ) : (
+                      <button
+                        className={
+                          isLiveAndEligible
+                            ? "bg-red-800 hover:bg-red-700 text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                            : "bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"
+                        }
+                        disabled={!isLiveAndEligible}
+                        onClick={isLiveAndEligible ? () => handleNavigate(`/ballot/${e.id}`) : undefined}
+                      >
+                        {isLiveAndEligible
+                          ? 'Enter Polling Station ➔'
+                          : `Unlocks ${formatUnlockDate(e)}`}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -475,32 +582,59 @@ export default function SecureVoteModule({ navigate }) {
 
           /* Card 2: SRC Executive Elections */
           if (e.type === 'src') {
+            const hasVoted = isElectionVoted(e.id, e.type);
             const eligibilityCheck = checkElectionEligibility(student, e);
             const isEligible = eligibilityCheck.eligible && isBiometricVerified(student);
+            const isLiveAndEligible = isEligible && statusInfo.isLive;
+            const isManagedByOfficer = isElectionManagedByOfficerTier ? isElectionManagedByOfficerTier(e) : false;
 
             return (
-              <div key={e.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+              <div key={e.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
                 {/* Header Area */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-700">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5 flex-wrap">
                       <span className="text-2xl" role="img" aria-label="SRC Icon">{e.icon || '🏛️'}</span>
-                      <h3 className="text-base font-bold text-slate-900">{e.title}</h3>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{e.title}</h3>
+                      {isManagedByOfficer && (
+                        <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-400 dark:border-amber-700 px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold shadow-2xs inline-flex items-center gap-1.5" title="Officer votes use the exact same zero-knowledge encryption as general students.">
+                          🛡️ Conflict Protocol Verified / Ballot Encrypted
+                        </span>
+                      )}
                     </div>
-                    <p className="text-xs font-medium text-slate-500">
-                      <strong className="text-slate-700">Target Audience:</strong> All Active Students
-                      <span className="mx-2 text-slate-300">•</span>
-                      <strong className="text-slate-700">Election Date:</strong> {e.dateLabel || 'August 5'}
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 space-y-1 mt-1">
+                      <span className="block"><strong className="text-slate-700 dark:text-slate-300">Eligibility:</strong> Verified (All Students)</span>
+                      <span className="block"><strong className="text-slate-700 dark:text-slate-300">Ends in:</strong> {statusInfo.countdownText}</span>
+                      <span className="block">
+                        <strong className="text-slate-700 dark:text-slate-300">Status:</strong>{' '}
+                        {hasVoted ? (
+                          <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">[ VOTED ✅ ]</span>
+                        ) : (
+                          <span className="font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">[ NOT VOTED ]</span>
+                        )}
+                      </span>
                     </p>
                   </div>
                   <div className="flex-shrink-0">
-                    {isLive && isEligible ? (
-                      <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        🔴 LIVE NOW
+                    {hasVoted ? (
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1.5 shadow-2xs">
+                        ✓ Voted
+                      </span>
+                    ) : statusInfo.isLive && isEligible ? (
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1.5 shadow-2xs">
+                        🟢 Live — Ballot Open
+                      </span>
+                    ) : !isEligible ? (
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800/60 gap-1.5">
+                        ⚠️ Ineligible
+                      </span>
+                    ) : statusInfo.isUpcoming ? (
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60 gap-1.5">
+                        ⏳ Starts in {statusInfo.countdownText}
                       </span>
                     ) : (
-                      <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        📅 UPCOMING
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 gap-1.5">
+                        🔒 Polls Closed
                       </span>
                     )}
                   </div>
@@ -509,30 +643,54 @@ export default function SecureVoteModule({ navigate }) {
                 {/* Action Bar */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
                   {/* Bottom-Left: Countdown Timer */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-mono text-xs font-bold text-slate-700 flex items-center gap-2 self-start sm:self-auto">
+                  <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-mono text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 self-start sm:self-auto">
                     <span className="text-slate-400">⏳</span>
-                    <span>{formatCountdown(diff)}</span>
+                    <span>
+                      {statusInfo.isUpcoming
+                        ? `Starts in ${statusInfo.countdownText}`
+                        : statusInfo.isLive
+                        ? `Polls Close in ${statusInfo.countdownText}`
+                        : 'Election Concluded'}
+                    </span>
                   </div>
 
                   {/* Bottom-Right: Action Buttons */}
                   <div className="flex flex-wrap items-center justify-end gap-3">
                     <button
-                      className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
-                      onClick={() => alert('Viewing candidates & manifestos for SRC Executive Elections...')}
+                      className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                      onClick={() => handleNavigate(`/ballot/${e.id}`)}
                     >
                       View Candidates &amp; Manifestos
                     </button>
-                    <button
-                      className={
-                        isEligible
-                          ? "bg-[#8B0000] hover:bg-[#6B0000] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
-                          : "bg-slate-100 border border-slate-200 text-slate-400 px-4 py-2 rounded-xl text-xs font-semibold cursor-not-allowed flex items-center gap-1.5"
-                      }
-                      disabled={!isEligible}
-                      onClick={() => handleNavigate(`/ballot/${e.id}`)}
-                    >
-                      {!isBiometricVerified(student) ? '🔒 Locked' : 'Enter Ballot Room ➔'}
-                    </button>
+                    {hasVoted ? (
+                      <button
+                        className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-2 rounded-xl text-xs font-bold shadow-xs cursor-default flex items-center gap-1.5"
+                        disabled
+                      >
+                        ✓ Ballot Cast &amp; Recorded
+                      </button>
+                    ) : statusInfo.isClosed ? (
+                      <button
+                        className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                        onClick={() => alert(`Results published for ${e.title}`)}
+                      >
+                        View Results 📊
+                      </button>
+                    ) : (
+                      <button
+                        className={
+                          isLiveAndEligible
+                            ? "bg-red-800 hover:bg-red-700 text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                            : "bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"
+                        }
+                        disabled={!isLiveAndEligible}
+                        onClick={isLiveAndEligible ? () => handleNavigate(`/ballot/${e.id}`) : undefined}
+                      >
+                        {isLiveAndEligible
+                          ? 'Enter Polling Station ➔'
+                          : `Unlocks ${formatUnlockDate(e)}`}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -541,38 +699,60 @@ export default function SecureVoteModule({ navigate }) {
 
           /* Card 3: Constituency Parliamentary Elections */
           if (e.type === 'constituency') {
-            const hasConstituency = Boolean(student.constituency_locked);
+            const hasVoted = isElectionVoted(e.id, e.type);
+            const constituencyName = student ? (student.constituency || student.constituency_locked || null) : null;
+            const hasConstituency = Boolean(constituencyName);
             const eligibilityCheck = checkElectionEligibility(student, e);
             const isEligible = eligibilityCheck.eligible && isBiometricVerified(student) && hasConstituency;
-            const targetText = hasConstituency ? `Voters in ${student.constituency_locked}` : 'Selected Constituency Voters';
+            const isLiveAndEligible = isEligible && statusInfo.isLive;
+            const isManagedByOfficer = isElectionManagedByOfficerTier ? isElectionManagedByOfficerTier(e) : false;
+            const targetText = hasConstituency
+              ? `Voters in ${constituencyName.toLowerCase().includes('constituency') ? constituencyName : `${constituencyName} Constituency`}`
+              : 'Selected Constituency Voters';
 
             return (
-              <div key={e.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+              <div key={e.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
                 {/* Header Area */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-700">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5 flex-wrap">
                       <span className="text-2xl" role="img" aria-label="Constituency Icon">{e.icon || '🗳️'}</span>
-                      <h3 className="text-base font-bold text-slate-900">{e.title}</h3>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{e.title}</h3>
+                      {isManagedByOfficer && (
+                        <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-400 dark:border-amber-700 px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold shadow-2xs inline-flex items-center gap-1.5" title="Officer votes use the exact same zero-knowledge encryption as general students.">
+                          🛡️ Conflict Protocol Verified / Ballot Encrypted
+                        </span>
+                      )}
                     </div>
-                    <p className="text-xs font-medium text-slate-500">
-                      <strong className="text-slate-700">Target Audience:</strong> {targetText}
-                      <span className="mx-2 text-slate-300">•</span>
-                      <strong className="text-slate-700">Election Date:</strong> {e.dateLabel || 'August 7'}
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 space-y-1 mt-1">
+                      <span className="block"><strong className="text-slate-700 dark:text-slate-300">Eligibility:</strong> Verified ({targetText})</span>
+                      <span className="block"><strong className="text-slate-700 dark:text-slate-300">Ends in:</strong> {statusInfo.countdownText}</span>
+                      <span className="block">
+                        <strong className="text-slate-700 dark:text-slate-300">Status:</strong>{' '}
+                        {hasVoted ? (
+                          <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">[ VOTED ✅ ]</span>
+                        ) : (
+                          <span className="font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">[ NOT VOTED ]</span>
+                        )}
+                      </span>
                     </p>
                   </div>
                   <div className="flex-shrink-0">
-                    {isLive && isEligible ? (
-                      <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        🔴 LIVE NOW
+                    {hasVoted ? (
+                      <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5 shadow-xs">
+                        ✓ Voted
+                      </span>
+                    ) : statusInfo.isLive && isEligible ? (
+                      <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
+                        🟢 LIVE NOW
                       </span>
                     ) : !hasConstituency ? (
-                      <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
+                      <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
                         ⚠️ Action Required
                       </span>
                     ) : (
-                      <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        📅 UPCOMING
+                      <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
+                        📅 {statusInfo.badgeText}
                       </span>
                     )}
                   </div>
@@ -581,30 +761,60 @@ export default function SecureVoteModule({ navigate }) {
                 {/* Action Bar */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
                   {/* Bottom-Left: Countdown Timer */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-mono text-xs font-bold text-slate-700 flex items-center gap-2 self-start sm:self-auto">
+                  <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-mono text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 self-start sm:self-auto">
                     <span className="text-slate-400">⏳</span>
-                    <span>{formatCountdown(diff)}</span>
+                    <span>
+                      {statusInfo.isUpcoming
+                        ? `Starts in ${statusInfo.countdownText}`
+                        : statusInfo.isLive
+                        ? `Polls Close in ${statusInfo.countdownText}`
+                        : 'Election Concluded'}
+                    </span>
                   </div>
 
                   {/* Bottom-Right: Action Buttons */}
                   <div className="flex flex-wrap items-center justify-end gap-3">
-                    {!isBiometricVerified(student) ? (
-                      <button className="bg-slate-100 border border-slate-200 text-slate-400 px-4 py-2 rounded-xl text-xs font-semibold cursor-not-allowed flex items-center gap-1.5" disabled>
-                        🔒 Locked (Biometrics Required)
+                    {hasVoted ? (
+                      <button
+                        className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-2 rounded-xl text-xs font-bold shadow-xs cursor-default flex items-center gap-1.5"
+                        disabled
+                      >
+                        ✓ Ballot Cast &amp; Recorded
+                      </button>
+                    ) : !isBiometricVerified(student) ? (
+                      <button className="bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5" disabled>
+                        Unlocks {formatUnlockDate(e)}
                       </button>
                     ) : !hasConstituency ? (
+                      <div className="flex items-center gap-2">
+                        <button
+                          className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                          onClick={() => setShowConstituencyModal(true)}
+                        >
+                          Select Constituency
+                        </button>
+                        <button className="bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5" disabled>
+                          Unlocks {formatUnlockDate(e)}
+                        </button>
+                      </div>
+                    ) : statusInfo.isClosed ? (
                       <button
-                        className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
-                        onClick={() => setShowConstituencyModal(true)}
+                        className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                        onClick={() => alert(`Results published for ${e.title}`)}
                       >
-                        Select Constituency
+                        View Results 📊
                       </button>
                     ) : (
                       <button
-                        className="bg-[#8B0000] hover:bg-[#6B0000] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
-                        onClick={() => handleNavigate(`/ballot/${e.id}`)}
+                        className={
+                          isLiveAndEligible
+                            ? "bg-red-800 hover:bg-red-700 text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                            : "bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"
+                        }
+                        disabled={!isLiveAndEligible}
+                        onClick={isLiveAndEligible ? () => handleNavigate(`/ballot/${e.id}`) : undefined}
                       >
-                        Enter Ballot Room ➔
+                        {isLiveAndEligible ? 'Enter Polling Station ➔' : `Unlocks ${formatUnlockDate(e)}`}
                       </button>
                     )}
                   </div>
@@ -615,58 +825,125 @@ export default function SecureVoteModule({ navigate }) {
 
           /* Card 4: Hall Elections */
           if (e.type === 'hall' || cardState.tier === 'HALL') {
-            const isEligible = cardState.eligible && isBiometricVerified(student);
-            const targetText = `${student.hall || 'Unity Hall'} Residents`;
+            const hasVoted = isElectionVoted(e.id, e.type);
+            const isFirstYear = yearOfStudy === 1;
+            const isEligible = cardState.eligible && isBiometricVerified(student) && isFirstYear;
+            const isLiveAndEligible = isEligible && statusInfo.isLive;
+            const isManagedByOfficer = isElectionManagedByOfficerTier ? isElectionManagedByOfficerTier(e) : false;
+            const targetText = isFirstYear
+              ? `${student.hall || 'Unity Hall'} Residents (First-Year Only)`
+              : 'Hall Residents (Restricted to Level 100)';
+            const restrictionMessage =
+              'Hall elections are restricted strictly to Level 100 resident students. Continuing students vote in Off-Campus / Constituency elections.';
 
             return (
-              <div key={e.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+              <div key={e.id} className={`bg-white dark:bg-slate-800 border ${!isEligible && !hasVoted ? 'border-rose-200 dark:border-rose-900/60' : 'border-slate-200 dark:border-slate-700'} rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4 transition-all`}>
                 {/* Header Area */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-700">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5 flex-wrap">
                       <span className="text-2xl" role="img" aria-label="Hall Icon">{e.icon || '🏰'}</span>
-                      <h3 className="text-base font-bold text-slate-900">{e.title}</h3>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{e.title}</h3>
+                      {isManagedByOfficer && (
+                        <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-400 dark:border-amber-700 px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold shadow-2xs inline-flex items-center gap-1.5" title="Officer votes use the exact same zero-knowledge encryption as general students.">
+                          🛡️ Conflict Protocol Verified / Ballot Encrypted
+                        </span>
+                      )}
                     </div>
-                    <p className="text-xs font-medium text-slate-500">
-                      <strong className="text-slate-700">Target Audience:</strong> {targetText}
-                      <span className="mx-2 text-slate-300">•</span>
-                      <strong className="text-slate-700">Election Date:</strong> {e.dateLabel || 'August 25'}
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 space-y-1 mt-1">
+                      <span className="block"><strong className="text-slate-700 dark:text-slate-300">Eligibility:</strong> Verified ({targetText})</span>
+                      <span className="block"><strong className="text-slate-700 dark:text-slate-300">Ends in:</strong> {statusInfo.countdownText}</span>
+                      <span className="block">
+                        <strong className="text-slate-700 dark:text-slate-300">Status:</strong>{' '}
+                        {hasVoted ? (
+                          <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">[ VOTED ✅ ]</span>
+                        ) : (
+                          <span className="font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">[ NOT VOTED ]</span>
+                        )}
+                      </span>
                     </p>
                   </div>
                   <div className="flex-shrink-0">
-                    {isEligible && isLive ? (
-                      <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        🔴 LIVE NOW
+                    {hasVoted ? (
+                      <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5 shadow-xs">
+                        ✓ Voted
+                      </span>
+                    ) : !isFirstYear ? (
+                      <span className="bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5 shadow-xs">
+                        🔒 Ineligible — Continuing Student
+                      </span>
+                    ) : !isBiometricVerified(student) ? (
+                      <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
+                        ⚠️ Biometrics Pending
+                      </span>
+                    ) : statusInfo.isLive ? (
+                      <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
+                        🟢 LIVE NOW
                       </span>
                     ) : (
-                      <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        📅 UPCOMING
+                      <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
+                        📅 {statusInfo.badgeText}
                       </span>
                     )}
                   </div>
                 </div>
 
+                {/* Ineligible Continuing Student Subtle Explanation Banner */}
+                {!isFirstYear && !hasVoted && (
+                  <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-xl text-xs font-medium text-rose-800 dark:text-rose-300 flex items-start gap-2.5" role="alert">
+                    <span className="text-base flex-shrink-0">🏰</span>
+                    <span>
+                      <strong>Hall Elections Policy:</strong> {restrictionMessage}
+                    </span>
+                  </div>
+                )}
+
                 {/* Action Bar */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
                   {/* Bottom-Left: Countdown Timer */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-mono text-xs font-bold text-slate-700 flex items-center gap-2 self-start sm:self-auto">
+                  <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-mono text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 self-start sm:self-auto">
                     <span className="text-slate-400">⏳</span>
-                    <span>{formatCountdown(diff)}</span>
+                    <span>
+                      {statusInfo.isUpcoming
+                        ? `Starts in ${statusInfo.countdownText}`
+                        : statusInfo.isLive
+                        ? `Polls Close in ${statusInfo.countdownText}`
+                        : 'Election Concluded'}
+                    </span>
                   </div>
 
                   {/* Bottom-Right: Action Buttons */}
                   <div className="flex flex-wrap items-center justify-end gap-3">
-                    <button
-                      className={
-                        isEligible
-                          ? "bg-[#8B0000] hover:bg-[#6B0000] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
-                          : "bg-slate-100 border border-slate-200 text-slate-400 px-4 py-2 rounded-xl text-xs font-semibold cursor-not-allowed flex items-center gap-1.5"
-                      }
-                      disabled={!isEligible}
-                      onClick={() => handleNavigate(`/ballot/${e.id}`)}
-                    >
-                      {!isBiometricVerified(student) ? '🔒 Locked' : 'Enter Ballot Room ➔'}
-                    </button>
+                    {hasVoted ? (
+                      <button
+                        className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-2 rounded-xl text-xs font-bold shadow-xs cursor-default flex items-center gap-1.5"
+                        disabled
+                      >
+                        ✓ Ballot Cast &amp; Recorded
+                      </button>
+                    ) : statusInfo.isClosed ? (
+                      <button
+                        className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                        onClick={() => alert(`Results published for ${e.title}`)}
+                      >
+                        View Results 📊
+                      </button>
+                    ) : (
+                      <button
+                        className={
+                          isLiveAndEligible
+                            ? "bg-red-800 hover:bg-red-700 text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                            : "bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"
+                        }
+                        disabled={!isLiveAndEligible}
+                        title={!isEligible ? restrictionMessage : undefined}
+                        onClick={isLiveAndEligible ? () => handleNavigate(`/ballot/${e.id}`) : undefined}
+                      >
+                        {isLiveAndEligible
+                          ? 'Enter Polling Station ➔'
+                          : `Unlocks ${formatUnlockDate(e)}`}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

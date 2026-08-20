@@ -101,22 +101,23 @@ export default function SidebarSearch({ navigate, onNavigate, onSecureVoteClick 
 
   return (
     <div className="sidebar-search-container" ref={containerRef} style={{ position: 'relative', width: '100%' }}>
-      {/* Pill-shaped search bar */}
-      <div className="sv-search" role="search">
-        <span aria-hidden="true">🔍</span>
+      {/* Pill-shaped search bar inside white sidebar */}
+      <div className="flex items-center gap-2 w-full px-3 py-2 bg-[#F3FAF6] dark:bg-slate-800 text-[#202522] dark:text-slate-100 rounded-xl border border-[#DDE5E1] dark:border-slate-700 transition-all focus-within:ring-2 focus-within:ring-[#007A4D]/30" role="search">
+        <span aria-hidden="true" className="text-[#66716C] dark:text-slate-400 text-sm">🔍</span>
         <input
           type="search"
-          placeholder="Search modules…"
+          placeholder="Search modules..."
           aria-label="Search modules"
           value={query}
           onFocus={handleFocus}
           onChange={handleChange}
           autoComplete="off"
+          className="flex-1 bg-transparent border-none outline-none text-xs font-medium text-[#202522] dark:text-slate-100 placeholder-[#66716C] dark:placeholder-slate-400"
         />
         {query && (
           <button
             type="button"
-            className="sv-search-clear-btn"
+            className="text-[#66716C] hover:text-[#202522] dark:text-slate-400 dark:hover:text-slate-100 text-sm font-bold bg-transparent border-none cursor-pointer p-0"
             onClick={() => { setQuery(''); setIsOpen(true); }}
             aria-label="Clear search"
           >

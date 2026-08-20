@@ -1,34 +1,32 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { getStoredStudentProfile } from '../lib/demoProfiles';
 
 function getInitialStudent() {
   try {
     const stored = localStorage.getItem('knust_user_session');
-    return stored ? JSON.parse(stored) : null;
+    return stored ? JSON.parse(stored) : getStoredStudentProfile();
   } catch (e) {
-    return null;
+    return getStoredStudentProfile();
   }
 }
 
 // Hook to load current student's academic session and basic attributes with localStorage persistence
 export default function useStudentSession() {
   const [student, setStudent] = useState(getInitialStudent);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const refresh = useCallback(async () => {
-    setLoading(true);
     setError(null);
 
     try {
-      // Get current authenticated user
-      let user = null;
-      try {
-        const { data: userData, error: userErr } = await supabase.auth.getUser();
-        if (!userErr) user = userData?.user || null;
-      } catch (err) {
-        user = supabase.auth.user ? supabase.auth.user() : null;
-      }
+      const fetchAuthPromise = Promise.race([
+        supabase.auth.getUser().catch(() => null),
+        new Promise(resolve => setTimeout(() => resolve(null), 500))
+      ]);
+      const authRes = await fetchAuthPromise;
+      const user = authRes?.data?.user;
 
       if (!user) {
         const cached = getInitialStudent();
