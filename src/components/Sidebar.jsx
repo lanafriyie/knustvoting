@@ -1,4 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  GraduationCap, 
+  LayoutDashboard, 
+  BarChart3, 
+  Vote, 
+  ShieldCheck, 
+  Eye, 
+  BookOpen, 
+  FileText, 
+  CreditCard, 
+  Coins, 
+  Activity, 
+  Users, 
+  Award, 
+  LogOut 
+} from 'lucide-react';
 import StepUpAuthModal from './StepUpAuthModal';
 import AppBarRoleSwitcher from './AppBarRoleSwitcher';
 import SidebarSearch from './SidebarSearch';
@@ -82,9 +98,14 @@ export default function Sidebar({
     <nav className="app-sidebar bg-white dark:bg-slate-900 border-r border-[#DDE5E1] dark:border-slate-800 p-4 w-64 h-screen flex flex-col justify-between overflow-y-auto shrink-0 text-[#202522] dark:text-slate-100" aria-label="Main navigation">
       <div>
         {/* Brand / Portal Title */}
-        <div className="sidebar-brand flex items-center gap-2 pb-3 mb-3 border-b border-[#DDE5E1] dark:border-slate-800">
-          <span className="text-xl">🎓</span>
-          <span className="sidebar-brand-title font-extrabold text-[#007A4D] dark:text-slate-100 text-base tracking-tight">KNUST AIM Portal</span>
+        <div className="sidebar-brand flex items-center gap-3 pb-3 mb-3 border-b border-[#DDE5E1] dark:border-slate-800">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#004D40] to-[#002d25] flex items-center justify-center text-white border border-[#D4AF37] shadow-sm flex-shrink-0">
+            <GraduationCap className="w-5 h-5 text-[#D4AF37]" />
+          </div>
+          <div className="flex flex-col">
+            <span className="sidebar-brand-title font-black text-[#007A4D] dark:text-slate-100 text-sm tracking-wider uppercase leading-none">KNUST</span>
+            <span className="text-[10px] font-bold text-[#D4AF37] dark:text-amber-400 tracking-widest uppercase leading-none mt-0.5">AIM Portal</span>
+          </div>
         </div>
 
         {/* Role Switcher - only visible if user has EC access */}
@@ -114,7 +135,7 @@ export default function Sidebar({
               onClick={e => go(e, '/')}
               className={getItemClass('/')}
             >
-              <span>📊</span>
+              <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
               <span>Dashboard</span>
             </a>
           </li>
@@ -124,13 +145,22 @@ export default function Sidebar({
             ACADEMICS
           </li>
           <li className="sidebar-subitem">
-            <a href="#course-reg" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2 transition-colors">Course Registration</a>
+            <a href="#course-reg" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+              <BookOpen className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+              <span>Course Registration</span>
+            </a>
           </li>
           <li className="sidebar-subitem">
-            <a href="#reg-slip" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2 transition-colors">Registration Slip</a>
+            <a href="#reg-slip" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+              <FileText className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+              <span>Registration Slip</span>
+            </a>
           </li>
           <li className="sidebar-subitem">
-            <a href="#results" onClick={e => go(e, '/results')} className={getItemClass('/results')}>Check Results 📊</a>
+            <a href="#results" onClick={e => go(e, '/results')} className={getItemClass('/results')}>
+              <BarChart3 className="w-4 h-4 flex-shrink-0" />
+              <span>Check Results</span>
+            </a>
           </li>
 
           {/* ── Finance Section ── */}
@@ -138,10 +168,16 @@ export default function Sidebar({
             FINANCE
           </li>
           <li className="sidebar-subitem">
-            <a href="#bills" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2 transition-colors">Bill &amp; Payment</a>
+            <a href="#bills" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+              <CreditCard className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+              <span>Bill &amp; Payment</span>
+            </a>
           </li>
           <li className="sidebar-subitem">
-            <a href="#fees" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2 transition-colors">Fees Status</a>
+            <a href="#fees" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+              <Coins className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+              <span>Fees Status</span>
+            </a>
           </li>
 
           {/* ── Governance Section ── */}
@@ -158,7 +194,7 @@ export default function Sidebar({
               aria-haspopup="dialog"
               className={getSecureVoteClass()}
             >
-              <span className="text-[#007A4D] dark:text-emerald-400">🗳️</span>
+              <Vote className="w-4 h-4 text-[#007A4D] dark:text-emerald-400 flex-shrink-0" />
               <span className="text-[#075C42] dark:text-emerald-400">Secure Vote</span>
               <span className="ml-auto bg-[#FFF7DF] text-[#B88618] text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-[#D6A72C]/40 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/60 shadow-2xs">
                 NEW
@@ -168,10 +204,16 @@ export default function Sidebar({
 
           {/* EC Admin & Observer Room */}
           <li className="sidebar-subitem">
-            <a href="#ec-admin" onClick={e => go(e, '/ec-admin')} className={getItemClass('/ec-admin')}>EC Admin</a>
+            <a href="#ec-admin" onClick={e => go(e, '/ec-admin')} className={getItemClass('/ec-admin')}>
+              <ShieldCheck className="w-4 h-4 flex-shrink-0" />
+              <span>EC Admin</span>
+            </a>
           </li>
           <li className="sidebar-subitem">
-            <a href="#candidate-agent" onClick={e => go(e, '/candidate-agent')} className={getItemClass('/candidate-agent')}>Observer Room</a>
+            <a href="#candidate-agent" onClick={e => go(e, '/candidate-agent')} className={getItemClass('/candidate-agent')}>
+              <Eye className="w-4 h-4 flex-shrink-0" />
+              <span>Observer Room</span>
+            </a>
           </li>
 
           {/* ── Utilities Section ── */}
@@ -179,13 +221,22 @@ export default function Sidebar({
             UTILITIES
           </li>
           <li className="sidebar-subitem">
-            <a href="#status" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2 transition-colors">Status Checker</a>
+            <a href="#status" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+              <Activity className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+              <span>Status Checker</span>
+            </a>
           </li>
           <li className="sidebar-subitem">
-            <a href="#lecturers" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2 transition-colors">Select Lecturers</a>
+            <a href="#lecturers" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+              <Users className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+              <span>Select Lecturers</span>
+            </a>
           </li>
           <li className="sidebar-subitem">
-            <a href="#admission" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2 transition-colors">Admission Letter</a>
+            <a href="#admission" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+              <Award className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+              <span>Admission Letter</span>
+            </a>
           </li>
         </ul>
       </div>
@@ -194,12 +245,12 @@ export default function Sidebar({
       <div className="sidebar-logout pt-3 border-t border-[#DDE5E1] dark:border-slate-800 mt-4">
         <button
           type="button"
-          className="logout-btn w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[#66716C] dark:text-slate-300 hover:text-[#075C42] dark:hover:text-emerald-400 hover:bg-[#F3FAF6] dark:hover:bg-slate-800 border border-transparent hover:border-[#DDE5E1] dark:hover:border-slate-700 text-xs font-bold transition-all cursor-pointer group"
+          className="logout-btn w-full flex items-center justify-center gap-2.5 px-3 py-2 rounded-xl text-[#66716C] dark:text-slate-300 hover:text-[#075C42] dark:hover:text-emerald-400 hover:bg-[#F3FAF6] dark:hover:bg-slate-800 border border-transparent hover:border-[#DDE5E1] dark:hover:border-slate-700 text-xs font-bold transition-all cursor-pointer group"
           onClick={() => {
             console.log('Logout clicked');
           }}
         >
-          <span className="text-[#66716C] dark:text-slate-300 group-hover:text-[#075C42] dark:group-hover:text-emerald-400 transition-colors">↪</span>
+          <LogOut className="w-4 h-4 text-[#66716C] dark:text-slate-300 group-hover:text-[#075C42] dark:group-hover:text-emerald-400 transition-colors flex-shrink-0" />
           <span>Logout</span>
         </button>
       </div>
@@ -222,3 +273,4 @@ export default function Sidebar({
     </nav>
   );
 }
+

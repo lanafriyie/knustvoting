@@ -1,20 +1,51 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { 
+  Search as SearchIcon, 
+  X as XIcon,
+  LayoutDashboard,
+  Vote,
+  ShieldCheck,
+  Eye,
+  BookOpen,
+  FileText,
+  BarChart3,
+  CreditCard,
+  Coins,
+  Activity,
+  Users,
+  Award
+} from 'lucide-react';
 import '../styles/SecureVote.css';
 
 const MODULES = [
-  { id: 'dashboard', title: 'Dashboard', path: '/', icon: '📊', category: 'Overview', keywords: 'home overview analytics main' },
-  { id: 'secure-vote', title: 'Secure Vote', path: '/secure-vote', icon: '🗳️', category: 'Governance', badge: 'New', isSecureVote: true, keywords: 'elections vote ballot src governance candidate' },
-  { id: 'ec-admin', title: 'EC Admin Console', path: '/ec-admin', icon: '🛡️', category: 'Governance', badge: 'EC', keywords: 'electoral commission admin management election control' },
-  { id: 'candidate-agent', title: 'Observer Room', path: '/candidate-agent', icon: '👁️', category: 'Governance', keywords: 'candidate agent observer tally live results' },
-  { id: 'course-reg', title: 'Course Registration', path: '#course-reg', icon: '📚', category: 'Academics', keywords: 'register courses classes semester' },
-  { id: 'reg-slip', title: 'Registration Slip', path: '#reg-slip', icon: '📄', category: 'Academics', keywords: 'print slip courses verification' },
-  { id: 'results', title: 'Check Results', path: '#results', icon: '🎓', category: 'Academics', keywords: 'grades cwa gpa marks exam' },
-  { id: 'bills', title: 'Bill & Payment', path: '#bills', icon: '💳', category: 'Finance', keywords: 'pay fees tuition bill bank receipt' },
-  { id: 'fees', title: 'Fees Status', path: '#fees', icon: '💰', category: 'Finance', keywords: 'balance fees payment status' },
-  { id: 'status', title: 'Status Checker', path: '#status', icon: '📋', category: 'Utilities', keywords: 'student status verification portal' },
-  { id: 'lecturers', title: 'Select Lecturers', path: '#lecturers', icon: '👨‍🏫', category: 'Utilities', keywords: 'evaluation lecturer assessment course' },
-  { id: 'admission', title: 'Admission Letter', path: '#admission', icon: '✉️', category: 'Utilities', keywords: 'admission letter pdf download' },
+  { id: 'dashboard', title: 'Dashboard', path: '/', category: 'Overview', keywords: 'home overview analytics main' },
+  { id: 'secure-vote', title: 'Secure Vote', path: '/secure-vote', category: 'Governance', badge: 'New', isSecureVote: true, keywords: 'elections vote ballot src governance candidate' },
+  { id: 'ec-admin', title: 'EC Admin Console', path: '/ec-admin', category: 'Governance', badge: 'EC', keywords: 'electoral commission admin management election control' },
+  { id: 'candidate-agent', title: 'Observer Room', path: '/candidate-agent', category: 'Governance', keywords: 'candidate agent observer tally live results' },
+  { id: 'course-reg', title: 'Course Registration', path: '#course-reg', category: 'Academics', keywords: 'register courses classes semester' },
+  { id: 'reg-slip', title: 'Registration Slip', path: '#reg-slip', category: 'Academics', keywords: 'print slip courses verification' },
+  { id: 'results', title: 'Check Results', path: '#results', category: 'Academics', keywords: 'grades cwa gpa marks exam' },
+  { id: 'bills', title: 'Bill & Payment', path: '#bills', category: 'Finance', keywords: 'pay fees tuition bill bank receipt' },
+  { id: 'fees', title: 'Fees Status', path: '#fees', category: 'Finance', keywords: 'balance fees payment status' },
+  { id: 'status', title: 'Status Checker', path: '#status', category: 'Utilities', keywords: 'student status verification portal' },
+  { id: 'lecturers', title: 'Select Lecturers', path: '#lecturers', category: 'Utilities', keywords: 'evaluation lecturer assessment course' },
+  { id: 'admission', title: 'Admission Letter', path: '#admission', category: 'Utilities', keywords: 'admission letter pdf download' },
 ];
+
+const iconMap = {
+  'dashboard': LayoutDashboard,
+  'secure-vote': Vote,
+  'ec-admin': ShieldCheck,
+  'candidate-agent': Eye,
+  'course-reg': BookOpen,
+  'reg-slip': FileText,
+  'results': BarChart3,
+  'bills': CreditCard,
+  'fees': Coins,
+  'status': Activity,
+  'lecturers': Users,
+  'admission': Award
+};
 
 export default function SidebarSearch({ navigate, onNavigate, onSecureVoteClick }) {
   const [query, setQuery] = useState('');
@@ -102,8 +133,8 @@ export default function SidebarSearch({ navigate, onNavigate, onSecureVoteClick 
   return (
     <div className="sidebar-search-container" ref={containerRef} style={{ position: 'relative', width: '100%' }}>
       {/* Pill-shaped search bar inside white sidebar */}
-      <div className="flex items-center gap-2 w-full px-3 py-2 bg-[#F3FAF6] dark:bg-slate-800 text-[#202522] dark:text-slate-100 rounded-xl border border-[#DDE5E1] dark:border-slate-700 transition-all focus-within:ring-2 focus-within:ring-[#007A4D]/30" role="search">
-        <span aria-hidden="true" className="text-[#66716C] dark:text-slate-400 text-sm">🔍</span>
+      <div className="flex items-center gap-2.5 w-full px-3 py-2 bg-[#F3FAF6] dark:bg-slate-800 text-[#202522] dark:text-slate-100 rounded-xl border border-[#DDE5E1] dark:border-slate-700 transition-all focus-within:ring-2 focus-within:ring-[#007A4D]/30" role="search">
+        <SearchIcon size={14} className="text-[#66716C] dark:text-slate-400 flex-shrink-0" />
         <input
           type="search"
           placeholder="Search modules..."
@@ -117,11 +148,11 @@ export default function SidebarSearch({ navigate, onNavigate, onSecureVoteClick 
         {query && (
           <button
             type="button"
-            className="text-[#66716C] hover:text-[#202522] dark:text-slate-400 dark:hover:text-slate-100 text-sm font-bold bg-transparent border-none cursor-pointer p-0"
+            className="text-[#66716C] hover:text-[#202522] dark:text-slate-400 dark:hover:text-slate-100 transition-colors bg-transparent border-none cursor-pointer p-0 flex items-center justify-center"
             onClick={() => { setQuery(''); setIsOpen(true); }}
             aria-label="Clear search"
           >
-            ×
+            <XIcon size={14} />
           </button>
         )}
       </div>
@@ -134,8 +165,9 @@ export default function SidebarSearch({ navigate, onNavigate, onSecureVoteClick 
           </div>
 
           {filteredModules.length === 0 ? (
-            <div className="sv-search-no-results">
-              <span>🔍 No matching modules found</span>
+            <div className="sv-search-no-results flex flex-col items-center py-6 text-slate-500">
+              <SearchIcon size={20} className="text-slate-400 mb-1" />
+              <span className="text-xs font-semibold">No matching modules found</span>
             </div>
           ) : (
             <ul className="sv-search-results-list">
@@ -145,9 +177,14 @@ export default function SidebarSearch({ navigate, onNavigate, onSecureVoteClick 
                   className="sv-search-result-item"
                   onClick={() => handleSelectModule(item)}
                 >
-                  <span className="sv-search-result-icon">{item.icon}</span>
+                  <span className="sv-search-result-icon text-slate-500 dark:text-slate-400 flex-shrink-0">
+                    {(() => {
+                      const IconComp = iconMap[item.id];
+                      return IconComp ? <IconComp size={16} /> : null;
+                    })()}
+                  </span>
                   <div className="sv-search-result-info">
-                    <span className="sv-search-result-title">
+                    <span className="sv-search-result-title font-bold">
                       {highlightMatch(item.title, query)}
                     </span>
                     <span className="sv-search-result-category">{item.category}</span>
