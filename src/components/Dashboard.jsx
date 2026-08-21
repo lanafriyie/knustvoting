@@ -1,4 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { 
+  Fingerprint, 
+  Timer, 
+  Building2, 
+  Megaphone, 
+  UserCheck, 
+  AlertTriangle, 
+  Vote, 
+  BarChart3, 
+  Clock, 
+  Lock, 
+  ChevronRight, 
+  User, 
+  GraduationCap, 
+  ShieldAlert, 
+  CheckCircle2 
+} from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import useStudentSession from '../hooks/useStudentSession';
 import StepUpAuthModal from './StepUpAuthModal';
@@ -17,7 +34,7 @@ function formatCountdown(ms) {
   const hours = String(Math.floor((totalSeconds % (24 * 3600)) / 3600)).padStart(2, '0');
   const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
   const seconds = String(totalSeconds % 60).padStart(2, '0');
-  return `${days} Days : ${hours} Hours : ${minutes} Mins : ${seconds} Secs`;
+  return `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
 }
 
 // CTA navigation helper
@@ -123,6 +140,14 @@ export default function Dashboard({ navigate }) {
     };
   }, []);
 
+  // Sync clock
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   // CTA Button Guard: Check active user/session before opening voting module
   const handleCtaClick = async (e) => {
     if (e) e.preventDefault();
@@ -163,11 +188,11 @@ export default function Dashboard({ navigate }) {
 
   return (
     <div className="sv-dashboard sv-student-dashboard">
-      {/* Header Banner (White surface with KNUST Green Title & Gold Accent) */}
+      {/* Route guard notification */}
       {notification && (
         <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700/60 rounded-2xl text-amber-900 dark:text-amber-200 flex items-start justify-between gap-3 shadow-sm" role="alert">
           <div className="flex items-start gap-3">
-            <span className="text-xl leading-none">🔒</span>
+            <Lock className="text-amber-600 dark:text-amber-400 w-5 h-5 flex-shrink-0" />
             <div>
               <h4 className="text-sm font-bold m-0 text-amber-900 dark:text-amber-100">Access Restricted</h4>
               <p className="text-xs font-medium mt-1 m-0 text-amber-800 dark:text-amber-300 leading-relaxed">{notification}</p>
@@ -182,65 +207,117 @@ export default function Dashboard({ navigate }) {
           </button>
         </div>
       )}
-      <div className="sv-dash-banner bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="m-0 text-2xl font-black text-[#007A4D] dark:text-slate-100 tracking-tight">
-              👋 Welcome back, {student ? (student.full_name || student.name || 'Student') : 'Student'}!
-            </h1>
-            <span className="text-xs font-bold px-3 py-1 rounded-xl bg-[#EAF6F0] dark:bg-slate-700 text-[#075C42] dark:text-emerald-400 border border-[#C3E8D7] dark:border-slate-600 shadow-2xs">
-              {yearOfStudy === 1 ? 'Level 100 · First-Year' : `Level ${student?.level || (yearOfStudy * 100)} · Continuing Student`}
-            </span>
-          </div>
-          <p className="m-0 text-sm font-medium text-[#66716C] dark:text-slate-400">
-            KNUST Student Portal — Governance, Elections &amp; Student Services
-          </p>
+
+      {/* Premium Digital KNUST Student ID Card */}
+      <div className="knust-student-card mb-6">
+        {/* Holographic Watermark Background */}
+        <div className="knust-card-watermark">
+          <GraduationCap size={200} />
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap mr-12">
-          {/* Quick Demo Switcher Control */}
-          <DemoProfileSwitcher onProfileChange={setStudent} />
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="flex items-start gap-4">
+            {/* Student Photo Placeholder / Icon */}
+            <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white flex-shrink-0 shadow-sm">
+              <User size={32} className="text-[#D4AF37]" />
+            </div>
+            
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold text-[#D4AF37] tracking-widest uppercase">STUDENT IDENTITY CARD</span>
+              <h1 className="m-0 text-2xl font-black tracking-tight text-white mt-0.5">
+                {student ? (student.full_name || student.name || 'Student') : 'Student'}
+              </h1>
+              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                <span className="text-[11px] font-semibold bg-white/15 text-white px-2.5 py-0.5 rounded-md border border-white/10">
+                  ID: {student ? (student.studentId || student.student_id || '20894512') : '20894512'}
+                </span>
+                <span className="text-[11px] font-semibold bg-[#D4AF37]/20 text-[#FFE082] px-2.5 py-0.5 rounded-md border border-[#D4AF37]/30">
+                  {yearOfStudy === 1 ? 'Level 100 · Freshperson' : `Level ${student?.level || (yearOfStudy * 100)} · Continuing`}
+                </span>
+              </div>
+            </div>
+          </div>
 
-          <button
-            id="dashboard-cta-btn"
-            className="px-5 py-2.5 rounded-xl bg-[#007A4D] hover:bg-[#075C42] text-white font-bold text-sm shadow-xs transition-all cursor-pointer flex items-center gap-2"
-            onClick={handleCtaClick}
-          >
-            🗳️ Go to Secure Vote ➔
-          </button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
+            {/* Card Metadata Columns */}
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs bg-black/15 backdrop-blur-xs p-3.5 rounded-xl border border-white/5 font-semibold text-white/90">
+              <div className="text-white/60">COLLEGE:</div>
+              <div className="text-white font-extrabold">{student?.college_code || student?.college || 'COE'}</div>
+              <div className="text-white/60">PROGRAM:</div>
+              <div className="text-white font-extrabold max-w-[150px] truncate">{student?.program || 'BSc. Computer Eng.'}</div>
+              <div className="text-white/60">HALL:</div>
+              <div className="text-white font-extrabold">{student?.hall || 'Unity Hall'}</div>
+            </div>
+
+            <div className="flex flex-col gap-2 flex-shrink-0">
+              <DemoProfileSwitcher onProfileChange={setStudent} />
+              <button
+                id="dashboard-cta-btn"
+                className="px-5 py-2.5 rounded-xl bg-[#D4AF37] hover:bg-[#C5A030] text-slate-900 font-extrabold text-xs shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer flex items-center justify-center gap-2"
+                onClick={handleCtaClick}
+              >
+                <Vote size={14} className="flex-shrink-0" />
+                <span>Go to Secure Vote</span>
+                <ChevronRight size={14} className="flex-shrink-0" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Card Footer Decoration: Gold Chip + Barcode lines */}
+        <div className="relative z-10 flex items-center justify-between mt-6 pt-4 border-t border-white/10">
+          <div className="knust-card-chip" />
+          <div className="knust-card-barcode">
+            <span className="w-[1px] h-full"></span>
+            <span className="w-[3px] h-full"></span>
+            <span className="w-[1px] h-full"></span>
+            <span className="w-[2px] h-full"></span>
+            <span className="w-[4px] h-full"></span>
+            <span className="w-[1px] h-full"></span>
+            <span className="w-[2px] h-full"></span>
+            <span className="w-[1px] h-full"></span>
+            <span className="w-[3px] h-full"></span>
+          </div>
         </div>
       </div>
 
       {/* Stats Cards Row */}
-      <div className="sv-stats-row">
+      <div className="sv-stats-row mb-6">
         {/* Voter Eligibility */}
-        <div className="sv-stat-card">
-          <div className="sv-stat-card-icon">✅</div>
+        <div className="sv-stat-card knust-glass-card border-t-4 border-[#007A4D]">
+          <div className="sv-stat-card-icon bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800">
+            <Fingerprint className="text-[#007A4D] dark:text-emerald-400 w-6 h-6" />
+          </div>
           <div className="sv-stat-card-body">
             <span className="sv-stat-label">Voter Eligibility</span>
             <span className="sv-stat-value">
               {biometricsOk ? 'Verified' : 'Pending Verification'}
             </span>
-            <span className={`sv-stat-badge ${biometricsOk ? 'verified' : 'unverified'}`}>
-              {biometricsOk ? 'VERIFIED' : 'NOT VERIFIED'}
+            <span className={`sv-stat-badge ${biometricsOk ? 'verified' : 'unverified'} inline-flex items-center gap-1 mt-1`}>
+              <UserCheck size={12} />
+              <span>{biometricsOk ? 'VERIFIED' : 'NOT VERIFIED'}</span>
             </span>
           </div>
         </div>
 
         {/* Time Remaining for Polls */}
-        <div className="sv-stat-card">
-          <div className="sv-stat-card-icon">⏳</div>
+        <div className="sv-stat-card knust-glass-card border-t-4 border-[#D4AF37]">
+          <div className="sv-stat-card-icon bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800">
+            <Timer className="text-[#D4AF37] dark:text-amber-400 w-6 h-6 animate-pulse" />
+          </div>
           <div className="sv-stat-card-body">
             <span className="sv-stat-label">Time Remaining for Polls</span>
-            <span className="sv-stat-value sv-stat-countdown">
+            <span className="sv-stat-value sv-stat-countdown text-slate-800 dark:text-slate-100 font-mono text-sm font-black">
               {formatCountdown(pollRemainingMs)}
             </span>
           </div>
         </div>
 
         {/* Student Constituency Info */}
-        <div className="sv-stat-card">
-          <div className="sv-stat-card-icon">🏛️</div>
+        <div className="sv-stat-card knust-glass-card border-t-4 border-slate-400">
+          <div className="sv-stat-card-icon bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <Building2 className="text-slate-500 dark:text-slate-400 w-6 h-6" />
+          </div>
           <div className="sv-stat-card-body">
             <span className="sv-stat-label">Constituency Info</span>
             <span className="sv-stat-value">
@@ -250,7 +327,7 @@ export default function Dashboard({ navigate }) {
                 return cVal.toLowerCase().includes('constituency') ? cVal : `${cVal} Constituency`;
               })()}
             </span>
-            <span className="sv-stat-sub">
+            <span className="sv-stat-sub text-xs text-slate-500 dark:text-slate-400 mt-1">
               {(student && (student.program || student.department)) || 'BSc. Computer Eng.'} · Year {yearOfStudy}
             </span>
           </div>
@@ -260,9 +337,12 @@ export default function Dashboard({ navigate }) {
       {/* Active Elections Table & Side Widget */}
       <div className="sv-dash-grid">
         {/* Active Elections Card */}
-        <div className="sv-card sv-elections-card">
+        <div className="sv-card sv-elections-card knust-glass-card shadow-xs">
           <div className="sv-card-title-bar">
-            <h2>🗳️ Active &amp; Upcoming Elections</h2>
+            <h2 className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-100">
+              <Vote className="w-5 h-5 text-[#007A4D]" />
+              <span>Active &amp; Upcoming Elections</span>
+            </h2>
           </div>
           {loadingElections ? (
             <p style={{ padding: 16, color: 'var(--sv-text-mid)' }}>
@@ -295,57 +375,65 @@ export default function Dashboard({ navigate }) {
                     return (
                       <tr key={e.id}>
                         <td className="py-3.5 px-3">
-                          <strong>{e.title}</strong>
+                          <strong className="text-slate-800 dark:text-slate-200">{e.title}</strong>
                           {e.jurisdiction?.name && (
                             <span className="sv-elec-juris">
                               {e.jurisdiction.name}
                             </span>
                           )}
                           {!elig.eligible && !hasVoted && elig.reason && (
-                            <div className="text-[11px] text-rose-600 dark:text-rose-400 font-medium mt-0.5">
-                              ⚠️ {elig.reason}
+                            <div className="text-[11px] text-rose-600 dark:text-rose-400 font-medium mt-0.5 flex items-center gap-1">
+                              <ShieldAlert size={11} />
+                              <span>{elig.reason}</span>
                             </div>
                           )}
                         </td>
                         <td className="py-3.5 px-3 min-w-[140px] flex-shrink-0">
                           {hasVoted ? (
-                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1.5 shadow-2xs">
-                              ✓ Voted
+                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1 shadow-2xs">
+                              <CheckCircle2 size={12} />
+                              Voted
                             </span>
                           ) : !elig.eligible ? (
-                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800/60 gap-1.5" title={elig.reason}>
-                              ⚠️ Ineligible
+                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800/60 gap-1" title={elig.reason}>
+                              <AlertTriangle size={12} />
+                              Ineligible
                             </span>
                           ) : statusInfo.isLive ? (
-                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1.5 shadow-2xs">
-                              🟢 Live — Ballot Open
+                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-2 shadow-2xs font-black">
+                              <span className="live-pulse-container">
+                                <span className="live-pulse-dot" />
+                              </span>
+                              <span>LIVE — BALLOT OPEN</span>
                             </span>
                           ) : statusInfo.isUpcoming ? (
-                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60 gap-1.5">
-                              ⏳ Starts in {statusInfo.countdownText}
+                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60 gap-1">
+                              <Clock size={12} />
+                              <span>Upcoming</span>
                             </span>
                           ) : (
-                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 gap-1.5">
-                              🔒 Polls Closed
+                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 gap-1">
+                              <Lock size={12} />
+                              <span>Closed</span>
                             </span>
                           )}
                         </td>
                         <td className="py-3.5 px-3 min-w-[140px] flex-shrink-0">
                           {statusInfo.isLive ? (
                             <span className="text-xs font-bold text-[#08754B] dark:text-emerald-400 flex items-center gap-1.5 whitespace-nowrap">
-                              <span>⏱️</span>
-                              <span className="text-[#202522] dark:text-slate-100">
+                              <Clock size={12} />
+                              <span className="text-[#202522] dark:text-slate-100 font-bold font-mono">
                                 {statusInfo.countdownText.includes('left') ? statusInfo.countdownText : `${statusInfo.countdownText} left`}
                               </span>
                             </span>
                           ) : statusInfo.isUpcoming ? (
                             <span className="text-xs font-semibold text-[#66716C] dark:text-slate-400 flex items-center gap-1.5 whitespace-nowrap">
-                              <span>⏱️</span>
+                              <Clock size={12} />
                               <span>Starts in {statusInfo.countdownText}</span>
                             </span>
                           ) : (
                             <span className="text-xs font-medium text-[#66716C] dark:text-slate-500 inline-flex items-center gap-1.5 whitespace-nowrap">
-                              <span>🔒</span>
+                              <Lock size={12} />
                               <span>Polls Closed</span>
                             </span>
                           )}
@@ -357,7 +445,7 @@ export default function Dashboard({ navigate }) {
                               disabled
                               style={{ background: '#EAF6F0', color: '#08754B', borderColor: '#C3E8D7', cursor: 'default' }}
                             >
-                              ✓ Voted
+                              Voted
                             </button>
                           ) : isConstituency && !hasConstituency ? (
                             <div className="flex items-center gap-2">
@@ -379,22 +467,28 @@ export default function Dashboard({ navigate }) {
                               className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
                               onClick={() => goTo('/results', navigate)}
                             >
-                              View Results 📊
+                              <span>View Results</span>
+                              <BarChart3 size={12} />
                             </button>
                           ) : (
                             <button
                               className={
                                 elig.eligible && statusInfo.isLive
-                                  ? "bg-red-800 hover:bg-red-700 text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5"
+                                  ? "bg-[#007A4D] hover:bg-[#075C42] text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5"
                                   : "bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"
                               }
                               disabled={!(elig.eligible && statusInfo.isLive)}
                               title={!elig.eligible ? elig.reason : undefined}
                               onClick={(elig.eligible && statusInfo.isLive) ? () => goTo(`/ballot/${e.id}`, navigate) : undefined}
                             >
-                              {elig.eligible && statusInfo.isLive
-                                ? 'Enter Polling Station ➔'
-                                : `Unlocks ${formatUnlockDate(e)}`}
+                              {elig.eligible && statusInfo.isLive ? (
+                                <span className="flex items-center gap-1">
+                                  <span>Enter Polling Station</span>
+                                  <ChevronRight size={12} />
+                                </span>
+                              ) : (
+                                <span>Unlocks {formatUnlockDate(e)}</span>
+                              )}
                             </button>
                           )}
                         </td>
@@ -408,21 +502,30 @@ export default function Dashboard({ navigate }) {
         </div>
 
         {/* Electoral Announcements Widget */}
-        <div className="sv-card sv-announcements-card">
+        <div className="sv-card sv-announcements-card knust-glass-card shadow-xs">
           <div className="sv-card-title-bar">
-            <h2>📢 Electoral Announcements</h2>
+            <h2 className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-100">
+              <Megaphone className="w-5 h-5 text-[#D4AF37]" />
+              <span>Electoral Announcements</span>
+            </h2>
           </div>
           <div className="sv-announcement-item">
-            <h3>🔐 Step-Up Authentication Required</h3>
-            <p>
+            <h3 className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-slate-100">
+              <Lock size={14} className="text-[#007A4D]" />
+              <span>Step-Up Authentication Required</span>
+            </h3>
+            <p className="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed text-xs">
               Accessing the Secure Vote module triggers a mandatory Step-Up
               authentication flow. Verify your identity with your KNUST PIN and
               biometrics to unlock ballot rooms.
             </p>
           </div>
           <div className="sv-announcement-item">
-            <h3>🛡️ Zero-Trace Privacy Guarantee</h3>
-            <p>
+            <h3 className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-slate-100">
+              <UserCheck size={14} className="text-[#007A4D]" />
+              <span>Zero-Trace Privacy Guarantee</span>
+            </h3>
+            <p className="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed text-xs">
               Your ballot is AES-256-GCM encrypted and hashed with SHA-256 before
               submission. Votes are anonymized — no one can link your ballot back
               to your identity. Full cryptographic receipt is issued upon casting.

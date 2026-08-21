@@ -1,5 +1,6 @@
 // src/components/DemoProfileSwitcher.jsx
 import React, { useState, useEffect, useRef } from 'react';
+import { Users, Lock, ChevronDown } from 'lucide-react';
 import {
   DEMO_PROFILES,
   getStoredDemoProfileKey,
@@ -56,18 +57,18 @@ export default function DemoProfileSwitcher({ onProfileChange, className = '' })
       <button
         type="button"
         id="demo-switcher-btn"
-        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-maroon-700/30"
+        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#007A4D]/35 flex-shrink-0"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-haspopup="true"
         title="Switch between Level 100 First-Year and Level 300 Continuing Student demo profiles"
       >
-        <span className="text-sm">🎭</span>
+        <Users size={12} className="text-slate-500 dark:text-slate-400" />
         <span className="font-semibold text-slate-500 dark:text-slate-400">Demo View:</span>
-        <span className="font-bold text-maroon-700 dark:text-amber-400">
+        <span className="font-bold text-slate-800 dark:text-slate-200">
           {activeProfile.shortLabel}
         </span>
-        <span className="text-[10px] text-slate-400">▼</span>
+        <ChevronDown size={10} className="text-slate-400" />
       </button>
 
       {/* Floating Dropdown Card */}
@@ -78,10 +79,11 @@ export default function DemoProfileSwitcher({ onProfileChange, className = '' })
           aria-orientation="vertical"
         >
           <div className="px-3 py-2 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-              <span>🎭</span> Switch Demo View
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-550 dark:text-slate-400 flex items-center gap-1.5">
+              <Users size={12} className="text-[#007A4D]" />
+              <span>Switch Demo View</span>
             </span>
-            <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full font-mono">
               Eligibility Simulator
             </span>
           </div>
@@ -92,8 +94,8 @@ export default function DemoProfileSwitcher({ onProfileChange, className = '' })
               type="button"
               className={`w-full text-left p-3 rounded-xl transition-all cursor-pointer border flex flex-col gap-1.5 ${
                 activeKey === 'A'
-                  ? 'bg-maroon-50/60 dark:bg-maroon-900/20 border-maroon-300 dark:border-maroon-700 ring-1 ring-maroon-400/30'
-                  : 'bg-white dark:bg-slate-800/60 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+                  ? 'bg-slate-50 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 ring-1 ring-slate-400/20'
+                  : 'bg-white dark:bg-slate-900 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
               }`}
               onClick={() => handleSelect('A')}
               role="menuitem"
@@ -105,7 +107,7 @@ export default function DemoProfileSwitcher({ onProfileChange, className = '' })
                     Option A (Default - Level 100)
                   </span>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 uppercase tracking-wide">
                   Hall Unlocked ✓
                 </span>
               </div>
@@ -123,8 +125,8 @@ export default function DemoProfileSwitcher({ onProfileChange, className = '' })
               type="button"
               className={`w-full text-left p-3 rounded-xl transition-all cursor-pointer border flex flex-col gap-1.5 ${
                 activeKey === 'B'
-                  ? 'bg-maroon-50/60 dark:bg-maroon-900/20 border-maroon-300 dark:border-maroon-700 ring-1 ring-maroon-400/30'
-                  : 'bg-white dark:bg-slate-800/60 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+                  ? 'bg-slate-55 bg-slate-50 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 ring-1 ring-slate-400/20'
+                  : 'bg-white dark:bg-slate-900 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
               }`}
               onClick={() => handleSelect('B')}
               role="menuitem"
@@ -136,8 +138,9 @@ export default function DemoProfileSwitcher({ onProfileChange, className = '' })
                     Option B (Continuing Student)
                   </span>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300">
-                  Hall Locked 🔒
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 inline-flex items-center gap-1 uppercase tracking-wide">
+                  <Lock size={10} />
+                  <span>Hall Locked</span>
                 </span>
               </div>
 
