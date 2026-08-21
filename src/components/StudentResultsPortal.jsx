@@ -1,4 +1,22 @@
 import React, { useState } from 'react';
+import { 
+  BarChart3, 
+  Search, 
+  Lock, 
+  Building, 
+  Vote, 
+  Check, 
+  CheckCircle2, 
+  Calendar, 
+  Hash, 
+  Award, 
+  AlertTriangle,
+  Users,
+  Trophy,
+  ArrowLeft,
+  ShieldCheck,
+  Activity
+} from 'lucide-react';
 
 const MOCK_RESULTS = {
   src: {
@@ -109,15 +127,15 @@ export default function StudentResultsPortal({ onBack }) {
       setReceiptResult({
         found: true,
         receipt: query,
-        message: `Your ballot [${query}] was successfully included in the final certified tally.`,
+        message: `Ballot receipt hash [${query}] was successfully included in the final certified tally.`,
         timestamp: new Date().toLocaleString(),
-        hash: activeData.systemHash.substring(0, 16) + '...'
+        hash: activeData.systemHash.substring(0, 32) + '...'
       });
     } else {
       setReceiptResult({
         found: false,
         receipt: query,
-        message: `Receipt hash [${query}] not found in active certified tally log.`
+        message: `Receipt hash [${query}] was not found in the active certified tally log.`
       });
     }
   };
@@ -128,8 +146,9 @@ export default function StudentResultsPortal({ onBack }) {
       {/* Header Banner */}
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-[#007A4D] dark:text-emerald-400 border border border-emerald-200 dark:border-emerald-800 text-xs font-bold uppercase tracking-wider mb-2">
-            <span>📊</span> Certified Public Ledger
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-[#007A4D] dark:text-emerald-400 border border-emerald-250 dark:border-emerald-800 text-xs font-bold uppercase tracking-wider mb-2">
+            <ShieldCheck size={14} />
+            <span>Certified Public Ledger</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
             Student Public Election Results Portal
@@ -146,19 +165,20 @@ export default function StudentResultsPortal({ onBack }) {
               setSelectedElectionKey(e.target.value);
               setReceiptResult(null);
             }}
-            className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#007A4D] shadow-2xs"
+            className="px-3.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#007A4D] shadow-2xs"
           >
-            <option value="src">🏛️ 2026 SRC Executive Council</option>
-            <option value="dept">🏢 College of Engineering (CoE)</option>
-            <option value="constituency">🗳️ Ayeduase Constituency MP</option>
+            <option value="src">🏛️ SRC Executive Council</option>
+            <option value="dept">🏢 College of Engineering</option>
+            <option value="constituency">🗳️ Constituency MP</option>
           </select>
 
           {onBack && (
             <button
               onClick={onBack}
-              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition-all cursor-pointer"
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-650 text-slate-750 dark:text-slate-250 font-bold text-xs rounded-xl transition-all cursor-pointer border-0 flex items-center gap-1"
             >
-              ← Back
+              <ArrowLeft size={12} />
+              <span>Back</span>
             </button>
           )}
         </div>
@@ -167,7 +187,10 @@ export default function StudentResultsPortal({ onBack }) {
       {/* Turnout & Mathematical Integrity Card */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Ballots Cast</span>
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <span>Total Ballots Cast</span>
+            <Vote size={14} className="text-slate-400" />
+          </div>
           <div className="mt-2">
             <span className="text-3xl font-black text-slate-900 dark:text-slate-100 font-mono">
               {activeData.totalVotesCast.toLocaleString()}
@@ -182,26 +205,32 @@ export default function StudentResultsPortal({ onBack }) {
         </div>
 
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Turnout Progress</span>
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <span>Turnout Progress</span>
+            <Activity size={14} className="text-slate-400 animate-pulse" />
+          </div>
           <div className="mt-2 space-y-2">
             <div className="flex items-center justify-between text-xs font-bold">
               <span className="text-slate-700 dark:text-slate-200">Quorum Met (&gt;50%)</span>
               <span className="text-[#007A4D] dark:text-emerald-400">{activeData.turnoutPercent}%</span>
             </div>
-            <div className="w-full bg-slate-100 dark:bg-slate-700 h-3 rounded-full overflow-hidden">
+            <div className="results-percentage-track">
               <div
-                className="bg-[#007A4D] h-full rounded-full transition-all duration-500"
+                className="results-percentage-fill"
                 style={{ width: `${activeData.turnoutPercent}%` }}
               />
             </div>
           </div>
-          <div className="mt-3 text-[11px] text-slate-500 font-medium">
+          <div className="mt-3 text-[11px] text-slate-500 font-medium font-bold">
             Zero-Knowledge Ballot Decoupling Active
           </div>
         </div>
 
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tally Mathematical Checksum</span>
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <span>Tally Checksum</span>
+            <Hash size={14} className="text-slate-400" />
+          </div>
           <div className="mt-2">
             <div className="text-xs font-mono bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-2 rounded-lg text-slate-800 dark:text-slate-200 break-all font-bold">
               {activeData.systemHash}
@@ -216,10 +245,11 @@ export default function StudentResultsPortal({ onBack }) {
       {/* ── Ballot Receipt Verification Lookup Box ── */}
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
         <div>
-          <h2 className="text-base font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>🔎</span> Verify Personal Ballot Receipt
+          <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2 uppercase tracking-wide">
+            <Search size={16} className="text-[#007A4D]" />
+            <span>Verify Personal Ballot Receipt</span>
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
             Enter or paste your anonymous Ballot Receipt Hash (e.g. <code>REC-89A0F2B</code>) issued upon vote submission to confirm your vote was counted.
           </p>
         </div>
@@ -234,71 +264,85 @@ export default function StudentResultsPortal({ onBack }) {
           />
           <button
             type="submit"
-            className="px-6 py-2.5 bg-[#007A4D] hover:bg-[#075C42] text-white font-extrabold text-xs rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
+            className="px-6 py-2.5 bg-[#007A4D] hover:bg-[#075C42] text-white font-extrabold text-xs rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap border-0 flex items-center gap-1.5"
           >
-            Verify Receipt ➔
+            <Search size={14} />
+            <span>Verify Receipt</span>
           </button>
         </form>
 
         {receiptResult && (
-          <div className={`p-4 rounded-xl border ${receiptResult.found ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200' : 'bg-red-50 dark:bg-red-950/60 border-red-300 dark:border-red-800 text-red-900 dark:text-red-200'} space-y-1 text-xs font-medium`}>
-            <div className="font-bold text-sm flex items-center gap-2">
-              <span>{receiptResult.found ? '✓ Verified Included' : '⚠️ Receipt Not Found'}</span>
+          <div className="receipt-ledger-console-card mt-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2 font-bold text-xs uppercase tracking-wider text-[#D4AF37]">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 size={14} className="text-emerald-400" />
+                <span>Verification Output Log</span>
+              </span>
+              <span className="text-emerald-400">STATUS: MATCHED</span>
             </div>
-            <p className="m-0 leading-relaxed font-semibold">{receiptResult.message}</p>
-            {receiptResult.found && (
-              <div className="text-[11px] font-mono text-emerald-800 dark:text-emerald-300 pt-1">
-                Verified at: {receiptResult.timestamp} | Block Checksum: {receiptResult.hash}
-              </div>
-            )}
+            
+            <div className="space-y-1.5 text-xs">
+              <p className="m-0 text-slate-200 leading-relaxed font-semibold">
+                &gt; {receiptResult.message}
+              </p>
+              {receiptResult.found && (
+                <div className="text-[10px] text-slate-400 space-y-0.5 pt-1 border-t border-slate-850">
+                  <div>Timestamp : {receiptResult.timestamp}</div>
+                  <div className="break-all font-mono">Merkle Block : {receiptResult.hash}</div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
 
       {/* ── Position Breakdown Visual Bar Charts ── */}
       <div className="space-y-6">
-        <h2 className="text-lg font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <span>📈</span> Position-by-Position Visual Vote Breakdown
+        <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2 uppercase tracking-wide">
+          <BarChart3 className="w-5 h-5 text-[#007A4D]" />
+          <span>Position-by-Position Visual Vote Breakdown</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {activeData.positions.map((pos) => (
-            <div key={pos.name} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
+            <div key={pos.name} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4 knust-glass-card hover:-translate-y-0.5 transition-all">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
                 <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide">
                   {pos.name}
                 </h3>
-                <span className="text-xs font-mono text-slate-500">
-                  Total Votes: <strong>{pos.total.toLocaleString()}</strong>
+                <span className="text-xs font-mono text-slate-500 font-bold">
+                  Total: <strong>{pos.total.toLocaleString()}</strong>
                 </span>
               </div>
 
               <div className="space-y-4">
                 {pos.candidates.map((cand) => (
                   <div key={cand.name} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <div>
-                        <strong className="text-slate-900 dark:text-slate-100 font-bold">{cand.name}</strong>
-                        <span className="text-slate-400 text-[11px] ml-2">({cand.slate})</span>
+                    <div className="flex items-center justify-between text-xs font-semibold">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <strong className="text-slate-900 dark:text-slate-100 font-extrabold">{cand.name}</strong>
+                        <span className="text-slate-400 text-[10px]">({cand.slate})</span>
                         {cand.winner && (
-                          <span className="ml-2 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-extrabold px-2 py-0.5 rounded text-[10px]">
-                            🏆 ELECTED
+                          <span className="bg-emerald-55 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400 font-extrabold px-2 py-0.5 rounded text-[9px] uppercase tracking-wide inline-flex items-center gap-1 shadow-2xs border border-emerald-300/40">
+                            <Trophy size={10} className="text-[#D4AF37]" />
+                            <span>Elected</span>
                           </span>
                         )}
                         {cand.disqualified && (
-                          <span className="ml-2 bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300 font-extrabold px-2 py-0.5 rounded text-[10px]">
-                            DISQUALIFIED
+                          <span className="bg-rose-100 text-rose-800 dark:bg-rose-955/60 dark:text-rose-400 font-extrabold px-2 py-0.5 rounded text-[9px] uppercase tracking-wide inline-flex items-center gap-1 shadow-2xs">
+                            <AlertTriangle size={10} />
+                            <span>Disqualified</span>
                           </span>
                         )}
                       </div>
                       <span className="font-mono text-slate-800 dark:text-slate-200 font-bold">
-                        {cand.votes.toLocaleString()} votes ({cand.percent}%)
+                        {cand.votes.toLocaleString()} ({cand.percent}%)
                       </span>
                     </div>
 
-                    <div className="w-full bg-slate-100 dark:bg-slate-700 h-3.5 rounded-full overflow-hidden flex">
+                    <div className="results-percentage-track">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${cand.winner ? 'bg-[#007A4D]' : cand.disqualified ? 'bg-red-500' : 'bg-slate-400 dark:bg-slate-500'}`}
+                        className={`h-full rounded-full transition-all duration-500 ${cand.winner ? 'results-percentage-fill bg-gradient-to-r from-[#007A4D] to-[#10B981]' : cand.disqualified ? 'bg-red-500' : 'bg-slate-450 bg-slate-300 dark:bg-slate-650'}`}
                         style={{ width: `${cand.percent}%` }}
                       />
                     </div>
