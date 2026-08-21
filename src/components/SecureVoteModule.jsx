@@ -1,4 +1,27 @@
 import React, { useEffect, useState } from 'react';
+import { 
+  Fingerprint, 
+  Timer, 
+  Building2, 
+  Megaphone, 
+  UserCheck, 
+  AlertTriangle, 
+  Vote, 
+  BarChart3, 
+  Clock, 
+  Lock, 
+  ChevronRight, 
+  User, 
+  GraduationCap, 
+  ShieldAlert, 
+  CheckCircle2, 
+  Eye, 
+  ShieldCheck, 
+  X, 
+  RefreshCw,
+  Building,
+  Home 
+} from 'lucide-react';
 import VirtualQueue from './VirtualQueue';
 import useStudentSession from '../hooks/useStudentSession';
 import { supabase } from '../lib/supabaseClient';
@@ -28,7 +51,7 @@ function formatCountdown(ms) {
   const hours = String(Math.floor((totalSeconds % (24 * 3600)) / 3600)).padStart(2, '0');
   const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
   const seconds = String(totalSeconds % 60).padStart(2, '0');
-  return `${days} Days : ${hours} Hours : ${minutes} Mins : ${seconds} Secs`;
+  return `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
 }
 
 export default function SecureVoteModule({ navigate }) {
@@ -162,21 +185,25 @@ export default function SecureVoteModule({ navigate }) {
     return (
       <div className="p-8 flex justify-center items-center min-h-[60vh] bg-gray-50 dark:bg-slate-900 transition-colors duration-200">
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-md w-full text-center p-8 shadow-sm">
-          <div className="text-5xl mb-4">🔒</div>
+          <div className="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 flex items-center justify-center mx-auto mb-4 text-rose-700 dark:text-rose-400">
+            <Lock size={32} />
+          </div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Access Denied</h2>
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-6">
             You must be logged in with an active session to access the <strong>KNUST Secure Vote</strong> voting module.
           </p>
 
-          <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/60 text-rose-700 dark:text-rose-300 p-3 rounded-xl text-xs font-semibold mb-6">
-            ⚠️ No active session. Please log in first.
+          <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/60 text-rose-700 dark:text-rose-300 p-3 rounded-xl text-xs font-semibold mb-6 flex items-center justify-center gap-1.5">
+            <ShieldAlert size={14} />
+            <span>No active session. Please log in first.</span>
           </div>
 
           <button
-            className="w-full bg-[#8B0000] hover:bg-[#6B0000] text-white py-3 px-6 rounded-xl font-bold text-sm shadow-sm transition-all"
+            className="w-full bg-[#007A4D] hover:bg-[#075C42] text-white py-3 px-6 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
             onClick={() => setIsAuthModalOpen(true)}
           >
-            🔑 Log In / Authenticate
+            <span>Log In / Authenticate</span>
+            <ChevronRight size={16} />
           </button>
 
           <StepUpAuthModal
@@ -284,9 +311,14 @@ export default function SecureVoteModule({ navigate }) {
   if (showQueue) {
     return (
       <div className="p-6 max-w-6xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">🗳️ Secure Vote Portal</h1>
-          <p className="text-sm font-medium text-slate-500 mt-1">Virtual Queue — High Traffic Protection Mode</p>
+        <div className="mb-6 flex items-center gap-3">
+          <div className="p-2 bg-[#EAF6F0] dark:bg-slate-800 rounded-xl text-[#007A4D] dark:text-emerald-400">
+            <Vote size={24} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Secure Vote Portal</h1>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">Virtual Queue — High Traffic Protection Mode</p>
+          </div>
         </div>
         <VirtualQueue onReady={() => {
           setShowQueue(false);
@@ -298,26 +330,32 @@ export default function SecureVoteModule({ navigate }) {
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-[#F3F6F8] dark:bg-slate-900 text-[#171717] dark:text-slate-100 transition-colors duration-200 min-h-screen">
-      {/* ── 1. Secure Vote Banner (White surface card with KNUST Green Title & Gold Accent) ── */}
+      {/* ── 1. Secure Vote Banner ── */}
       <div className="mb-6 p-6 bg-white dark:bg-slate-800 text-[#171717] dark:text-slate-100 rounded-2xl shadow-2xs flex flex-wrap items-center justify-between gap-4 border border-[#E1E7E4] dark:border-slate-700">
-        <div>
-          <h1 className="text-2xl font-black text-[#006B3F] dark:text-slate-100 tracking-tight flex items-center gap-2">
-            <span>🗳️</span> Secure Vote Portal
-          </h1>
-          <p className="text-sm font-medium text-[#6B7280] dark:text-slate-400 mt-1">
-            KNUST Electoral Management &amp; Student Verification System
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-[#004D40] to-[#002d25] rounded-xl flex items-center justify-center border border-[#D4AF37] text-white">
+            <Vote size={24} className="text-[#D4AF37]" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black text-[#006B3F] dark:text-slate-100 tracking-tight flex items-center gap-2">
+              Secure Vote Portal
+            </h1>
+            <p className="text-sm font-medium text-[#6B7280] dark:text-slate-400 mt-1">
+              KNUST Electoral Management &amp; Student Verification System
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-3 flex-wrap mr-12">
           {/* Quick Demo Profile Switcher */}
           <DemoProfileSwitcher onProfileChange={setStudent} />
 
           <button
-            className="bg-[#E2F3E9] dark:bg-slate-700 hover:bg-[#BDE3D2] dark:hover:bg-slate-600 text-[#006B3F] dark:text-emerald-400 text-xs font-bold rounded-xl px-3.5 py-2 border border-[#BDE3D2] dark:border-slate-600 shadow-2xs transition-all cursor-pointer"
+            className="bg-[#E2F3E9] dark:bg-slate-700 hover:bg-[#BDE3D2] dark:hover:bg-slate-600 text-[#006B3F] dark:text-emerald-400 text-xs font-bold rounded-xl px-3.5 py-2 border border-[#BDE3D2] dark:border-slate-600 shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
             onClick={toggleBiometricsState}
             title="Toggle biometrics verification state to test valid/missing branches"
           >
-            🔄 Dev Test: Biometrics {biometricsOk ? 'Valid ✅' : 'Missing ❌'}
+            <RefreshCw size={12} />
+            <span>Dev Test: Biometrics {biometricsOk ? 'Valid' : 'Missing'}</span>
           </button>
         </div>
       </div>
@@ -326,7 +364,9 @@ export default function SecureVoteModule({ navigate }) {
       {ecAdminProfile && (
         <div className="mb-6 p-4 bg-[#F3FAF6] dark:bg-slate-800/90 border-2 border-[#007A4D] rounded-2xl text-slate-800 dark:text-slate-100 flex flex-wrap items-center justify-between gap-4 shadow-sm animate-fadeIn">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">{ecAdminProfile.avatar}</span>
+            <div className="w-10 h-10 rounded-full bg-[#007A4D]/15 flex items-center justify-center text-[#007A4D] dark:text-emerald-400 font-bold">
+              {ecAdminProfile.avatar || <User size={20} />}
+            </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black uppercase tracking-wider text-[#007A4D] dark:text-emerald-400">
@@ -345,24 +385,28 @@ export default function SecureVoteModule({ navigate }) {
             </div>
           </div>
           <div className="bg-[#EAF6F0] dark:bg-slate-700/80 text-[#007A4D] dark:text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-extrabold border border-[#007A4D]/30 flex items-center gap-1.5 shadow-2xs">
-            <span>🔐</span> Dual-Identity Session Active
+            <Lock size={12} />
+            <span>Dual-Identity Session Active</span>
           </div>
         </div>
       )}
 
       {/* ── 2. Clean Biometric & Status Checker Card ── */}
-      <div className="bg-white dark:bg-slate-800 border border-[#E1E7E4] dark:border-slate-700 text-[#171717] dark:text-slate-100 rounded-2xl p-6 shadow-2xs mb-6" role="region" aria-label="Biometric & Status Checker">
+      <div className="bg-white dark:bg-slate-800 border border-[#E1E7E4] dark:border-slate-700 text-[#171717] dark:text-slate-100 rounded-2xl p-6 shadow-2xs mb-6 knust-glass-card" role="region" aria-label="Biometric & Status Checker">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4 mb-4">
-          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">
-            🎫 Biometric &amp; Status Checker
+          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+            <Fingerprint size={18} className="text-[#007A4D]" />
+            <span>Biometric &amp; Status Checker</span>
           </h2>
           {biometricsOk ? (
             <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-              ✅ Current Semester Verified
+              <CheckCircle2 size={12} />
+              <span>Current Semester Verified</span>
             </span>
           ) : (
             <span className="bg-amber-50 dark:bg-slate-700 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-              ❌ Biometrics Pending
+              <ShieldAlert size={12} />
+              <span>Biometrics Pending</span>
             </span>
           )}
         </div>
@@ -402,7 +446,7 @@ export default function SecureVoteModule({ navigate }) {
           </div>
           <div>
             <span className="block text-xs text-slate-400 dark:text-slate-400 font-medium">Locked Constituency:</span>
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
+            <span className="text-sm font-bold text-slate-800 dark:text-slate-100 font-mono">
               {(() => {
                 const cVal = student ? (student.constituency || student.constituency_locked || null) : null;
                 if (!cVal) return 'Constituency Not Assigned';
@@ -413,8 +457,9 @@ export default function SecureVoteModule({ navigate }) {
         </div>
 
         {!biometricsOk && (
-          <div className="mt-4 p-3 bg-amber-50 dark:bg-slate-700 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-400 rounded-xl text-xs font-semibold flex items-center gap-2" role="alert">
-            🛑 <span>Biometrics Verification Pending — Your biometric verification record for the active academic session is incomplete. Please visit the UITS office.</span>
+          <div className="mt-4 p-3.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 rounded-xl text-xs font-semibold flex items-start gap-2.5" role="alert">
+            <ShieldAlert size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
+            <span>Biometrics Verification Pending — Your biometric verification record for the active academic session is incomplete. Please visit the UITS office.</span>
           </div>
         )}
       </div>
@@ -423,7 +468,7 @@ export default function SecureVoteModule({ navigate }) {
       {notification && (
         <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700/60 rounded-2xl text-amber-900 dark:text-amber-200 flex items-start justify-between gap-3 shadow-sm" role="alert">
           <div className="flex items-start gap-3">
-            <span className="text-xl flex-shrink-0">🔒</span>
+            <Lock className="text-amber-600 dark:text-amber-400 w-5 h-5 flex-shrink-0" />
             <div>
               <h4 className="text-sm font-bold m-0 text-amber-900 dark:text-amber-100">Access Restricted</h4>
               <p className="text-xs font-medium mt-1 m-0 text-amber-800 dark:text-amber-300 leading-relaxed">{notification}</p>
@@ -434,7 +479,7 @@ export default function SecureVoteModule({ navigate }) {
             className="text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-100 text-lg font-bold leading-none bg-transparent border-none cursor-pointer p-1"
             aria-label="Dismiss notification"
           >
-            ×
+            ✕
           </button>
         </div>
       )}
@@ -461,7 +506,10 @@ export default function SecureVoteModule({ navigate }) {
 
       {/* ── 3. Modernized Election Cards & Buttons ── */}
       <div className="mb-4">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Upcoming &amp; Active Elections</h2>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <Vote className="text-[#007A4D]" size={20} />
+          <span>Upcoming &amp; Active Elections</span>
+        </h2>
       </div>
       <div className="space-y-6">
         {elections.map((e) => {
@@ -478,52 +526,62 @@ export default function SecureVoteModule({ navigate }) {
             const isManagedByOfficer = isElectionManagedByOfficerTier ? isElectionManagedByOfficerTier(e) : false;
 
             return (
-              <div key={e.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+              <div key={e.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4 knust-glass-card hover:-translate-y-0.5 transition-all">
                 {/* Header Area */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-700">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="text-2xl" role="img" aria-label="Department Icon">{e.icon || '🏢'}</span>
+                      <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center border border-emerald-100 dark:border-emerald-900">
+                        <Building2 size={16} className="text-[#007A4D] dark:text-emerald-400" />
+                      </div>
                       <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{e.title}</h3>
                       {isManagedByOfficer && (
                         <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-400 dark:border-amber-700 px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold shadow-2xs inline-flex items-center gap-1.5" title="Officer votes use the exact same zero-knowledge encryption as general students.">
-                          🛡️ Conflict Protocol Verified / Ballot Encrypted
+                          <ShieldCheck size={12} />
+                          Conflict Protocol Verified / Ballot Encrypted
                         </span>
                       )}
                     </div>
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 space-y-1 mt-1">
+                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 space-y-1 mt-1.5">
                       <span className="block"><strong className="text-slate-700 dark:text-slate-300">Eligibility:</strong> Verified ({targetText})</span>
                       <span className="block"><strong className="text-slate-700 dark:text-slate-300">Ends in:</strong> {statusInfo.countdownText}</span>
                       <span className="block">
                         <strong className="text-slate-700 dark:text-slate-300">Status:</strong>{' '}
                         {hasVoted ? (
-                          <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">[ VOTED ✅ ]</span>
+                          <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-150 dark:bg-emerald-950 px-2.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">VOTED ✅</span>
                         ) : (
-                          <span className="font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">[ NOT VOTED ]</span>
+                          <span className="font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2.5 py-0.5 rounded border border-amber-300 dark:border-amber-700">NOT VOTED</span>
                         )}
                       </span>
-                    </p>
+                    </div>
                   </div>
                   <div className="flex-shrink-0">
                     {hasVoted ? (
                       <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1.5 shadow-2xs">
-                        ✓ Voted
+                        <CheckCircle2 size={12} />
+                        Voted
                       </span>
                     ) : statusInfo.isLive && isEligible ? (
-                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1.5 shadow-2xs">
-                        🟢 Live — Ballot Open
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-2 shadow-2xs font-black">
+                        <span className="live-pulse-container">
+                          <span className="live-pulse-dot" />
+                        </span>
+                        <span>LIVE — BALLOT OPEN</span>
                       </span>
                     ) : !isEligible ? (
                       <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800/60 gap-1.5">
-                        ⚠️ Ineligible
+                        <AlertTriangle size={12} />
+                        Ineligible
                       </span>
                     ) : statusInfo.isUpcoming ? (
                       <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60 gap-1.5">
-                        ⏳ Starts in {statusInfo.countdownText}
+                        <Clock size={12} />
+                        <span>Upcoming</span>
                       </span>
                     ) : (
                       <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 gap-1.5">
-                        🔒 Polls Closed
+                        <Lock size={12} />
+                        Closed
                       </span>
                     )}
                   </div>
@@ -533,7 +591,7 @@ export default function SecureVoteModule({ navigate }) {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
                   {/* Bottom-Left: Countdown Timer */}
                   <div className="bg-[#F3F6F8] dark:bg-slate-900 border border-[#E1E7E4] dark:border-slate-700 rounded-xl px-4 py-2 font-mono text-xs font-bold text-[#171717] dark:text-slate-300 flex items-center gap-2 self-start sm:self-auto">
-                    <span className="text-[#D4A72C]">⏳</span>
+                    <Clock size={12} className="text-[#D4AF37]" />
                     <span>
                       {statusInfo.isUpcoming
                         ? `Starts in ${statusInfo.countdownText}`
@@ -550,28 +608,35 @@ export default function SecureVoteModule({ navigate }) {
                         className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-2 rounded-xl text-xs font-bold shadow-xs cursor-default flex items-center gap-1.5"
                         disabled
                       >
-                        ✓ Ballot Cast &amp; Recorded
+                        <CheckCircle2 size={12} />
+                        Ballot Cast &amp; Recorded
                       </button>
                     ) : statusInfo.isClosed ? (
                       <button
-                        className="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                        className="bg-[#007A4D] hover:bg-[#075C42] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
                         onClick={() => handleNavigate('/results')}
                       >
-                        View Results 📊
+                        <span>View Results</span>
+                        <BarChart3 size={12} />
                       </button>
                     ) : (
                       <button
                         className={
                           isLiveAndEligible
-                            ? "bg-red-800 hover:bg-red-700 text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                            ? "bg-[#007A4D] hover:bg-[#075C42] text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
                             : "bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"
                         }
                         disabled={!isLiveAndEligible}
                         onClick={isLiveAndEligible ? () => handleNavigate(`/ballot/${e.id}`) : undefined}
                       >
-                        {isLiveAndEligible
-                          ? 'Enter Polling Station ➔'
-                          : `Unlocks ${formatUnlockDate(e)}`}
+                        {isLiveAndEligible ? (
+                          <span className="flex items-center gap-1">
+                            <span>Enter Polling Station</span>
+                            <ChevronRight size={12} />
+                          </span>
+                        ) : (
+                          <span>Unlocks {formatUnlockDate(e)}</span>
+                        )}
                       </button>
                     )}
                   </div>
@@ -589,52 +654,62 @@ export default function SecureVoteModule({ navigate }) {
             const isManagedByOfficer = isElectionManagedByOfficerTier ? isElectionManagedByOfficerTier(e) : false;
 
             return (
-              <div key={e.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+              <div key={e.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4 knust-glass-card hover:-translate-y-0.5 transition-all">
                 {/* Header Area */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-700">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="text-2xl" role="img" aria-label="SRC Icon">{e.icon || '🏛️'}</span>
+                      <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center border border-emerald-100 dark:border-emerald-900">
+                        <GraduationCap size={16} className="text-[#007A4D] dark:text-emerald-400" />
+                      </div>
                       <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{e.title}</h3>
                       {isManagedByOfficer && (
                         <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-400 dark:border-amber-700 px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold shadow-2xs inline-flex items-center gap-1.5" title="Officer votes use the exact same zero-knowledge encryption as general students.">
-                          🛡️ Conflict Protocol Verified / Ballot Encrypted
+                          <ShieldCheck size={12} />
+                          Conflict Protocol Verified / Ballot Encrypted
                         </span>
                       )}
                     </div>
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 space-y-1 mt-1">
+                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 space-y-1 mt-1.5">
                       <span className="block"><strong className="text-slate-700 dark:text-slate-300">Eligibility:</strong> Verified (All Students)</span>
                       <span className="block"><strong className="text-slate-700 dark:text-slate-300">Ends in:</strong> {statusInfo.countdownText}</span>
                       <span className="block">
                         <strong className="text-slate-700 dark:text-slate-300">Status:</strong>{' '}
                         {hasVoted ? (
-                          <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">[ VOTED ✅ ]</span>
+                          <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-150 dark:bg-emerald-950 px-2.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">VOTED ✅</span>
                         ) : (
-                          <span className="font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">[ NOT VOTED ]</span>
+                          <span className="font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2.5 py-0.5 rounded border border-amber-300 dark:border-amber-700">NOT VOTED</span>
                         )}
                       </span>
-                    </p>
+                    </div>
                   </div>
                   <div className="flex-shrink-0">
                     {hasVoted ? (
                       <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1.5 shadow-2xs">
-                        ✓ Voted
+                        <CheckCircle2 size={12} />
+                        Voted
                       </span>
                     ) : statusInfo.isLive && isEligible ? (
-                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1.5 shadow-2xs">
-                        🟢 Live — Ballot Open
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-2 shadow-2xs font-black">
+                        <span className="live-pulse-container">
+                          <span className="live-pulse-dot" />
+                        </span>
+                        <span>LIVE — BALLOT OPEN</span>
                       </span>
                     ) : !isEligible ? (
                       <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800/60 gap-1.5">
-                        ⚠️ Ineligible
+                        <AlertTriangle size={12} />
+                        Ineligible
                       </span>
                     ) : statusInfo.isUpcoming ? (
                       <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60 gap-1.5">
-                        ⏳ Starts in {statusInfo.countdownText}
+                        <Clock size={12} />
+                        <span>Upcoming</span>
                       </span>
                     ) : (
                       <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 gap-1.5">
-                        🔒 Polls Closed
+                        <Lock size={12} />
+                        Closed
                       </span>
                     )}
                   </div>
@@ -644,7 +719,7 @@ export default function SecureVoteModule({ navigate }) {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
                   {/* Bottom-Left: Countdown Timer */}
                   <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-mono text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 self-start sm:self-auto">
-                    <span className="text-slate-400">⏳</span>
+                    <Clock size={12} className="text-[#D4AF37]" />
                     <span>
                       {statusInfo.isUpcoming
                         ? `Starts in ${statusInfo.countdownText}`
@@ -660,35 +735,43 @@ export default function SecureVoteModule({ navigate }) {
                       className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
                       onClick={() => handleNavigate(`/ballot/${e.id}`)}
                     >
-                      View Candidates &amp; Manifestos
+                      <Eye size={12} />
+                      <span>View Candidates &amp; Manifestos</span>
                     </button>
                     {hasVoted ? (
                       <button
                         className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-2 rounded-xl text-xs font-bold shadow-xs cursor-default flex items-center gap-1.5"
                         disabled
                       >
-                        ✓ Ballot Cast &amp; Recorded
+                        <CheckCircle2 size={12} />
+                        Ballot Cast &amp; Recorded
                       </button>
                     ) : statusInfo.isClosed ? (
                       <button
                         className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
-                        onClick={() => alert(`Results published for ${e.title}`)}
+                        onClick={() => handleNavigate('/results')}
                       >
-                        View Results 📊
+                        <span>View Results</span>
+                        <BarChart3 size={12} />
                       </button>
                     ) : (
                       <button
                         className={
                           isLiveAndEligible
-                            ? "bg-red-800 hover:bg-red-700 text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                            ? "bg-[#007A4D] hover:bg-[#075C42] text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
                             : "bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"
                         }
                         disabled={!isLiveAndEligible}
                         onClick={isLiveAndEligible ? () => handleNavigate(`/ballot/${e.id}`) : undefined}
                       >
-                        {isLiveAndEligible
-                          ? 'Enter Polling Station ➔'
-                          : `Unlocks ${formatUnlockDate(e)}`}
+                        {isLiveAndEligible ? (
+                          <span className="flex items-center gap-1">
+                            <span>Enter Polling Station</span>
+                            <ChevronRight size={12} />
+                          </span>
+                        ) : (
+                          <span>Unlocks {formatUnlockDate(e)}</span>
+                        )}
                       </button>
                     )}
                   </div>
@@ -711,48 +794,57 @@ export default function SecureVoteModule({ navigate }) {
               : 'Selected Constituency Voters';
 
             return (
-              <div key={e.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+              <div key={e.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4 knust-glass-card hover:-translate-y-0.5 transition-all">
                 {/* Header Area */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-700">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="text-2xl" role="img" aria-label="Constituency Icon">{e.icon || '🗳️'}</span>
+                      <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center border border-emerald-100 dark:border-emerald-900">
+                        <Building size={16} className="text-[#007A4D] dark:text-emerald-400" />
+                      </div>
                       <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{e.title}</h3>
                       {isManagedByOfficer && (
                         <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-400 dark:border-amber-700 px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold shadow-2xs inline-flex items-center gap-1.5" title="Officer votes use the exact same zero-knowledge encryption as general students.">
-                          🛡️ Conflict Protocol Verified / Ballot Encrypted
+                          <ShieldCheck size={12} />
+                          Conflict Protocol Verified / Ballot Encrypted
                         </span>
                       )}
                     </div>
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 space-y-1 mt-1">
+                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 space-y-1 mt-1.5">
                       <span className="block"><strong className="text-slate-700 dark:text-slate-300">Eligibility:</strong> Verified ({targetText})</span>
                       <span className="block"><strong className="text-slate-700 dark:text-slate-300">Ends in:</strong> {statusInfo.countdownText}</span>
                       <span className="block">
                         <strong className="text-slate-700 dark:text-slate-300">Status:</strong>{' '}
                         {hasVoted ? (
-                          <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">[ VOTED ✅ ]</span>
+                          <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-150 dark:bg-emerald-950 px-2.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">VOTED ✅</span>
                         ) : (
-                          <span className="font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">[ NOT VOTED ]</span>
+                          <span className="font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2.5 py-0.5 rounded border border-amber-300 dark:border-amber-700">NOT VOTED</span>
                         )}
                       </span>
-                    </p>
+                    </div>
                   </div>
                   <div className="flex-shrink-0">
                     {hasVoted ? (
                       <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5 shadow-xs">
-                        ✓ Voted
+                        <CheckCircle2 size={12} />
+                        Voted
                       </span>
                     ) : statusInfo.isLive && isEligible ? (
-                      <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        🟢 LIVE NOW
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-2 shadow-2xs font-black">
+                        <span className="live-pulse-container">
+                          <span className="live-pulse-dot" />
+                        </span>
+                        <span>LIVE — BALLOT OPEN</span>
                       </span>
                     ) : !hasConstituency ? (
                       <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        ⚠️ Action Required
+                        <ShieldAlert size={12} />
+                        Action Required
                       </span>
                     ) : (
-                      <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        📅 {statusInfo.badgeText}
+                      <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5 font-mono">
+                        <Clock size={12} />
+                        <span>{statusInfo.badgeText}</span>
                       </span>
                     )}
                   </div>
@@ -762,7 +854,7 @@ export default function SecureVoteModule({ navigate }) {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
                   {/* Bottom-Left: Countdown Timer */}
                   <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-mono text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 self-start sm:self-auto">
-                    <span className="text-slate-400">⏳</span>
+                    <Clock size={12} className="text-[#D4AF37]" />
                     <span>
                       {statusInfo.isUpcoming
                         ? `Starts in ${statusInfo.countdownText}`
@@ -779,7 +871,8 @@ export default function SecureVoteModule({ navigate }) {
                         className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-2 rounded-xl text-xs font-bold shadow-xs cursor-default flex items-center gap-1.5"
                         disabled
                       >
-                        ✓ Ballot Cast &amp; Recorded
+                        <CheckCircle2 size={12} />
+                        Ballot Cast &amp; Recorded
                       </button>
                     ) : !isBiometricVerified(student) ? (
                       <button className="bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5" disabled>
@@ -799,22 +892,30 @@ export default function SecureVoteModule({ navigate }) {
                       </div>
                     ) : statusInfo.isClosed ? (
                       <button
-                        className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
-                        onClick={() => alert(`Results published for ${e.title}`)}
+                        className="bg-[#007A4D] hover:bg-[#075C42] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                        onClick={() => handleNavigate('/results')}
                       >
-                        View Results 📊
+                        <span>View Results</span>
+                        <BarChart3 size={12} />
                       </button>
                     ) : (
                       <button
                         className={
                           isLiveAndEligible
-                            ? "bg-red-800 hover:bg-red-700 text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                            ? "bg-[#007A4D] hover:bg-[#075C42] text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
                             : "bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"
                         }
                         disabled={!isLiveAndEligible}
                         onClick={isLiveAndEligible ? () => handleNavigate(`/ballot/${e.id}`) : undefined}
                       >
-                        {isLiveAndEligible ? 'Enter Polling Station ➔' : `Unlocks ${formatUnlockDate(e)}`}
+                        {isLiveAndEligible ? (
+                          <span className="flex items-center gap-1">
+                            <span>Enter Polling Station</span>
+                            <ChevronRight size={12} />
+                          </span>
+                        ) : (
+                          <span>Unlocks {formatUnlockDate(e)}</span>
+                        )}
                       </button>
                     )}
                   </div>
@@ -837,52 +938,62 @@ export default function SecureVoteModule({ navigate }) {
               'Hall elections are restricted strictly to Level 100 resident students. Continuing students vote in Off-Campus / Constituency elections.';
 
             return (
-              <div key={e.id} className={`bg-white dark:bg-slate-800 border ${!isEligible && !hasVoted ? 'border-rose-200 dark:border-rose-900/60' : 'border-slate-200 dark:border-slate-700'} rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4 transition-all`}>
+              <div key={e.id} className={`bg-white dark:bg-slate-800 border ${!isEligible && !hasVoted ? 'border-rose-200 dark:border-rose-900/60' : 'border-slate-200 dark:border-slate-700'} rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4 transition-all knust-glass-card hover:-translate-y-0.5`}>
                 {/* Header Area */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-700">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="text-2xl" role="img" aria-label="Hall Icon">{e.icon || '🏰'}</span>
+                      <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center border border-emerald-100 dark:border-emerald-900">
+                        <Home size={16} className="text-[#007A4D] dark:text-emerald-400" />
+                      </div>
                       <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{e.title}</h3>
                       {isManagedByOfficer && (
                         <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-400 dark:border-amber-700 px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold shadow-2xs inline-flex items-center gap-1.5" title="Officer votes use the exact same zero-knowledge encryption as general students.">
-                          🛡️ Conflict Protocol Verified / Ballot Encrypted
+                          <ShieldCheck size={12} />
+                          Conflict Protocol Verified / Ballot Encrypted
                         </span>
                       )}
                     </div>
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 space-y-1 mt-1">
+                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 space-y-1 mt-1.5">
                       <span className="block"><strong className="text-slate-700 dark:text-slate-300">Eligibility:</strong> Verified ({targetText})</span>
                       <span className="block"><strong className="text-slate-700 dark:text-slate-300">Ends in:</strong> {statusInfo.countdownText}</span>
                       <span className="block">
                         <strong className="text-slate-700 dark:text-slate-300">Status:</strong>{' '}
                         {hasVoted ? (
-                          <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">[ VOTED ✅ ]</span>
+                          <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-150 dark:bg-emerald-950 px-2.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">VOTED ✅</span>
                         ) : (
-                          <span className="font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">[ NOT VOTED ]</span>
+                          <span className="font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2.5 py-0.5 rounded border border-amber-300 dark:border-amber-700">NOT VOTED</span>
                         )}
                       </span>
-                    </p>
+                    </div>
                   </div>
                   <div className="flex-shrink-0">
                     {hasVoted ? (
                       <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5 shadow-xs">
-                        ✓ Voted
+                        <CheckCircle2 size={12} />
+                        Voted
                       </span>
                     ) : !isFirstYear ? (
                       <span className="bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5 shadow-xs">
-                        🔒 Ineligible — Continuing Student
+                        <Lock size={12} />
+                        Continuing Student
                       </span>
                     ) : !isBiometricVerified(student) ? (
-                      <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        ⚠️ Biometrics Pending
+                      <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
+                        <ShieldAlert size={12} />
+                        Biometrics Pending
                       </span>
                     ) : statusInfo.isLive ? (
-                      <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        🟢 LIVE NOW
+                      <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-2 shadow-2xs font-black">
+                        <span className="live-pulse-container">
+                          <span className="live-pulse-dot" />
+                        </span>
+                        <span>LIVE NOW</span>
                       </span>
                     ) : (
-                      <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
-                        📅 {statusInfo.badgeText}
+                      <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5 font-mono">
+                        <Clock size={12} />
+                        <span>{statusInfo.badgeText}</span>
                       </span>
                     )}
                   </div>
@@ -890,8 +1001,8 @@ export default function SecureVoteModule({ navigate }) {
 
                 {/* Ineligible Continuing Student Subtle Explanation Banner */}
                 {!isFirstYear && !hasVoted && (
-                  <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-xl text-xs font-medium text-rose-800 dark:text-rose-300 flex items-start gap-2.5" role="alert">
-                    <span className="text-base flex-shrink-0">🏰</span>
+                  <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-xl text-xs font-semibold text-rose-800 dark:text-rose-300 flex items-start gap-2" role="alert">
+                    <Home size={16} className="text-rose-600 flex-shrink-0 mt-0.5" />
                     <span>
                       <strong>Hall Elections Policy:</strong> {restrictionMessage}
                     </span>
@@ -902,7 +1013,7 @@ export default function SecureVoteModule({ navigate }) {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
                   {/* Bottom-Left: Countdown Timer */}
                   <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-mono text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 self-start sm:self-auto">
-                    <span className="text-slate-400">⏳</span>
+                    <Clock size={12} className="text-[#D4AF37]" />
                     <span>
                       {statusInfo.isUpcoming
                         ? `Starts in ${statusInfo.countdownText}`
@@ -919,29 +1030,36 @@ export default function SecureVoteModule({ navigate }) {
                         className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-2 rounded-xl text-xs font-bold shadow-xs cursor-default flex items-center gap-1.5"
                         disabled
                       >
-                        ✓ Ballot Cast &amp; Recorded
+                        <CheckCircle2 size={12} />
+                        Ballot Cast &amp; Recorded
                       </button>
                     ) : statusInfo.isClosed ? (
                       <button
                         className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
-                        onClick={() => alert(`Results published for ${e.title}`)}
+                        onClick={() => handleNavigate('/results')}
                       >
-                        View Results 📊
+                        <span>View Results</span>
+                        <BarChart3 size={12} />
                       </button>
                     ) : (
                       <button
                         className={
                           isLiveAndEligible
-                            ? "bg-red-800 hover:bg-red-700 text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                            ? "bg-[#007A4D] hover:bg-[#075C42] text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
                             : "bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"
                         }
                         disabled={!isLiveAndEligible}
                         title={!isEligible ? restrictionMessage : undefined}
                         onClick={isLiveAndEligible ? () => handleNavigate(`/ballot/${e.id}`) : undefined}
                       >
-                        {isLiveAndEligible
-                          ? 'Enter Polling Station ➔'
-                          : `Unlocks ${formatUnlockDate(e)}`}
+                        {isLiveAndEligible ? (
+                          <span className="flex items-center gap-1">
+                            <span>Enter Polling Station</span>
+                            <ChevronRight size={12} />
+                          </span>
+                        ) : (
+                          <span>Unlocks {formatUnlockDate(e)}</span>
+                        )}
                       </button>
                     )}
                   </div>
