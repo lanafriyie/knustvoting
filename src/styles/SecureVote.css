@@ -1017,3 +1017,271 @@ body {
   font-size: 0.88rem;
   word-break: break-all;
 }
+
+/* ─────────────────────────────────────────────
+   PREMIUM INSTITUTIONAL UI ENHANCEMENTS
+───────────────────────────────────────────── */
+
+/* 1. Digital Student ID Card Styling */
+.knust-student-card {
+  position: relative;
+  background: linear-gradient(135deg, #004D40 0%, #002d25 100%);
+  border-top: 4px solid #D4AF37; /* Institutional Gold top border */
+  border-radius: 20px;
+  color: #FFFFFF;
+  padding: 24px;
+  box-shadow: 0 10px 25px -5px rgba(0, 77, 64, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.knust-student-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -5px rgba(0, 77, 64, 0.4);
+}
+
+/* Gold Chip Graphic */
+.knust-card-chip {
+  width: 38px;
+  height: 28px;
+  background: linear-gradient(135deg, #FFE082 0%, #D4AF37 100%);
+  border-radius: 6px;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4);
+}
+
+.knust-card-chip::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+/* Barcode Stylized Lines */
+.knust-card-barcode {
+  display: flex;
+  align-items: flex-end;
+  height: 28px;
+  gap: 2px;
+  opacity: 0.25;
+}
+
+.knust-card-barcode span {
+  display: inline-block;
+  background-color: #FFFFFF;
+  height: 100%;
+}
+
+/* Watermark background icon styling */
+.knust-card-watermark {
+  position: absolute;
+  right: -20px;
+  bottom: -30px;
+  opacity: 0.04;
+  color: #FFFFFF;
+  pointer-events: none;
+}
+
+/* 2. Glassmorphic Surface Cards */
+.knust-glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(220, 230, 225, 0.7);
+  box-shadow: 0 4px 20px -2px rgba(0, 77, 64, 0.03);
+}
+
+.dark .knust-glass-card {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+}
+
+/* 3. Pulsing LIVE Status Indicator */
+.live-pulse-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10B981;
+  border-radius: 50%;
+  position: relative;
+}
+
+.live-pulse-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: #10B981;
+  animation: pulse-ring 1.5s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
+/* 4. Numeric Passcode Pad Modal UI */
+.knust-pin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.knust-pin-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #DCE6E1;
+  background: transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.knust-pin-dot.active {
+  background-color: #007A4D;
+  border-color: #007A4D;
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(0, 122, 77, 0.4);
+}
+
+.dark .knust-pin-dot.active {
+  background-color: #10B981;
+  border-color: #10B981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.knust-num-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.knust-num-btn {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  height: 52px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1E293B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.dark .knust-num-btn {
+  background: #334155;
+  border-color: #475569;
+  color: #F8FAFC;
+}
+
+.knust-num-btn:hover {
+  background: #EAF6F0;
+  border-color: #007A4D;
+  color: #007A4D;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 122, 77, 0.1);
+}
+
+.dark .knust-num-btn:hover {
+  background: #1e293b;
+  border-color: #10B981;
+  color: #10B981;
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);
+}
+
+.knust-num-btn:active {
+  transform: translateY(1px);
+}
+
+/* Biometric scanning fingerprint loader */
+.biometric-scanner-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 122, 77, 0.1);
+  border-top-color: #007A4D;
+  animation: spin 1.2s linear infinite;
+  display: inline-block;
+}
+
+.dark .biometric-scanner-ring {
+  border-color: rgba(16, 185, 129, 0.1);
+  border-top-color: #10B981;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 5. Ballot Card Selection Transitions */
+.ballot-candidate-card-new {
+  background: var(--sv-bg-card);
+  border: 2px solid var(--sv-border-soft);
+  border-radius: 16px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ballot-candidate-card-new:hover {
+  border-color: #D4AF37; /* Institutional Gold border on hover */
+  transform: translateY(-2px);
+  box-shadow: var(--sv-shadow-md);
+}
+
+.ballot-candidate-card-new.selected {
+  border-color: #007A4D;
+  background: #F3FAF6;
+}
+
+.dark .ballot-candidate-card-new.selected {
+  border-color: #10B981;
+  background: rgba(6, 78, 59, 0.25);
+}
+
+/* 6. Ledger Results Portal Charts */
+.results-percentage-track {
+  width: 100%;
+  height: 10px;
+  background-color: #E2E8F0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.dark .results-percentage-track {
+  background-color: #334155;
+}
+
+.results-percentage-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #007A4D 0%, #10B981 100%);
+  border-radius: 999px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.receipt-ledger-console-card {
+  background-color: #0A0F1D;
+  color: #34D399;
+  border: 1px solid #1E293B;
+  border-radius: 16px;
+  padding: 18px;
+  font-family: 'Fira Code', ui-monospace, monospace;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+}
+
