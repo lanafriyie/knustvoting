@@ -832,6 +832,7 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.65);
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
@@ -1174,8 +1175,8 @@ body {
 /* 2. Glassmorphic Surface Cards */
 .knust-glass-card {
   background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(220, 230, 225, 0.7);
   box-shadow: 0 4px 20px -2px rgba(0, 77, 64, 0.03);
 }
@@ -1540,6 +1541,7 @@ body {
 
 /* Glassmorphism custom enhancements */
 .knust-glass-card {
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   background-color: rgba(255, 255, 255, 0.85) !important;
 }
