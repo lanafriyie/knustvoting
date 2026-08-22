@@ -156,7 +156,63 @@ export default function SecureVoteModule({ navigate }) {
   const [isBiometricsModalOpen, setIsBiometricsModalOpen] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
 
-  const handleVerifyBiometrics = () => {
+  const handleVerifyBiometrics = async () => {
+    // Check if device supports physical biometrics (WebAuthn Platform Authenticator)
+    let hasBiometricHardware = false;
+    try {
+      if (window.PublicKeyCredential) {
+        hasBiometricHardware = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      }
+    } catch (e) {
+      console.warn("WebAuthn check failed:", e);
+    }
+
+    if (hasBiometricHardware) {
+      try {
+        setIsScanning(true);
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+
+        const publicKey = {
+          challenge: challenge,
+          rp: { name: "KNUST E-Voting Portal" },
+          user: {
+            id: new Uint8Array(16),
+            name: "voter@knust.edu.gh",
+            displayName: "KNUST Student Voter"
+          },
+          pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+          authenticatorSelection: {
+            authenticatorAttachment: "platform",
+            userVerification: "required"
+          },
+          timeout: 60000
+        };
+
+        // This triggers the browser's native system biometric fingerprint/face dialog
+        const credential = await navigator.credentials.create({ publicKey });
+        if (credential) {
+          setIsScanning(false);
+          setStudent(s => {
+            const updated = {
+              ...s,
+              biometrics_completed_current_semester: true
+            };
+            try {
+              localStorage.setItem('knust_user_session', JSON.stringify(updated));
+            } catch (e) { }
+            return updated;
+          });
+          setIsBiometricsModalOpen(false);
+          showToast('Biometric hardware verification completed successfully!', 'success');
+          return;
+        }
+      } catch (err) {
+        console.warn("WebAuthn verification cancelled, falling back to simulator:", err);
+      }
+    }
+
+    // Graceful Fallback: Animated Simulation scan
     setIsScanning(true);
     setTimeout(() => {
       setIsScanning(false);
