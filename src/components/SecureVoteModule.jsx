@@ -517,7 +517,7 @@ export default function SecureVoteModule({ navigate }) {
                 Secure Vote Portal
               </h1>
               {student && (
-                <span className="bg-white/15 dark:bg-slate-950/40 text-[#D4AF37] border border-[#D4AF37]/40 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider">
+                <span className="bg-[#991B1B] text-white border border-[#D4AF37]/40 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider shadow-2xs">
                   Voter: {student.shortName || student.name?.split(' ')[0]}
                 </span>
               )}

@@ -146,7 +146,7 @@ export default function Sidebar({
               {!isCollapsed && (
                 <div className="flex flex-col animate-fadeIn">
                   <span className="sidebar-brand-title font-black text-[#007A4D] dark:text-slate-100 text-sm tracking-wider uppercase leading-none">KNUST</span>
-                  <span className="text-[10px] font-bold text-[#D4AF37] dark:text-amber-400 tracking-widest uppercase leading-none mt-0.5">AIM Portal</span>
+                  <span className="text-[9px] font-black bg-[#991B1B] text-white px-2 py-0.5 rounded-md tracking-wider uppercase leading-none mt-1 select-none w-max">AIM Portal</span>
                 </div>
               )}
             </div>

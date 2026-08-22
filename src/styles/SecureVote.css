@@ -20,6 +20,10 @@
   /* KNUST-style Green */
   --accent: #D4A72C;
   /* Muted Academic Gold */
+  --brand-red: #991B1B;
+  /* Premium KNUST Crimson Red */
+  --brand-red-light: #FEE2E2;
+  /* Soft Red Highlight */
   --background: #F4F7F5;
   /* Cool Warm Gray */
   --surface: #FFFFFF;
@@ -1551,7 +1555,7 @@ body {
 }
 
 .knust-hero-card {
-  background: linear-gradient(135deg, rgba(6, 59, 42, 0.95) 0%, rgba(11, 122, 83, 0.9) 100%) !important;
+  background: linear-gradient(135deg, #063B2A 0%, #115E59 45%, #991B1B 100%) !important;
   color: #ffffff !important;
   border: 1px solid rgba(214, 167, 44, 0.3) !important;
 }
