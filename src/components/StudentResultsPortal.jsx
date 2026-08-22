@@ -141,7 +141,7 @@ export default function StudentResultsPortal({ onBack }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 font-sans">
+    <div className="max-w-6xl mx-auto space-y-6 font-sans p-4 md:p-0">
 
       {/* Header Banner */}
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

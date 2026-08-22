@@ -11,6 +11,7 @@ import CandidateAgentRoom from './components/CandidateAgentRoom';
 import Unauthorized from './components/Unauthorized';
 import AppBarRoleSwitcher from './components/AppBarRoleSwitcher';
 import ThemeToggle from './components/ThemeToggle';
+import { Menu } from 'lucide-react';
 import ToastContainer from './components/ToastContainer';
 import useECAuthorization from './hooks/useECAuthorization';
 import { AdminAuthProvider } from './context/AdminAuthContext';
@@ -41,6 +42,7 @@ export default function App() {
   const [isCandidateAgent, setIsCandidateAgent] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
   const [currentView, setCurrentView] = useState('student');  // 'student' or 'ec-admin'
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Use EC authorization hook for dual-identity detection
   const { hasECAccess, ecRole, ecJurisdictionName, checkVoteStatus, voteStatus, currentElectionId } = useECAuthorization();
@@ -141,13 +143,32 @@ export default function App() {
   // If checking role or is candidate agent and not on candidate-agent route, show loading
   if (checkingRole) {
     return (
-      <div className="app-root flex flex-row h-screen overflow-hidden bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 transition-colors duration-200 relative">
-        {/* Fixed Top Right Toggle Icon */}
-        <div className="fixed top-4 right-5 z-50">
+      <div className="app-root flex flex-col md:flex-row h-screen overflow-hidden bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 transition-colors duration-200 relative">
+        <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-[#DDE5E1] dark:border-slate-800 z-30 w-full flex-shrink-0">
+          <button 
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors border-none bg-transparent cursor-pointer"
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
+          <span className="font-black text-[#007A4D] dark:text-slate-100 text-xs tracking-wider uppercase">KNUST AIM Portal</span>
           <ThemeToggle />
         </div>
-        <Sidebar navigate={navigate} />
-        <main className="flex-1 p-6 bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 overflow-y-auto">
+
+        {isMobileMenuOpen && (
+          <div 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 md:hidden animate-fadeIn"
+          />
+        )}
+
+        <Sidebar 
+          navigate={navigate} 
+          isMobileOpen={isMobileMenuOpen}
+          onNavigate={() => setIsMobileMenuOpen(false)}
+        />
+        <main className="flex-1 p-4 md:p-6 bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 overflow-y-auto">
           <div style={{ textAlign: 'center', paddingTop: 40 }}>
             <p className="text-slate-600 dark:text-slate-400">Loading your portal...</p>
           </div>
@@ -158,11 +179,28 @@ export default function App() {
 
   return (
     <AdminAuthProvider>
-      <div className="app-root flex flex-row h-screen overflow-hidden bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 transition-colors duration-200 relative">
-        {/* Fixed Top Right Toggle Icon */}
-        <div className="fixed top-4 right-5 z-50">
+      <div className="app-root flex flex-col md:flex-row h-screen overflow-hidden bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 transition-colors duration-200 relative animate-fadeIn">
+        {/* Mobile Header Bar */}
+        <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-[#DDE5E1] dark:border-slate-800 z-30 w-full flex-shrink-0 shadow-2xs">
+          <button 
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors border-none bg-transparent cursor-pointer"
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
+          <span className="font-black text-[#007A4D] dark:text-slate-100 text-xs tracking-wider uppercase">KNUST AIM Portal</span>
           <ThemeToggle />
         </div>
+
+        {/* Mobile Backdrop Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 md:hidden animate-fadeIn"
+          />
+        )}
+
         <ToastContainer />
 
         <Sidebar
@@ -172,9 +210,11 @@ export default function App() {
           ecJurisdictionName={ecJurisdictionName}
           currentView={currentView}
           onViewChange={handleViewChange}
+          isMobileOpen={isMobileMenuOpen}
+          onNavigate={() => setIsMobileMenuOpen(false)}
         />
 
-        <main className="app-main-content flex-1 p-6 bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 overflow-y-auto transition-colors duration-200">
+        <main className="app-main-content flex-1 p-4 md:p-6 bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 overflow-y-auto transition-colors duration-200">
           {isBallot ? (
             <BallotGuard ballotId={ballotId} navigate={navigate} />
           ) : route === '/ec-admin' ? (

@@ -699,7 +699,7 @@ export default function Ballot({ electionId, student, onBack }) {
      RENDER: BALLOT SCREEN
   ───────────────────────────────────────────── */
   return (
-    <div className="max-w-6xl mx-auto px-4 pt-6 pb-32 flex flex-col gap-8">
+    <div className="max-w-6xl mx-auto px-3.5 md:px-4 pt-4 md:pt-6 pb-32 flex flex-col gap-8">
 
       {/* ── Page Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pb-4 border-b border-gray-250 dark:border-slate-850">
@@ -964,7 +964,7 @@ export default function Ballot({ electionId, student, onBack }) {
           onClick={() => setShowConfirmModal(false)}
         >
           <div
-            className="relative max-w-sm w-full p-6 bg-white dark:bg-slate-900 border-2 border-[#007A4D] dark:border-emerald-500 rounded-2xl shadow-2xl flex flex-col gap-5 text-slate-900 dark:text-slate-100 animate-modal-pop"
+            className="relative max-w-sm w-full p-4 md:p-6 bg-white dark:bg-slate-900 border-2 border-[#007A4D] dark:border-emerald-500 rounded-2xl shadow-2xl flex flex-col gap-5 text-slate-900 dark:text-slate-100 animate-modal-pop"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">

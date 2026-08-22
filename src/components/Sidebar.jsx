@@ -15,7 +15,8 @@ import {
   Award, 
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  X as XIcon
 } from 'lucide-react';
 import StepUpAuthModal from './StepUpAuthModal';
 import AppBarRoleSwitcher from './AppBarRoleSwitcher';
@@ -30,15 +31,18 @@ export default function Sidebar({
   ecJurisdictionName,
   currentView,
   onViewChange,
-  onNavigate  // auto-close mobile drawer after clicking a link
+  onNavigate,
+  isMobileOpen
 }) {
   const [isStepUpOpen, setStepUpOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsedState, setIsCollapsedState] = useState(false);
   const [activeRoute, setActiveRoute] = useState(() => window.location.pathname || '/');
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return document.documentElement.classList.contains('dark') ||
       localStorage.getItem('theme') === 'dark';
   });
+
+  const isCollapsed = isCollapsedState && !isMobileOpen;
 
   useEffect(() => {
     const handleLocationChange = () => {
@@ -107,8 +111,10 @@ export default function Sidebar({
 
   return (
     <nav 
-      className={`app-sidebar bg-white dark:bg-slate-900 border-r border-[#DDE5E1] dark:border-slate-800 p-4 h-screen flex flex-col justify-between overflow-y-auto shrink-0 text-[#202522] dark:text-slate-100 transition-all duration-300 ${
-        isCollapsed ? 'w-20' : 'w-64'
+      className={`app-sidebar fixed md:sticky top-0 left-0 z-50 h-screen flex flex-col justify-between overflow-y-auto shrink-0 bg-white dark:bg-slate-900 border-r border-[#DDE5E1] dark:border-slate-800 p-4 text-[#202522] dark:text-slate-100 transition-all duration-300 ${
+        isCollapsed ? 'md:w-20' : 'md:w-64'
+      } ${
+        isMobileOpen ? 'translate-x-0 w-64 shadow-2xl' : '-translate-x-full md:translate-x-0'
       }`} 
       aria-label="Main navigation"
     >
@@ -119,7 +125,7 @@ export default function Sidebar({
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#004D40] to-[#002d25] flex items-center justify-center text-white border border-[#D4AF37] shadow-sm flex-shrink-0">
               <GraduationCap className="w-5 h-5 text-[#D4AF37]" />
             </div>
-            {!isCollapsed && (
+            {(!isCollapsed || isMobileOpen) && (
               <div className="flex flex-col">
                 <span className="sidebar-brand-title font-black text-[#007A4D] dark:text-slate-100 text-sm tracking-wider uppercase leading-none">KNUST</span>
                 <span className="text-[10px] font-bold text-[#D4AF37] dark:text-amber-400 tracking-widest uppercase leading-none mt-0.5">AIM Portal</span>
@@ -127,16 +133,25 @@ export default function Sidebar({
             )}
           </div>
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={() => setIsCollapsedState(!isCollapsedState)}
             className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-650 transition-colors border-none bg-transparent cursor-pointer hidden md:flex items-center justify-center"
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
             {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
+          
+          {/* Mobile close menu button */}
+          <button
+            onClick={closeDrawer}
+            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-650 transition-colors border-none bg-transparent cursor-pointer flex md:hidden items-center justify-center"
+            title="Close Menu"
+          >
+            <XIcon size={16} />
+          </button>
         </div>
 
         {/* Role Switcher - only visible if user has EC access */}
-        {!isCollapsed && (
+        {(!isCollapsed || isMobileOpen) && (
           <AppBarRoleSwitcher
             hasECAccess={hasECAccess}
             ecRole={ecRole}
