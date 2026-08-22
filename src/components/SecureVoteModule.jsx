@@ -504,7 +504,15 @@ export default function SecureVoteModule({ navigate }) {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto bg-[#F3F6F8] dark:bg-slate-900 text-[#171717] dark:text-slate-100 transition-colors duration-200 min-h-screen">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto bg-[#F3F6F8] dark:bg-slate-900 text-[#171717] dark:text-slate-100 transition-colors duration-200 min-h-screen relative overflow-hidden">
+      {/* ── Subtle Crest Watermark Background ── */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.035] dark:opacity-[0.02] z-0 select-none">
+        <img 
+          src="/logo.png" 
+          alt="Watermark Crest" 
+          className="w-[500px] h-[500px] object-contain" 
+        />
+      </div>
       {/* ── 1. Secure Vote Banner ── */}
       <div className="mb-6 p-5 md:p-8 knust-hero-card rounded-2xl shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b-4 border-r-2 border-[#D4AF37]/50 relative overflow-visible">
         <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap">

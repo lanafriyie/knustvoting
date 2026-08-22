@@ -142,7 +142,7 @@ export default function Sidebar({
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center border border-[#D4AF37] shadow-sm flex-shrink-0 overflow-hidden p-0.5">
                 <img 
-                  src="https://upload.wikimedia.org/wikipedia/en/thumb/b/b4/Knust_seal.png/220px-Knust_seal.png" 
+                  src="/logo.png" 
                   alt="KNUST Crest" 
                   className="w-8 h-8 object-contain" 
                   onError={(e) => {
