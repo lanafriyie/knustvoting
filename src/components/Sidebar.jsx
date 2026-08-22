@@ -140,8 +140,19 @@ export default function Sidebar({
           {/* Brand / Portal Title */}
           <div className="sidebar-brand flex items-center justify-between pb-3 mb-3 border-b border-[#DDE5E1] dark:border-slate-800">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#004D40] to-[#002d25] flex items-center justify-center text-white border border-[#D4AF37] shadow-sm flex-shrink-0">
-                <GraduationCap className="w-5 h-5 text-[#D4AF37]" />
+              <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center border border-[#D4AF37] shadow-sm flex-shrink-0 overflow-hidden p-0.5">
+                <img 
+                  src="https://upload.wikimedia.org/wikipedia/en/thumb/b/b4/Knust_seal.png/220px-Knust_seal.png" 
+                  alt="KNUST Crest" 
+                  className="w-8 h-8 object-contain" 
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    const parent = e.target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = '<span class="text-xs font-black text-[#007A4D]">K</span>';
+                    }
+                  }}
+                />
               </div>
               {!isCollapsed && (
                 <div className="flex flex-col animate-fadeIn">
