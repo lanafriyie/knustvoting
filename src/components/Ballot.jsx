@@ -1,16 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { 
-  Search, 
-  Camera, 
-  Check, 
-  ChevronLeft, 
-  ShieldAlert, 
-  Award, 
-  FileText, 
-  Vote, 
-  Info, 
-  CheckCircle2, 
-  Lock, 
+import {
+  Search,
+  Camera,
+  Check,
+  ChevronLeft,
+  ShieldAlert,
+  Award,
+  FileText,
+  Vote,
+  Info,
+  CheckCircle2,
+  Lock,
   X,
   BookOpen,
   Eye,
@@ -413,7 +413,7 @@ export default function Ballot({ electionId, student, onBack }) {
     try {
       const stored = localStorage.getItem('knust_user_session');
       if (stored) return JSON.parse(stored);
-    } catch (e) {}
+    } catch (e) { }
     return DEFAULT_STUDENT;
   }, [student]);
 
@@ -448,7 +448,7 @@ export default function Ballot({ electionId, student, onBack }) {
   useEffect(() => {
     const targetMock = mockElections.find(e => e.id === electionId) || mockElections[0];
     const endTime = targetMock.endTime ? new Date(targetMock.endTime).getTime() : Date.now() + 2 * 3600 * 1000;
-    
+
     const interval = setInterval(() => {
       const remaining = endTime - Date.now();
       if (remaining <= 0) {
@@ -458,7 +458,7 @@ export default function Ballot({ electionId, student, onBack }) {
         setTimeLeft(remaining);
       }
     }, 1000);
-    
+
     return () => clearInterval(interval);
   }, [electionId]);
 
@@ -566,8 +566,8 @@ export default function Ballot({ electionId, student, onBack }) {
       const electionTitle = isConstituencyBallot
         ? `${activeStudent?.constituency_locked || 'Ayeduase'} Constituency Parliamentary Election`
         : isDeptBallot
-        ? 'Department & College Executive Elections'
-        : 'SRC Executive Official Elections';
+          ? 'Department & College Executive Elections'
+          : 'SRC Executive Official Elections';
 
       const receiptData = {
         receiptId,
@@ -699,7 +699,7 @@ export default function Ballot({ electionId, student, onBack }) {
      RENDER: BALLOT SCREEN
   ───────────────────────────────────────────── */
   return (
-    <div className="max-w-6xl mx-auto px-3.5 md:px-4 pt-4 md:pt-6 pb-32 flex flex-col gap-8">
+    <div className="max-w-6xl mx-auto px-4 pt-6 pb-32 flex flex-col gap-8">
 
       {/* ── Page Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pb-4 border-b border-gray-250 dark:border-slate-850">
@@ -720,16 +720,16 @@ export default function Ballot({ electionId, student, onBack }) {
               {isDeptBallot
                 ? 'Department & College Official Ballot'
                 : isConstituencyBallot
-                ? `${activeStudent?.constituency_locked || 'Ayeduase'} Constituency MP Ballot`
-                : 'SRC Executive Official Ballot'}
+                  ? `${activeStudent?.constituency_locked || 'Ayeduase'} Constituency MP Ballot`
+                  : 'SRC Executive Official Ballot'}
             </span>
           </h1>
           <p className="m-0 text-xs font-semibold text-gray-600 dark:text-slate-400 leading-relaxed">
             {isDeptBallot
               ? 'Departmental & College Executive Elections — Select your candidate for each portfolio'
               : isConstituencyBallot
-              ? `Single-choice Parliamentary Election for ${activeStudent?.constituency_locked || 'Ayeduase'} Constituency`
-              : 'Select your preferred candidates for all Executive positions'}
+                ? `Single-choice Parliamentary Election for ${activeStudent?.constituency_locked || 'Ayeduase'} Constituency`
+                : 'Select your preferred candidates for all Executive positions'}
           </p>
         </div>
 
@@ -964,7 +964,7 @@ export default function Ballot({ electionId, student, onBack }) {
           onClick={() => setShowConfirmModal(false)}
         >
           <div
-            className="relative max-w-sm w-full p-4 md:p-6 bg-white dark:bg-slate-900 border-2 border-[#007A4D] dark:border-emerald-500 rounded-2xl shadow-2xl flex flex-col gap-5 text-slate-900 dark:text-slate-100 animate-modal-pop"
+            className="relative max-w-sm w-full p-6 bg-white dark:bg-slate-900 border-2 border-[#007A4D] dark:border-emerald-500 rounded-2xl shadow-2xl flex flex-col gap-5 text-slate-900 dark:text-slate-100 animate-modal-pop"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">

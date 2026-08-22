@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { 
-  BarChart3, 
-  Search, 
-  Lock, 
-  Building, 
-  Vote, 
-  Check, 
-  CheckCircle2, 
-  Calendar, 
-  Hash, 
-  Award, 
+import {
+  BarChart3,
+  Search,
+  Lock,
+  Building,
+  Vote,
+  Check,
+  CheckCircle2,
+  Calendar,
+  Hash,
+  Award,
   AlertTriangle,
   Users,
   Trophy,
@@ -141,7 +141,7 @@ export default function StudentResultsPortal({ onBack }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 font-sans p-4 md:p-0">
+    <div className="max-w-6xl mx-auto space-y-6 font-sans">
 
       {/* Header Banner */}
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -280,7 +280,7 @@ export default function StudentResultsPortal({ onBack }) {
               </span>
               <span className="text-emerald-400">STATUS: MATCHED</span>
             </div>
-            
+
             <div className="space-y-1.5 text-xs">
               <p className="m-0 text-slate-200 leading-relaxed font-semibold">
                 &gt; {receiptResult.message}

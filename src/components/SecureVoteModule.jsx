@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Fingerprint, 
-  Timer, 
-  Building2, 
-  Megaphone, 
-  UserCheck, 
-  AlertTriangle, 
-  Vote, 
-  BarChart3, 
-  Clock, 
-  Lock, 
-  ChevronRight, 
-  User, 
-  GraduationCap, 
-  ShieldAlert, 
-  CheckCircle2, 
-  Eye, 
-  ShieldCheck, 
-  X, 
+import {
+  Fingerprint,
+  Timer,
+  Building2,
+  Megaphone,
+  UserCheck,
+  AlertTriangle,
+  Vote,
+  BarChart3,
+  Clock,
+  Lock,
+  ChevronRight,
+  User,
+  GraduationCap,
+  ShieldAlert,
+  CheckCircle2,
+  Eye,
+  ShieldCheck,
+  X,
   RefreshCw,
   Building,
-  Home 
+  Home
 } from 'lucide-react';
 import VirtualQueue from './VirtualQueue';
 import useStudentSession from '../hooks/useStudentSession';
@@ -167,7 +167,7 @@ export default function SecureVoteModule({ navigate }) {
         };
         try {
           localStorage.setItem('knust_user_session', JSON.stringify(updated));
-        } catch (e) {}
+        } catch (e) { }
         return updated;
       });
       setIsBiometricsModalOpen(false);
@@ -192,7 +192,7 @@ export default function SecureVoteModule({ navigate }) {
         setNotification(stored);
         sessionStorage.removeItem('sv_redirect_notification');
       }
-    } catch (e) {}
+    } catch (e) { }
   }, []);
 
   // Subscribe to local/external vote submission events
@@ -398,7 +398,7 @@ export default function SecureVoteModule({ navigate }) {
         if (url.searchParams.get('queue') === '1' || url.searchParams.get('simulate_queue') === '1') {
           if (mounted) setShowQueue(true);
         }
-      } catch (err) {}
+      } catch (err) { }
     }
     checkQueue();
     return () => { mounted = false; };
@@ -448,9 +448,9 @@ export default function SecureVoteModule({ navigate }) {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto bg-[#F3F6F8] dark:bg-slate-900 text-[#171717] dark:text-slate-100 transition-colors duration-200 min-h-screen">
+    <div className="p-6 max-w-6xl mx-auto bg-[#F3F6F8] dark:bg-slate-900 text-[#171717] dark:text-slate-100 transition-colors duration-200 min-h-screen">
       {/* ── 1. Secure Vote Banner ── */}
-      <div className="mb-6 p-4 md:p-6 knust-hero-card rounded-2xl shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="mb-6 p-6 knust-hero-card rounded-2xl shadow-2xs flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-[#D4AF37] text-white">
             <Vote size={24} className="text-[#007A4D]" />
@@ -464,7 +464,7 @@ export default function SecureVoteModule({ navigate }) {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3 flex-wrap mr-0 md:mr-12">
+        <div className="flex items-center gap-3 flex-wrap mr-12">
           {/* Quick Demo Profile Switcher */}
           <DemoProfileSwitcher onProfileChange={setStudent} />
 
@@ -514,10 +514,10 @@ export default function SecureVoteModule({ navigate }) {
       )}
 
       {/* ── 2. Clean Biometric & Status Checker Card ── */}
-      <div 
+      <div
         onClick={handleBiometricsClick}
-        className="bg-white dark:bg-slate-800 border border-[#E1E7E4] dark:border-slate-700 text-[#171717] dark:text-slate-100 rounded-2xl p-4 md:p-6 shadow-2xs mb-6 knust-glass-card cursor-pointer hover:border-[#007A4D]/50 hover:shadow-xs transition-all" 
-        role="button" 
+        className="bg-white dark:bg-slate-800 border border-[#E1E7E4] dark:border-slate-700 text-[#171717] dark:text-slate-100 rounded-2xl p-6 shadow-2xs mb-6 knust-glass-card cursor-pointer hover:border-[#007A4D]/50 hover:shadow-xs transition-all"
+        role="button"
         aria-label="Biometric & Status Checker"
       >
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4 mb-4">
@@ -625,7 +625,7 @@ export default function SecureVoteModule({ navigate }) {
             };
             try {
               localStorage.setItem('knust_user_session', JSON.stringify(updated));
-            } catch (e) {}
+            } catch (e) { }
             return updated;
           });
         }}
@@ -723,8 +723,8 @@ export default function SecureVoteModule({ navigate }) {
                       {statusInfo.isUpcoming
                         ? `Starts in ${statusInfo.countdownText}`
                         : statusInfo.isLive
-                        ? `Polls Close in ${statusInfo.countdownText}`
-                        : 'Election Concluded'}
+                          ? `Polls Close in ${statusInfo.countdownText}`
+                          : 'Election Concluded'}
                     </span>
                   </div>
 
@@ -851,8 +851,8 @@ export default function SecureVoteModule({ navigate }) {
                       {statusInfo.isUpcoming
                         ? `Starts in ${statusInfo.countdownText}`
                         : statusInfo.isLive
-                        ? `Polls Close in ${statusInfo.countdownText}`
-                        : 'Election Concluded'}
+                          ? `Polls Close in ${statusInfo.countdownText}`
+                          : 'Election Concluded'}
                     </span>
                   </div>
 
@@ -986,8 +986,8 @@ export default function SecureVoteModule({ navigate }) {
                       {statusInfo.isUpcoming
                         ? `Starts in ${statusInfo.countdownText}`
                         : statusInfo.isLive
-                        ? `Polls Close in ${statusInfo.countdownText}`
-                        : 'Election Concluded'}
+                          ? `Polls Close in ${statusInfo.countdownText}`
+                          : 'Election Concluded'}
                     </span>
                   </div>
 
@@ -1145,8 +1145,8 @@ export default function SecureVoteModule({ navigate }) {
                       {statusInfo.isUpcoming
                         ? `Starts in ${statusInfo.countdownText}`
                         : statusInfo.isLive
-                        ? `Polls Close in ${statusInfo.countdownText}`
-                        : 'Election Concluded'}
+                          ? `Polls Close in ${statusInfo.countdownText}`
+                          : 'Election Concluded'}
                     </span>
                   </div>
 
@@ -1230,20 +1230,20 @@ export default function SecureVoteModule({ navigate }) {
             </div>
 
             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed m-0">
-              {isScanning 
-                ? 'Scanning fingerprint... Please hold your finger steady on the sensor.' 
+              {isScanning
+                ? 'Scanning fingerprint... Please hold your finger steady on the sensor.'
                 : 'Place your finger on the scanner below to verify your academic session eligibility.'}
             </p>
 
             {/* Scanner Button Container */}
-            <div 
+            <div
               onClick={!isScanning ? handleVerifyBiometrics : undefined}
               className={`biometrics-scanner-box my-4 ${isScanning ? 'scanning' : ''}`}
             >
               {isScanning && <div className="biometrics-laser-line" />}
-              <Fingerprint 
-                size={54} 
-                className={isScanning ? 'text-emerald-500 animate-pulse' : 'text-slate-400 hover:text-[#007A4D] transition-colors'} 
+              <Fingerprint
+                size={54}
+                className={isScanning ? 'text-emerald-500 animate-pulse' : 'text-slate-400 hover:text-[#007A4D] transition-colors'}
               />
             </div>
 

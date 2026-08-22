@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  GraduationCap, 
-  LayoutDashboard, 
-  BarChart3, 
-  Vote, 
-  ShieldCheck, 
-  Eye, 
-  BookOpen, 
-  FileText, 
-  CreditCard, 
-  Coins, 
-  Activity, 
-  Users, 
-  Award, 
+import {
+  GraduationCap,
+  LayoutDashboard,
+  BarChart3,
+  Vote,
+  ShieldCheck,
+  Eye,
+  BookOpen,
+  FileText,
+  CreditCard,
+  Coins,
+  Activity,
+  Users,
+  Award,
   LogOut,
   ChevronLeft,
-  ChevronRight,
-  X as XIcon
+  ChevronRight
 } from 'lucide-react';
 import StepUpAuthModal from './StepUpAuthModal';
 import AppBarRoleSwitcher from './AppBarRoleSwitcher';
@@ -31,18 +30,27 @@ export default function Sidebar({
   ecJurisdictionName,
   currentView,
   onViewChange,
-  onNavigate,
-  isMobileOpen
+  onNavigate  // auto-close mobile drawer after clicking a link
 }) {
   const [isStepUpOpen, setStepUpOpen] = useState(false);
-  const [isCollapsedState, setIsCollapsedState] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+  });
   const [activeRoute, setActiveRoute] = useState(() => window.location.pathname || '/');
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return document.documentElement.classList.contains('dark') ||
       localStorage.getItem('theme') === 'dark';
   });
 
-  const isCollapsed = isCollapsedState && !isMobileOpen;
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsCollapsed(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const handleLocationChange = () => {
@@ -75,15 +83,20 @@ export default function Sidebar({
     e.preventDefault();
     setActiveRoute(path);
     if (typeof navigate === 'function') navigate(path);
+    closeDrawer();
     if (typeof onNavigate === 'function') onNavigate();
   }
 
   function handlePlaceholderClick(e, featureName) {
     e.preventDefault();
     showToast(`AIM Portal Simulator: "${featureName}" is a placeholder representing the integration of Secure Vote within the KNUST AIM App.`, 'info');
+    closeDrawer();
   }
 
   function closeDrawer() {
+    if (window.innerWidth < 768) {
+      setIsCollapsed(true);
+    }
     if (typeof onNavigate === 'function') onNavigate();
   }
 
@@ -110,48 +123,44 @@ export default function Sidebar({
   };
 
   return (
-    <nav 
-      className={`app-sidebar fixed md:sticky top-0 left-0 z-50 h-screen flex flex-col justify-between overflow-y-auto shrink-0 bg-white dark:bg-slate-900 border-r border-[#DDE5E1] dark:border-slate-800 p-4 text-[#202522] dark:text-slate-100 transition-all duration-300 ${
-        isCollapsed ? 'md:w-20' : 'md:w-64'
-      } ${
-        isMobileOpen ? 'translate-x-0 w-64 shadow-2xl' : '-translate-x-full md:translate-x-0'
-      }`} 
-      aria-label="Main navigation"
-    >
-      <div>
-        {/* Brand / Portal Title */}
-        <div className="sidebar-brand flex items-center justify-between pb-3 mb-3 border-b border-[#DDE5E1] dark:border-slate-800">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#004D40] to-[#002d25] flex items-center justify-center text-white border border-[#D4AF37] shadow-sm flex-shrink-0">
-              <GraduationCap className="w-5 h-5 text-[#D4AF37]" />
-            </div>
-            {(!isCollapsed || isMobileOpen) && (
-              <div className="flex flex-col">
-                <span className="sidebar-brand-title font-black text-[#007A4D] dark:text-slate-100 text-sm tracking-wider uppercase leading-none">KNUST</span>
-                <span className="text-[10px] font-bold text-[#D4AF37] dark:text-amber-400 tracking-widest uppercase leading-none mt-0.5">AIM Portal</span>
+    <>
+      {!isCollapsed && (
+        <div 
+          onClick={() => setIsCollapsed(true)}
+          className="fixed inset-0 bg-black/45 backdrop-blur-xs z-40 md:hidden animate-fadeIn"
+        />
+      )}
+      <nav
+        className={`app-sidebar bg-white dark:bg-slate-900 border-r border-[#DDE5E1] dark:border-slate-800 p-4 h-screen flex flex-col justify-between overflow-y-auto shrink-0 text-[#202522] dark:text-slate-100 transition-all duration-300 ${
+          isCollapsed ? 'w-20' : 'w-64 absolute md:relative z-50 md:z-auto shadow-2xl md:shadow-none'
+        }`}
+        aria-label="Main navigation"
+      >
+        <div>
+          {/* Brand / Portal Title */}
+          <div className="sidebar-brand flex items-center justify-between pb-3 mb-3 border-b border-[#DDE5E1] dark:border-slate-800">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#004D40] to-[#002d25] flex items-center justify-center text-white border border-[#D4AF37] shadow-sm flex-shrink-0">
+                <GraduationCap className="w-5 h-5 text-[#D4AF37]" />
               </div>
-            )}
+              {!isCollapsed && (
+                <div className="flex flex-col animate-fadeIn">
+                  <span className="sidebar-brand-title font-black text-[#007A4D] dark:text-slate-100 text-sm tracking-wider uppercase leading-none">KNUST</span>
+                  <span className="text-[10px] font-bold text-[#D4AF37] dark:text-amber-400 tracking-widest uppercase leading-none mt-0.5">AIM Portal</span>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-650 transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center"
+              title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+              {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            </button>
           </div>
-          <button
-            onClick={() => setIsCollapsedState(!isCollapsedState)}
-            className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-650 transition-colors border-none bg-transparent cursor-pointer hidden md:flex items-center justify-center"
-            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-          >
-            {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-          </button>
-          
-          {/* Mobile close menu button */}
-          <button
-            onClick={closeDrawer}
-            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-650 transition-colors border-none bg-transparent cursor-pointer flex md:hidden items-center justify-center"
-            title="Close Menu"
-          >
-            <XIcon size={16} />
-          </button>
-        </div>
 
         {/* Role Switcher - only visible if user has EC access */}
-        {(!isCollapsed || isMobileOpen) && (
+        {!isCollapsed && (
           <AppBarRoleSwitcher
             hasECAccess={hasECAccess}
             ecRole={ecRole}
@@ -191,9 +200,9 @@ export default function Sidebar({
             {isCollapsed ? '•' : 'ACADEMICS'}
           </li>
           <li className="sidebar-subitem sidebar-placeholder-muted">
-            <a 
-              href="#course-reg" 
-              onClick={e => handlePlaceholderClick(e, 'Course Registration')} 
+            <a
+              href="#course-reg"
+              onClick={e => handlePlaceholderClick(e, 'Course Registration')}
               className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
               title={isCollapsed ? "Course Registration (Mock)" : undefined}
             >
@@ -207,9 +216,9 @@ export default function Sidebar({
             </a>
           </li>
           <li className="sidebar-subitem sidebar-placeholder-muted">
-            <a 
-              href="#reg-slip" 
-              onClick={e => handlePlaceholderClick(e, 'Registration Slip')} 
+            <a
+              href="#reg-slip"
+              onClick={e => handlePlaceholderClick(e, 'Registration Slip')}
               className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
               title={isCollapsed ? "Registration Slip (Mock)" : undefined}
             >
@@ -223,9 +232,9 @@ export default function Sidebar({
             </a>
           </li>
           <li className="sidebar-subitem">
-            <a 
-              href="#results" 
-              onClick={e => go(e, '/results')} 
+            <a
+              href="#results"
+              onClick={e => go(e, '/results')}
               className={getItemClass('/results')}
               title={isCollapsed ? "Check Results" : undefined}
             >
@@ -239,9 +248,9 @@ export default function Sidebar({
             {isCollapsed ? '•' : 'FINANCE'}
           </li>
           <li className="sidebar-subitem sidebar-placeholder-muted">
-            <a 
-              href="#bills" 
-              onClick={e => handlePlaceholderClick(e, 'Bill & Payment')} 
+            <a
+              href="#bills"
+              onClick={e => handlePlaceholderClick(e, 'Bill & Payment')}
               className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
               title={isCollapsed ? "Bill & Payment (Mock)" : undefined}
             >
@@ -255,9 +264,9 @@ export default function Sidebar({
             </a>
           </li>
           <li className="sidebar-subitem sidebar-placeholder-muted">
-            <a 
-              href="#fees" 
-              onClick={e => handlePlaceholderClick(e, 'Fees Status')} 
+            <a
+              href="#fees"
+              onClick={e => handlePlaceholderClick(e, 'Fees Status')}
               className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
               title={isCollapsed ? "Fees Status (Mock)" : undefined}
             >
@@ -300,9 +309,9 @@ export default function Sidebar({
 
           {/* EC Admin & Observer Room */}
           <li className="sidebar-subitem">
-            <a 
-              href="#ec-admin" 
-              onClick={e => go(e, '/ec-admin')} 
+            <a
+              href="#ec-admin"
+              onClick={e => go(e, '/ec-admin')}
               className={getItemClass('/ec-admin')}
               title={isCollapsed ? "EC Admin" : undefined}
             >
@@ -311,9 +320,9 @@ export default function Sidebar({
             </a>
           </li>
           <li className="sidebar-subitem">
-            <a 
-              href="#candidate-agent" 
-              onClick={e => go(e, '/candidate-agent')} 
+            <a
+              href="#candidate-agent"
+              onClick={e => go(e, '/candidate-agent')}
               className={getItemClass('/candidate-agent')}
               title={isCollapsed ? "Observer Room" : undefined}
             >
@@ -327,9 +336,9 @@ export default function Sidebar({
             {isCollapsed ? '•' : 'UTILITIES'}
           </li>
           <li className="sidebar-subitem sidebar-placeholder-muted">
-            <a 
-              href="#status" 
-              onClick={e => handlePlaceholderClick(e, 'Status Checker')} 
+            <a
+              href="#status"
+              onClick={e => handlePlaceholderClick(e, 'Status Checker')}
               className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
               title={isCollapsed ? "Status Checker (Mock)" : undefined}
             >
@@ -343,9 +352,9 @@ export default function Sidebar({
             </a>
           </li>
           <li className="sidebar-subitem sidebar-placeholder-muted">
-            <a 
-              href="#lecturers" 
-              onClick={e => handlePlaceholderClick(e, 'Select Lecturers')} 
+            <a
+              href="#lecturers"
+              onClick={e => handlePlaceholderClick(e, 'Select Lecturers')}
               className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
               title={isCollapsed ? "Select Lecturers (Mock)" : undefined}
             >
@@ -359,9 +368,9 @@ export default function Sidebar({
             </a>
           </li>
           <li className="sidebar-subitem sidebar-placeholder-muted">
-            <a 
-              href="#admission" 
-              onClick={e => handlePlaceholderClick(e, 'Admission Letter')} 
+            <a
+              href="#admission"
+              onClick={e => handlePlaceholderClick(e, 'Admission Letter')}
               className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
               title={isCollapsed ? "Admission Letter (Mock)" : undefined}
             >
@@ -408,6 +417,7 @@ export default function Sidebar({
         }}
       />
     </nav>
+    </>
   );
 }
 

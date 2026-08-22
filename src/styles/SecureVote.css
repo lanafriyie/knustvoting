@@ -14,14 +14,22 @@
    Danger: Muted Red #C94B4B
 ───────────────────────────────────────────── */
 :root {
-  --primary:           #063B2A;   /* Deep Forest Green */
-  --primary-light:     #0B7A53;   /* KNUST-style Green */
-  --accent:            #D4A72C;   /* Muted Academic Gold */
-  --background:        #F4F7F5;   /* Cool Warm Gray */
-  --surface:           #FFFFFF;   /* Pure White */
-  --text:              #17231F;   /* Deep Charcoal */
-  --muted:             #64736D;   /* Slate Gray */
-  --border:            #DCE6E1;   /* Soft Green-Gray */
+  --primary: #063B2A;
+  /* Deep Forest Green */
+  --primary-light: #0B7A53;
+  /* KNUST-style Green */
+  --accent: #D4A72C;
+  /* Muted Academic Gold */
+  --background: #F4F7F5;
+  /* Cool Warm Gray */
+  --surface: #FFFFFF;
+  /* Pure White */
+  --text: #17231F;
+  /* Deep Charcoal */
+  --muted: #64736D;
+  /* Slate Gray */
+  --border: #DCE6E1;
+  /* Soft Green-Gray */
 
   --bg-app: var(--background);
   --bg-card: var(--surface);
@@ -60,76 +68,90 @@
   --sv-error-text: #C94B4B;
 
   /* Centralized Sidebar Theme System Tokens */
-  --sidebar-bg:                #FFFFFF;
-  --sidebar-text:              #202522;
-  --sidebar-text-muted:        #66716C;
-  --sidebar-text-active:       #075C42;
-  --sidebar-hover-bg:          #F3FAF6;
-  --sidebar-hover-text:        #075C42;
-  --sidebar-active-bg:         #EAF6F0;
-  --sidebar-border:            #DDE5E1;
-  --sidebar-primary:           #007A4D;
-  --sidebar-accent:            #D6A72C;
-  --sidebar-brand-text:        #007A4D;
+  --sidebar-bg: #FFFFFF;
+  --sidebar-text: #202522;
+  --sidebar-text-muted: #66716C;
+  --sidebar-text-active: #075C42;
+  --sidebar-hover-bg: #F3FAF6;
+  --sidebar-hover-text: #075C42;
+  --sidebar-active-bg: #EAF6F0;
+  --sidebar-border: #DDE5E1;
+  --sidebar-primary: #007A4D;
+  --sidebar-accent: #D6A72C;
+  --sidebar-brand-text: #007A4D;
 
-  --sidebar-secure-vote-text:   #075C42;
-  --sidebar-secure-vote-icon:   #007A4D;
-  --sidebar-secure-vote-bg:     #EAF6F0;
+  --sidebar-secure-vote-text: #075C42;
+  --sidebar-secure-vote-icon: #007A4D;
+  --sidebar-secure-vote-bg: #EAF6F0;
   --sidebar-secure-vote-border: #007A4D;
 
-  --sidebar-badge-bg:          #FFF7DF;
-  --sidebar-badge-text:        #B88618;
-  --sidebar-badge-border:      rgba(214, 167, 44, 0.4);
+  --sidebar-badge-bg: #FFF7DF;
+  --sidebar-badge-text: #B88618;
+  --sidebar-badge-border: rgba(214, 167, 44, 0.4);
 
-  --sidebar-logout-text:       #66716C;
+  --sidebar-logout-text: #66716C;
   --sidebar-logout-hover-bg: #F3FAF6;
   --sidebar-logout-hover-text: #075C42;
-  --sidebar-logout-border:     #DDE5E1;
+  --sidebar-logout-border: #DDE5E1;
 }
 
 /* Dark Mode Variable Overrides */
-.dark, body.dark, [data-theme="dark"] {
-  --sv-bg-app:         #0F172A;   /* slate-900 */
-  --sv-bg-card:        #1E293B;   /* slate-800 */
-  --sv-bg-subtle:      #334155;   /* slate-700 */
-  --sv-bg-sidebar:     rgba(30, 41, 59, 0.8); /* slate-800/80 */
+.dark,
+body.dark,
+[data-theme="dark"] {
+  --sv-bg-app: #0F172A;
+  /* slate-900 */
+  --sv-bg-card: #1E293B;
+  /* slate-800 */
+  --sv-bg-subtle: #334155;
+  /* slate-700 */
+  --sv-bg-sidebar: rgba(30, 41, 59, 0.8);
+  /* slate-800/80 */
 
-  --sv-border-soft:    #334155;   /* slate-700 */
-  --sv-border-subtle:  #1E293B;   /* slate-800 */
+  --sv-border-soft: #334155;
+  /* slate-700 */
+  --sv-border-subtle: #1E293B;
+  /* slate-800 */
 
-  --sv-text-main:      #F8FAFC;   /* slate-100 */
-  --sv-text-mid:       #94A3B8;   /* slate-400 */
-  --sv-text-light:     #64748B;   /* slate-500 */
+  --sv-text-main: #F8FAFC;
+  /* slate-100 */
+  --sv-text-mid: #94A3B8;
+  /* slate-400 */
+  --sv-text-light: #64748B;
+  /* slate-500 */
 
-  --sv-crimson:        #F59E0B;   /* amber-500 */
-  --sv-crimson-dark:   #D97706;   /* amber-600 */
+  --sv-crimson: #F59E0B;
+  /* amber-500 */
+  --sv-crimson-dark: #D97706;
+  /* amber-600 */
 
   /* Dark Mode Overrides for Sidebar Tokens */
-  --sidebar-bg:                #0F172A;   /* slate-900 */
-  --sidebar-text:              #F8FAFC;
-  --sidebar-text-muted:        #94A3B8;
-  --sidebar-text-active:       #34D399;
-  --sidebar-hover-bg:          #1E293B;
-  --sidebar-hover-text:        #FFFFFF;
-  --sidebar-active-bg:         #1E293B;
-  --sidebar-border:            #334155;
-  --sidebar-primary:           #10B981;
-  --sidebar-accent:            #F59E0B;
-  --sidebar-brand-text:        #F8FAFC;
+  --sidebar-bg: #0F172A;
+  /* slate-900 */
+  --sidebar-text: #F8FAFC;
+  --sidebar-text-muted: #94A3B8;
+  --sidebar-text-active: #34D399;
+  --sidebar-hover-bg: #1E293B;
+  --sidebar-hover-text: #FFFFFF;
+  --sidebar-active-bg: #1E293B;
+  --sidebar-border: #334155;
+  --sidebar-primary: #10B981;
+  --sidebar-accent: #F59E0B;
+  --sidebar-brand-text: #F8FAFC;
 
-  --sidebar-secure-vote-text:   #34D399;
-  --sidebar-secure-vote-icon:   #34D399;
-  --sidebar-secure-vote-bg:     rgba(6, 78, 59, 0.4);
+  --sidebar-secure-vote-text: #34D399;
+  --sidebar-secure-vote-icon: #34D399;
+  --sidebar-secure-vote-bg: rgba(6, 78, 59, 0.4);
   --sidebar-secure-vote-border: #059669;
 
-  --sidebar-badge-bg:          rgba(120, 53, 15, 0.5);
-  --sidebar-badge-text:        #FCD34D;
-  --sidebar-badge-border:      rgba(217, 119, 6, 0.6);
+  --sidebar-badge-bg: rgba(120, 53, 15, 0.5);
+  --sidebar-badge-text: #FCD34D;
+  --sidebar-badge-border: rgba(217, 119, 6, 0.6);
 
-  --sidebar-logout-text:       #CBD5E1;
+  --sidebar-logout-text: #CBD5E1;
   --sidebar-logout-hover-bg: #1E293B;
   --sidebar-logout-hover-text: #34D399;
-  --sidebar-logout-border:     #334155;
+  --sidebar-logout-border: #334155;
 }
 
 /* ─────────────────────────────────────────────
@@ -153,10 +175,21 @@ body {
   background-color: var(--sv-bg-app);
 }
 
-.flex { display: flex; }
-.flex-row { flex-direction: row; }
-.h-screen { height: 100vh; }
-.overflow-hidden { overflow: hidden; }
+.flex {
+  display: flex;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.h-screen {
+  height: 100vh;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
 
 /* ─────────────────────────────────────────────
    Sidebar & Navigation (Clean Modern Accent)
@@ -218,7 +251,11 @@ body {
   box-shadow: 0 0 0 3px rgba(0, 122, 77, 0.15);
 }
 
-.sv-search span { font-size: 0.88rem; opacity: 0.85; color: var(--sidebar-text-muted); }
+.sv-search span {
+  font-size: 0.88rem;
+  opacity: 0.85;
+  color: var(--sidebar-text-muted);
+}
 
 .sv-search input {
   flex: 1;
@@ -230,7 +267,9 @@ body {
   color: var(--sidebar-text);
 }
 
-.sv-search input::placeholder { color: var(--sidebar-text-muted); }
+.sv-search input::placeholder {
+  color: var(--sidebar-text-muted);
+}
 
 .sv-search-clear-btn {
   background: transparent;
@@ -240,7 +279,11 @@ body {
   cursor: pointer;
   opacity: 0.7;
 }
-.sv-search-clear-btn:hover { opacity: 1; color: var(--sidebar-text); }
+
+.sv-search-clear-btn:hover {
+  opacity: 1;
+  color: var(--sidebar-text);
+}
 
 /* Floating Autocomplete Dropdown Card */
 .sv-search-dropdown {
@@ -285,13 +328,36 @@ body {
   border-bottom: 1px solid var(--sidebar-border);
 }
 
-.sv-search-result-item:last-child { border-bottom: none; }
-.sv-search-result-item:hover { background: var(--sidebar-hover-bg); }
+.sv-search-result-item:last-child {
+  border-bottom: none;
+}
 
-.sv-search-result-icon { font-size: 1.15rem; flex-shrink: 0; }
-.sv-search-result-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-.sv-search-result-title { font-size: 0.85rem; font-weight: 600; color: var(--sidebar-text); }
-.sv-search-result-category { font-size: 0.72rem; color: var(--sidebar-text-muted); }
+.sv-search-result-item:hover {
+  background: var(--sidebar-hover-bg);
+}
+
+.sv-search-result-icon {
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.sv-search-result-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.sv-search-result-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sidebar-text);
+}
+
+.sv-search-result-category {
+  font-size: 0.72rem;
+  color: var(--sidebar-text-muted);
+}
 
 .sv-search-highlight {
   background: #FEF3C7;
@@ -673,7 +739,9 @@ body {
 }
 
 @media (max-width: 900px) {
-  .sv-dash-grid { grid-template-columns: 1fr; }
+  .sv-dash-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .sv-elections-table-wrap {
@@ -706,7 +774,8 @@ body {
   border-bottom: none;
 }
 
-.sv-elec-status, .sv-live-tag {
+.sv-elec-status,
+.sv-live-tag {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -719,7 +788,8 @@ body {
   text-transform: uppercase;
 }
 
-.sv-elec-status.live, .sv-live-tag {
+.sv-elec-status.live,
+.sv-live-tag {
   background: #D1FAE5;
   color: #065F46;
   border: 1px solid #A7F3D0;
@@ -782,8 +852,15 @@ body {
 }
 
 @keyframes sv-modal-pop {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .sv-modal-header {
@@ -812,7 +889,10 @@ body {
   cursor: pointer;
   opacity: 0.8;
 }
-.sv-close-btn:hover { opacity: 1; }
+
+.sv-close-btn:hover {
+  opacity: 1;
+}
 
 .sv-tab-bar {
   display: flex;
@@ -967,8 +1047,14 @@ body {
   font-weight: 600;
 }
 
-.sv-field-value.bold { font-weight: 800; }
-.sv-field-value.highlight { color: var(--sv-crimson); font-weight: 800; }
+.sv-field-value.bold {
+  font-weight: 800;
+}
+
+.sv-field-value.highlight {
+  color: var(--sv-crimson);
+  font-weight: 800;
+}
 
 .sv-dev-toggle-btn {
   background: #FFFFFF;
@@ -1026,7 +1112,8 @@ body {
 .knust-student-card {
   position: relative;
   background: linear-gradient(135deg, #004D40 0%, #002d25 100%);
-  border-top: 4px solid #D4AF37; /* Institutional Gold top border */
+  border-top: 4px solid #D4AF37;
+  /* Institutional Gold top border */
   border-radius: 20px;
   color: #FFFFFF;
   padding: 24px;
@@ -1124,8 +1211,15 @@ body {
 }
 
 @keyframes pulse-ring {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(2.8); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
 }
 
 /* 4. Numeric Passcode Pad Modal UI */
@@ -1224,7 +1318,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* 5. Ballot Card Selection Transitions */
@@ -1240,7 +1336,8 @@ body {
 }
 
 .ballot-candidate-card-new:hover {
-  border-color: #D4AF37; /* Institutional Gold border on hover */
+  border-color: #D4AF37;
+  /* Institutional Gold border on hover */
   transform: translateY(-2px);
   box-shadow: var(--sv-shadow-md);
 }
@@ -1282,7 +1379,7 @@ body {
   border-radius: 16px;
   padding: 18px;
   font-family: 'Fira Code', ui-monospace, monospace;
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
 }
 
 /* ── Upgrades CSS Additions ── */
@@ -1300,6 +1397,7 @@ body {
   width: calc(100% - 48px);
   pointer-events: none;
 }
+
 .sv-toast {
   display: flex;
   align-items: center;
@@ -1317,33 +1415,41 @@ body {
   animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   transition: all 0.2s ease;
 }
+
 .dark .sv-toast {
   background: #1e293b;
   border-color: #334155;
   color: #f8fafc;
 }
+
 .sv-toast-success {
   border-left: 5px solid #10b981;
 }
+
 .sv-toast-warning {
   border-left: 5px solid #f59e0b;
 }
+
 .sv-toast-info {
   border-left: 5px solid #3b82f6;
 }
+
 @keyframes slideInRight {
   from {
     opacity: 0;
     transform: translateX(100%) scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: translateX(0) scale(1);
   }
 }
+
 .sv-toast-fadeout {
   animation: fadeOut 0.2s ease forwards;
 }
+
 @keyframes fadeOut {
   to {
     opacity: 0;
@@ -1365,14 +1471,17 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
 }
+
 .dark .biometrics-scanner-box {
   background: #0f172a;
   border-color: #334155;
 }
+
 .biometrics-scanner-box.scanning {
   border-color: #10b981;
   box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
 }
+
 .biometrics-laser-line {
   position: absolute;
   width: 100%;
@@ -1384,10 +1493,19 @@ body {
   pointer-events: none;
   border-radius: 999px;
 }
+
 @keyframes laserScan {
-  0% { top: 0%; }
-  50% { top: 100%; }
-  100% { top: 0%; }
+  0% {
+    top: 0%;
+  }
+
+  50% {
+    top: 100%;
+  }
+
+  100% {
+    top: 0%;
+  }
 }
 
 /* Sidebar Muted Items for AIM Portal Placeholders */
@@ -1396,9 +1514,11 @@ body {
   position: relative;
   transition: opacity 0.2s ease;
 }
+
 .sidebar-placeholder-muted:hover {
   opacity: 0.85;
 }
+
 .sidebar-placeholder-tag {
   font-size: 8px;
   font-weight: 800;
@@ -1411,6 +1531,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
 .dark .sidebar-placeholder-tag {
   background: #334155;
   color: #94a3b8;
@@ -1422,34 +1543,38 @@ body {
   backdrop-filter: blur(8px);
   background-color: rgba(255, 255, 255, 0.85) !important;
 }
+
 .dark .knust-glass-card {
   background-color: rgba(30, 41, 59, 0.75) !important;
 }
+
 .knust-hero-card {
-  background: linear-gradient(135deg, rgba(6,59,42,0.95) 0%, rgba(11,122,83,0.9) 100%) !important;
+  background: linear-gradient(135deg, rgba(6, 59, 42, 0.95) 0%, rgba(11, 122, 83, 0.9) 100%) !important;
   color: #ffffff !important;
   border: 1px solid rgba(214, 167, 44, 0.3) !important;
 }
+
 .knust-hero-card h1 {
   color: #ffffff !important;
 }
+
 .knust-hero-card p {
   color: rgba(255, 255, 255, 0.85) !important;
 }
 
-/* Mobile Responsive Adjustments & Keyframe Animations */
+/* Mobile Viewport Responsiveness Adjustments */
 @media (max-width: 767px) {
-  .app-sidebar {
-    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.25);
-  }
   .app-main-content {
-    padding: 14px !important;
+    padding: 12px !important;
   }
   .knust-glass-card {
-    padding: 16px !important;
+    padding: 14px !important;
   }
   .sidebar-brand-title {
     font-size: 13px !important;
+  }
+  .app-sidebar.absolute {
+    animation: drawerIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 }
 
@@ -1461,7 +1586,7 @@ body {
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -1478,10 +1603,8 @@ body {
   }
 }
 
-/* Micro interaction highlights */
+/* Touch active interaction scaling */
 .touch-active:active {
   transform: scale(0.97);
   transition: transform 0.1s ease;
 }
-
-
