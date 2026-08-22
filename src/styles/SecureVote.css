@@ -1285,3 +1285,156 @@ body {
   box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
 }
 
+/* ── Upgrades CSS Additions ── */
+
+/* Global Toast Notifications */
+.sv-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 360px;
+  width: calc(100% - 48px);
+  pointer-events: none;
+}
+.sv-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--sv-font-sans);
+  pointer-events: auto;
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: all 0.2s ease;
+}
+.dark .sv-toast {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+.sv-toast-success {
+  border-left: 5px solid #10b981;
+}
+.sv-toast-warning {
+  border-left: 5px solid #f59e0b;
+}
+.sv-toast-info {
+  border-left: 5px solid #3b82f6;
+}
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+.sv-toast-fadeout {
+  animation: fadeOut 0.2s ease forwards;
+}
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+}
+
+/* Interactive Biometrics Scanner */
+.biometrics-scanner-box {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 24px;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.dark .biometrics-scanner-box {
+  background: #0f172a;
+  border-color: #334155;
+}
+.biometrics-scanner-box.scanning {
+  border-color: #10b981;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+}
+.biometrics-laser-line {
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  background: #10b981;
+  top: 0;
+  box-shadow: 0 0 8px #10b981;
+  animation: laserScan 2s linear infinite;
+  pointer-events: none;
+  border-radius: 999px;
+}
+@keyframes laserScan {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+/* Sidebar Muted Items for AIM Portal Placeholders */
+.sidebar-placeholder-muted {
+  opacity: 0.55;
+  position: relative;
+  transition: opacity 0.2s ease;
+}
+.sidebar-placeholder-muted:hover {
+  opacity: 0.85;
+}
+.sidebar-placeholder-tag {
+  font-size: 8px;
+  font-weight: 800;
+  padding: 1px 5px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 5px;
+  margin-left: auto;
+  border: 1px solid #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.dark .sidebar-placeholder-tag {
+  background: #334155;
+  color: #94a3b8;
+  border-color: #475569;
+}
+
+/* Glassmorphism custom enhancements */
+.knust-glass-card {
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+.dark .knust-glass-card {
+  background-color: rgba(30, 41, 59, 0.75) !important;
+}
+.knust-hero-card {
+  background: linear-gradient(135deg, rgba(6,59,42,0.95) 0%, rgba(11,122,83,0.9) 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(214, 167, 44, 0.3) !important;
+}
+.knust-hero-card h1 {
+  color: #ffffff !important;
+}
+.knust-hero-card p {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+

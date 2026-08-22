@@ -13,11 +13,14 @@ import {
   Activity, 
   Users, 
   Award, 
-  LogOut 
+  LogOut,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import StepUpAuthModal from './StepUpAuthModal';
 import AppBarRoleSwitcher from './AppBarRoleSwitcher';
 import SidebarSearch from './SidebarSearch';
+import { showToast } from '../lib/toast';
 import '../styles/SecureVote.css';
 
 export default function Sidebar({
@@ -30,6 +33,7 @@ export default function Sidebar({
   onNavigate  // auto-close mobile drawer after clicking a link
 }) {
   const [isStepUpOpen, setStepUpOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeRoute, setActiveRoute] = useState(() => window.location.pathname || '/');
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return document.documentElement.classList.contains('dark') ||
@@ -70,6 +74,11 @@ export default function Sidebar({
     if (typeof onNavigate === 'function') onNavigate();
   }
 
+  function handlePlaceholderClick(e, featureName) {
+    e.preventDefault();
+    showToast(`AIM Portal Simulator: "${featureName}" is a placeholder representing the integration of Secure Vote within the KNUST AIM App.`, 'info');
+  }
+
   function closeDrawer() {
     if (typeof onNavigate === 'function') onNavigate();
   }
@@ -80,109 +89,176 @@ export default function Sidebar({
         ? activeRoute === '/' || activeRoute === ''
         : activeRoute === path || activeRoute.startsWith(path);
 
-    if (isCurrent) {
-      return "bg-[#EAF6F0] dark:bg-slate-800 text-[#075C42] dark:text-emerald-400 font-bold border-l-4 border-[#007A4D] rounded-r-xl px-3 py-2 flex items-center gap-2.5 transition-colors shadow-2xs";
-    }
-    return "text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-2 flex items-center gap-2.5 transition-colors";
+    const baseClass = isCurrent
+      ? "bg-[#EAF6F0] dark:bg-slate-800 text-[#075C42] dark:text-emerald-400 font-bold border-l-4 border-[#007A4D] rounded-r-xl transition-colors shadow-2xs"
+      : "text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl transition-colors";
+
+    return `${baseClass} px-3 py-2 flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5'}`;
   };
 
   const getSecureVoteClass = () => {
     const isCurrent = activeRoute === '/secure-vote' || activeRoute.startsWith('/secure-vote');
-    if (isCurrent) {
-      return "bg-[#EAF6F0] dark:bg-slate-800 text-[#075C42] dark:text-emerald-400 font-bold border-l-4 border-[#007A4D] rounded-r-xl px-3 py-2 flex items-center gap-2.5 transition-colors shadow-2xs";
-    }
-    return "bg-[#EAF6F0]/60 hover:bg-[#EAF6F0] dark:bg-slate-800/40 dark:hover:bg-slate-800 text-[#075C42] dark:text-emerald-400 font-semibold border-l-4 border-transparent hover:border-[#007A4D] rounded-r-xl px-3 py-2 flex items-center gap-2.5 transition-colors";
+    const baseClass = isCurrent
+      ? "bg-[#EAF6F0] dark:bg-slate-800 text-[#075C42] dark:text-emerald-400 font-bold border-l-4 border-[#007A4D] rounded-r-xl transition-colors shadow-2xs"
+      : "bg-[#EAF6F0]/60 hover:bg-[#EAF6F0] dark:bg-slate-800/40 dark:hover:bg-slate-800 text-[#075C42] dark:text-emerald-400 font-semibold border-l-4 border-transparent hover:border-[#007A4D] rounded-r-xl transition-colors";
+
+    return `${baseClass} px-3 py-2 flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5'}`;
   };
 
   return (
-    <nav className="app-sidebar bg-white dark:bg-slate-900 border-r border-[#DDE5E1] dark:border-slate-800 p-4 w-64 h-screen flex flex-col justify-between overflow-y-auto shrink-0 text-[#202522] dark:text-slate-100" aria-label="Main navigation">
+    <nav 
+      className={`app-sidebar bg-white dark:bg-slate-900 border-r border-[#DDE5E1] dark:border-slate-800 p-4 h-screen flex flex-col justify-between overflow-y-auto shrink-0 text-[#202522] dark:text-slate-100 transition-all duration-300 ${
+        isCollapsed ? 'w-20' : 'w-64'
+      }`} 
+      aria-label="Main navigation"
+    >
       <div>
         {/* Brand / Portal Title */}
-        <div className="sidebar-brand flex items-center gap-3 pb-3 mb-3 border-b border-[#DDE5E1] dark:border-slate-800">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#004D40] to-[#002d25] flex items-center justify-center text-white border border-[#D4AF37] shadow-sm flex-shrink-0">
-            <GraduationCap className="w-5 h-5 text-[#D4AF37]" />
+        <div className="sidebar-brand flex items-center justify-between pb-3 mb-3 border-b border-[#DDE5E1] dark:border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#004D40] to-[#002d25] flex items-center justify-center text-white border border-[#D4AF37] shadow-sm flex-shrink-0">
+              <GraduationCap className="w-5 h-5 text-[#D4AF37]" />
+            </div>
+            {!isCollapsed && (
+              <div className="flex flex-col">
+                <span className="sidebar-brand-title font-black text-[#007A4D] dark:text-slate-100 text-sm tracking-wider uppercase leading-none">KNUST</span>
+                <span className="text-[10px] font-bold text-[#D4AF37] dark:text-amber-400 tracking-widest uppercase leading-none mt-0.5">AIM Portal</span>
+              </div>
+            )}
           </div>
-          <div className="flex flex-col">
-            <span className="sidebar-brand-title font-black text-[#007A4D] dark:text-slate-100 text-sm tracking-wider uppercase leading-none">KNUST</span>
-            <span className="text-[10px] font-bold text-[#D4AF37] dark:text-amber-400 tracking-widest uppercase leading-none mt-0.5">AIM Portal</span>
-          </div>
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-650 transition-colors border-none bg-transparent cursor-pointer hidden md:flex items-center justify-center"
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </button>
         </div>
 
         {/* Role Switcher - only visible if user has EC access */}
-        <AppBarRoleSwitcher
-          hasECAccess={hasECAccess}
-          ecRole={ecRole}
-          ecJurisdictionName={ecJurisdictionName}
-          currentView={currentView}
-          onViewChange={onViewChange}
-        />
+        {!isCollapsed && (
+          <AppBarRoleSwitcher
+            hasECAccess={hasECAccess}
+            ecRole={ecRole}
+            ecJurisdictionName={ecJurisdictionName}
+            currentView={currentView}
+            onViewChange={onViewChange}
+          />
+        )}
 
         {/* Real-time Search Autocomplete */}
         <SidebarSearch
           navigate={navigate}
           onNavigate={onNavigate}
           onSecureVoteClick={handleSecureVoteClick}
+          isCollapsed={isCollapsed}
         />
 
         <ul className="sidebar-list mt-2 space-y-1">
           {/* ── Overview Section ── */}
-          <li className="text-[#66716C] dark:text-slate-400 font-bold text-[11px] tracking-wider uppercase mt-4 mb-2 px-2">
-            OVERVIEW
+          <li className={`text-[#66716C] dark:text-slate-400 font-bold text-[11px] tracking-wider uppercase mt-4 mb-2 px-2 ${isCollapsed ? 'text-center text-[9px]' : ''}`}>
+            {isCollapsed ? '•' : 'OVERVIEW'}
           </li>
           <li className="sidebar-item">
             <a
               href="#dashboard"
               onClick={e => go(e, '/')}
               className={getItemClass('/')}
+              title={isCollapsed ? "Dashboard" : undefined}
             >
               <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
-              <span>Dashboard</span>
+              {!isCollapsed && <span>Dashboard</span>}
             </a>
           </li>
 
           {/* ── Academics Section ── */}
-          <li className="text-[#66716C] dark:text-slate-400 font-bold text-[11px] tracking-wider uppercase mt-4 mb-2 px-2">
-            ACADEMICS
+          <li className={`text-[#66716C] dark:text-slate-400 font-bold text-[11px] tracking-wider uppercase mt-4 mb-2 px-2 ${isCollapsed ? 'text-center text-[9px]' : ''}`}>
+            {isCollapsed ? '•' : 'ACADEMICS'}
           </li>
-          <li className="sidebar-subitem">
-            <a href="#course-reg" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+          <li className="sidebar-subitem sidebar-placeholder-muted">
+            <a 
+              href="#course-reg" 
+              onClick={e => handlePlaceholderClick(e, 'Course Registration')} 
+              className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
+              title={isCollapsed ? "Course Registration (Mock)" : undefined}
+            >
               <BookOpen className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-              <span>Course Registration</span>
+              {!isCollapsed && (
+                <>
+                  <span>Course Registration</span>
+                  <span className="sidebar-placeholder-tag">Mock</span>
+                </>
+              )}
             </a>
           </li>
-          <li className="sidebar-subitem">
-            <a href="#reg-slip" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+          <li className="sidebar-subitem sidebar-placeholder-muted">
+            <a 
+              href="#reg-slip" 
+              onClick={e => handlePlaceholderClick(e, 'Registration Slip')} 
+              className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
+              title={isCollapsed ? "Registration Slip (Mock)" : undefined}
+            >
               <FileText className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-              <span>Registration Slip</span>
+              {!isCollapsed && (
+                <>
+                  <span>Registration Slip</span>
+                  <span className="sidebar-placeholder-tag">Mock</span>
+                </>
+              )}
             </a>
           </li>
           <li className="sidebar-subitem">
-            <a href="#results" onClick={e => go(e, '/results')} className={getItemClass('/results')}>
+            <a 
+              href="#results" 
+              onClick={e => go(e, '/results')} 
+              className={getItemClass('/results')}
+              title={isCollapsed ? "Check Results" : undefined}
+            >
               <BarChart3 className="w-4 h-4 flex-shrink-0" />
-              <span>Check Results</span>
+              {!isCollapsed && <span>Check Results</span>}
             </a>
           </li>
 
           {/* ── Finance Section ── */}
-          <li className="text-[#66716C] dark:text-slate-400 font-bold text-[11px] tracking-wider uppercase mt-4 mb-2 px-2">
-            FINANCE
+          <li className={`text-[#66716C] dark:text-slate-400 font-bold text-[11px] tracking-wider uppercase mt-4 mb-2 px-2 ${isCollapsed ? 'text-center text-[9px]' : ''}`}>
+            {isCollapsed ? '•' : 'FINANCE'}
           </li>
-          <li className="sidebar-subitem">
-            <a href="#bills" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+          <li className="sidebar-subitem sidebar-placeholder-muted">
+            <a 
+              href="#bills" 
+              onClick={e => handlePlaceholderClick(e, 'Bill & Payment')} 
+              className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
+              title={isCollapsed ? "Bill & Payment (Mock)" : undefined}
+            >
               <CreditCard className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-              <span>Bill &amp; Payment</span>
+              {!isCollapsed && (
+                <>
+                  <span>Bill &amp; Payment</span>
+                  <span className="sidebar-placeholder-tag">Mock</span>
+                </>
+              )}
             </a>
           </li>
-          <li className="sidebar-subitem">
-            <a href="#fees" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+          <li className="sidebar-subitem sidebar-placeholder-muted">
+            <a 
+              href="#fees" 
+              onClick={e => handlePlaceholderClick(e, 'Fees Status')} 
+              className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
+              title={isCollapsed ? "Fees Status (Mock)" : undefined}
+            >
               <Coins className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-              <span>Fees Status</span>
+              {!isCollapsed && (
+                <>
+                  <span>Fees Status</span>
+                  <span className="sidebar-placeholder-tag">Mock</span>
+                </>
+              )}
             </a>
           </li>
 
           {/* ── Governance Section ── */}
-          <li className="text-[#66716C] dark:text-slate-400 font-bold text-[11px] tracking-wider uppercase mt-4 mb-2 px-2">
-            GOVERNANCE
+          <li className={`text-[#66716C] dark:text-slate-400 font-bold text-[11px] tracking-wider uppercase mt-4 mb-2 px-2 ${isCollapsed ? 'text-center text-[9px]' : ''}`}>
+            {isCollapsed ? '•' : 'GOVERNANCE'}
           </li>
 
           {/* Secure Vote Item */}
@@ -193,49 +269,94 @@ export default function Sidebar({
               onClick={handleSecureVoteClick}
               aria-haspopup="dialog"
               className={getSecureVoteClass()}
+              title={isCollapsed ? "Secure Vote" : undefined}
             >
               <Vote className="w-4 h-4 text-[#007A4D] dark:text-emerald-400 flex-shrink-0" />
-              <span className="text-[#075C42] dark:text-emerald-400">Secure Vote</span>
-              <span className="ml-auto bg-[#FFF7DF] text-[#B88618] text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-[#D6A72C]/40 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/60 shadow-2xs">
-                NEW
-              </span>
+              {!isCollapsed && (
+                <>
+                  <span className="text-[#075C42] dark:text-emerald-400">Secure Vote</span>
+                  <span className="ml-auto bg-[#FFF7DF] text-[#B88618] text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-[#D6A72C]/40 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/60 shadow-2xs">
+                    NEW
+                  </span>
+                </>
+              )}
             </a>
           </li>
 
           {/* EC Admin & Observer Room */}
           <li className="sidebar-subitem">
-            <a href="#ec-admin" onClick={e => go(e, '/ec-admin')} className={getItemClass('/ec-admin')}>
+            <a 
+              href="#ec-admin" 
+              onClick={e => go(e, '/ec-admin')} 
+              className={getItemClass('/ec-admin')}
+              title={isCollapsed ? "EC Admin" : undefined}
+            >
               <ShieldCheck className="w-4 h-4 flex-shrink-0" />
-              <span>EC Admin</span>
+              {!isCollapsed && <span>EC Admin</span>}
             </a>
           </li>
           <li className="sidebar-subitem">
-            <a href="#candidate-agent" onClick={e => go(e, '/candidate-agent')} className={getItemClass('/candidate-agent')}>
+            <a 
+              href="#candidate-agent" 
+              onClick={e => go(e, '/candidate-agent')} 
+              className={getItemClass('/candidate-agent')}
+              title={isCollapsed ? "Observer Room" : undefined}
+            >
               <Eye className="w-4 h-4 flex-shrink-0" />
-              <span>Observer Room</span>
+              {!isCollapsed && <span>Observer Room</span>}
             </a>
           </li>
 
           {/* ── Utilities Section ── */}
-          <li className="text-[#66716C] dark:text-slate-400 font-bold text-[11px] tracking-wider uppercase mt-4 mb-2 px-2">
-            UTILITIES
+          <li className={`text-[#66716C] dark:text-slate-400 font-bold text-[11px] tracking-wider uppercase mt-4 mb-2 px-2 ${isCollapsed ? 'text-center text-[9px]' : ''}`}>
+            {isCollapsed ? '•' : 'UTILITIES'}
           </li>
-          <li className="sidebar-subitem">
-            <a href="#status" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+          <li className="sidebar-subitem sidebar-placeholder-muted">
+            <a 
+              href="#status" 
+              onClick={e => handlePlaceholderClick(e, 'Status Checker')} 
+              className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
+              title={isCollapsed ? "Status Checker (Mock)" : undefined}
+            >
               <Activity className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-              <span>Status Checker</span>
+              {!isCollapsed && (
+                <>
+                  <span>Status Checker</span>
+                  <span className="sidebar-placeholder-tag">Mock</span>
+                </>
+              )}
             </a>
           </li>
-          <li className="sidebar-subitem">
-            <a href="#lecturers" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+          <li className="sidebar-subitem sidebar-placeholder-muted">
+            <a 
+              href="#lecturers" 
+              onClick={e => handlePlaceholderClick(e, 'Select Lecturers')} 
+              className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
+              title={isCollapsed ? "Select Lecturers (Mock)" : undefined}
+            >
               <Users className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-              <span>Select Lecturers</span>
+              {!isCollapsed && (
+                <>
+                  <span>Select Lecturers</span>
+                  <span className="sidebar-placeholder-tag">Mock</span>
+                </>
+              )}
             </a>
           </li>
-          <li className="sidebar-subitem">
-            <a href="#admission" onClick={e => e.preventDefault()} className="text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center gap-2.5 transition-colors">
+          <li className="sidebar-subitem sidebar-placeholder-muted">
+            <a 
+              href="#admission" 
+              onClick={e => handlePlaceholderClick(e, 'Admission Letter')} 
+              className={`text-[#202522] hover:text-[#075C42] hover:bg-[#F3FAF6] dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800/80 font-medium text-sm rounded-xl px-3 py-1.5 flex items-center transition-colors ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
+              title={isCollapsed ? "Admission Letter (Mock)" : undefined}
+            >
               <Award className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-              <span>Admission Letter</span>
+              {!isCollapsed && (
+                <>
+                  <span>Admission Letter</span>
+                  <span className="sidebar-placeholder-tag">Mock</span>
+                </>
+              )}
             </a>
           </li>
         </ul>
@@ -245,13 +366,14 @@ export default function Sidebar({
       <div className="sidebar-logout pt-3 border-t border-[#DDE5E1] dark:border-slate-800 mt-4">
         <button
           type="button"
-          className="logout-btn w-full flex items-center justify-center gap-2.5 px-3 py-2 rounded-xl text-[#66716C] dark:text-slate-300 hover:text-[#075C42] dark:hover:text-emerald-400 hover:bg-[#F3FAF6] dark:hover:bg-slate-800 border border-transparent hover:border-[#DDE5E1] dark:hover:border-slate-700 text-xs font-bold transition-all cursor-pointer group"
+          className={`logout-btn w-full flex items-center justify-center rounded-xl text-[#66716C] dark:text-slate-300 hover:text-[#075C42] dark:hover:text-emerald-400 hover:bg-[#F3FAF6] dark:hover:bg-slate-800 border border-transparent hover:border-[#DDE5E1] dark:hover:border-slate-700 text-xs font-bold transition-all cursor-pointer group ${isCollapsed ? 'px-1 py-2' : 'gap-2.5 px-3 py-2'}`}
           onClick={() => {
             console.log('Logout clicked');
           }}
+          title={isCollapsed ? "Logout" : undefined}
         >
           <LogOut className="w-4 h-4 text-[#66716C] dark:text-slate-300 group-hover:text-[#075C42] dark:group-hover:text-emerald-400 transition-colors flex-shrink-0" />
-          <span>Logout</span>
+          {!isCollapsed && <span>Logout</span>}
         </button>
       </div>
 

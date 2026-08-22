@@ -42,6 +42,7 @@ import {
 import { getStoredStudentProfile, subscribeToDemoProfile } from '../lib/demoProfiles';
 import { isElectionVoted, subscribeToVoteUpdates } from '../lib/votingService';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { showToast } from '../lib/toast';
 import '../styles/SecureVote.css';
 
 function formatCountdown(ms) {
@@ -54,6 +55,93 @@ function formatCountdown(ms) {
   return `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
 }
 
+function StudentProfilePopover({ student }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const popoverRef = React.useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (popoverRef.current && !popoverRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  if (!student) return null;
+
+  const initials = (student.name || 'Kwame Nkrumah')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0].toUpperCase())
+    .join('');
+
+  const biometricsOk = Boolean(student.biometrics_completed_current_semester);
+
+  return (
+    <div className="relative inline-block text-left" ref={popoverRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="relative w-8 h-8 rounded-full bg-[#004D40] text-white flex items-center justify-center text-xs font-bold border border-[#D4AF37] cursor-pointer hover:scale-105 transition-transform"
+        aria-label="Student details popover"
+      >
+        <span>{initials}</span>
+        <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-800 ${biometricsOk ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-2xl z-50 p-4 animate-fadeIn font-sans text-slate-950 dark:text-slate-100">
+          <div className="flex items-center gap-3 border-b border-gray-100 dark:border-slate-800 pb-3 mb-3">
+            <div className="w-10 h-10 rounded-full bg-[#004D40] text-white flex items-center justify-center text-sm font-bold border border-[#D4AF37]">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <h4 className="m-0 text-xs font-bold truncate leading-tight">{student.name}</h4>
+              <span className="text-[10px] font-semibold text-slate-400 font-mono">ID: {student.studentId || student.student_id}</span>
+            </div>
+          </div>
+
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between">
+              <span className="text-slate-500 font-medium">Program:</span>
+              <span className="font-bold truncate max-w-[150px]">{student.program}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500 font-medium">Academic Level:</span>
+              <span className="font-bold">Year {student.year_of_study || 1} (Level {student.level || 100})</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500 font-medium">Assigned Hall:</span>
+              <span className="font-bold truncate max-w-[150px]">{student.hall || 'Off-Campus'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500 font-medium">Constituency:</span>
+              <span className="font-bold font-mono">{student.constituency_locked || student.constituency || 'Not Selected'}</span>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-slate-800 flex justify-center">
+            {biometricsOk ? (
+              <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-250 dark:border-emerald-800 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+                ✓ Verified Voter
+              </span>
+            ) : (
+              <span className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-250 dark:border-amber-800 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider animate-pulse">
+                ⚠ Pending Verification
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SecureVoteModule({ navigate }) {
   const [student, setStudent] = useState(null);
   const [now, setNow] = useState(Date.now());
@@ -64,6 +152,37 @@ export default function SecureVoteModule({ navigate }) {
   const [notification, setNotification] = useState(null);
   const { student: sessionStudent, loading: sessionLoading } = useStudentSession();
   const { ecAdminProfile, isElectionManagedByOfficerTier } = useAdminAuth();
+
+  const [isBiometricsModalOpen, setIsBiometricsModalOpen] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+
+  const handleVerifyBiometrics = () => {
+    setIsScanning(true);
+    setTimeout(() => {
+      setIsScanning(false);
+      setStudent(s => {
+        const updated = {
+          ...s,
+          biometrics_completed_current_semester: true
+        };
+        try {
+          localStorage.setItem('knust_user_session', JSON.stringify(updated));
+        } catch (e) {}
+        return updated;
+      });
+      setIsBiometricsModalOpen(false);
+      showToast('Biometric Verification Completed Successfully!', 'success');
+    }, 2000);
+  };
+
+  const handleBiometricsClick = () => {
+    const biometricsOk = Boolean(student?.biometrics_completed_current_semester);
+    if (!biometricsOk) {
+      setIsBiometricsModalOpen(true);
+    } else {
+      showToast('Your biometrics are already verified for this semester.', 'success');
+    }
+  };
 
   // Check for route guard notification
   useEffect(() => {
@@ -331,16 +450,16 @@ export default function SecureVoteModule({ navigate }) {
   return (
     <div className="p-6 max-w-6xl mx-auto bg-[#F3F6F8] dark:bg-slate-900 text-[#171717] dark:text-slate-100 transition-colors duration-200 min-h-screen">
       {/* ── 1. Secure Vote Banner ── */}
-      <div className="mb-6 p-6 bg-white dark:bg-slate-800 text-[#171717] dark:text-slate-100 rounded-2xl shadow-2xs flex flex-wrap items-center justify-between gap-4 border border-[#E1E7E4] dark:border-slate-700">
+      <div className="mb-6 p-6 knust-hero-card rounded-2xl shadow-2xs flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-[#004D40] to-[#002d25] rounded-xl flex items-center justify-center border border-[#D4AF37] text-white">
-            <Vote size={24} className="text-[#D4AF37]" />
+          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-[#D4AF37] text-white">
+            <Vote size={24} className="text-[#007A4D]" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-[#006B3F] dark:text-slate-100 tracking-tight flex items-center gap-2">
+            <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
               Secure Vote Portal
             </h1>
-            <p className="text-sm font-medium text-[#6B7280] dark:text-slate-400 mt-1">
+            <p className="text-sm font-medium text-emerald-100/90 mt-1">
               KNUST Electoral Management &amp; Student Verification System
             </p>
           </div>
@@ -348,6 +467,9 @@ export default function SecureVoteModule({ navigate }) {
         <div className="flex items-center gap-3 flex-wrap mr-12">
           {/* Quick Demo Profile Switcher */}
           <DemoProfileSwitcher onProfileChange={setStudent} />
+
+          {/* Student Profile popover details */}
+          <StudentProfilePopover student={student} />
 
           <button
             className="bg-[#E2F3E9] dark:bg-slate-700 hover:bg-[#BDE3D2] dark:hover:bg-slate-600 text-[#006B3F] dark:text-emerald-400 text-xs font-bold rounded-xl px-3.5 py-2 border border-[#BDE3D2] dark:border-slate-600 shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
@@ -392,7 +514,12 @@ export default function SecureVoteModule({ navigate }) {
       )}
 
       {/* ── 2. Clean Biometric & Status Checker Card ── */}
-      <div className="bg-white dark:bg-slate-800 border border-[#E1E7E4] dark:border-slate-700 text-[#171717] dark:text-slate-100 rounded-2xl p-6 shadow-2xs mb-6 knust-glass-card" role="region" aria-label="Biometric & Status Checker">
+      <div 
+        onClick={handleBiometricsClick}
+        className="bg-white dark:bg-slate-800 border border-[#E1E7E4] dark:border-slate-700 text-[#171717] dark:text-slate-100 rounded-2xl p-6 shadow-2xs mb-6 knust-glass-card cursor-pointer hover:border-[#007A4D]/50 hover:shadow-xs transition-all" 
+        role="button" 
+        aria-label="Biometric & Status Checker"
+      >
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4 mb-4">
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
             <Fingerprint size={18} className="text-[#007A4D]" />
@@ -1070,6 +1197,72 @@ export default function SecureVoteModule({ navigate }) {
           return null;
         })}
       </div>
+
+      {/* Biometric Scanner Simulator Modal */}
+      {isBiometricsModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn font-sans"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => { if (!isScanning) setIsBiometricsModalOpen(false); }}
+        >
+          <div
+            className="relative max-w-sm w-full p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col items-center text-center gap-5 animate-modal-pop text-slate-900 dark:text-slate-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="w-full border-b border-gray-100 dark:border-slate-800 pb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[#007A4D]">
+                <Fingerprint size={18} />
+                <h3 className="m-0 text-sm font-extrabold uppercase tracking-wider">
+                  Biometric Verification
+                </h3>
+              </div>
+              {!isScanning && (
+                <button
+                  type="button"
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-transparent border-0 cursor-pointer p-0"
+                  onClick={() => setIsBiometricsModalOpen(false)}
+                >
+                  <X size={18} />
+                </button>
+              )}
+            </div>
+
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed m-0">
+              {isScanning 
+                ? 'Scanning fingerprint... Please hold your finger steady on the sensor.' 
+                : 'Place your finger on the scanner below to verify your academic session eligibility.'}
+            </p>
+
+            {/* Scanner Button Container */}
+            <div 
+              onClick={!isScanning ? handleVerifyBiometrics : undefined}
+              className={`biometrics-scanner-box my-4 ${isScanning ? 'scanning' : ''}`}
+            >
+              {isScanning && <div className="biometrics-laser-line" />}
+              <Fingerprint 
+                size={54} 
+                className={isScanning ? 'text-emerald-500 animate-pulse' : 'text-slate-400 hover:text-[#007A4D] transition-colors'} 
+              />
+            </div>
+
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              {isScanning ? 'SCANNING SECURE ZONE...' : 'TOUCH SENSOR TO START'}
+            </div>
+
+            {!isScanning && (
+              <button
+                type="button"
+                className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold transition-all cursor-pointer bg-white dark:bg-slate-900"
+                onClick={() => setIsBiometricsModalOpen(false)}
+              >
+                Cancel Scanner
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -11,6 +11,7 @@ import CandidateAgentRoom from './components/CandidateAgentRoom';
 import Unauthorized from './components/Unauthorized';
 import AppBarRoleSwitcher from './components/AppBarRoleSwitcher';
 import ThemeToggle from './components/ThemeToggle';
+import ToastContainer from './components/ToastContainer';
 import useECAuthorization from './hooks/useECAuthorization';
 import { AdminAuthProvider } from './context/AdminAuthContext';
 import { mockElections, mergeWithMockElections, getElectionStatus, checkElectionEligibility, formatUnlockDate } from './lib/eligibility';
@@ -162,6 +163,7 @@ export default function App() {
         <div className="fixed top-4 right-5 z-50">
           <ThemeToggle />
         </div>
+        <ToastContainer />
 
         <Sidebar
           navigate={navigate}

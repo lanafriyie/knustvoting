@@ -15,6 +15,7 @@ import {
   Users,
   Award
 } from 'lucide-react';
+import { showToast } from '../lib/toast';
 import '../styles/SecureVote.css';
 
 const MODULES = [
@@ -24,7 +25,7 @@ const MODULES = [
   { id: 'candidate-agent', title: 'Observer Room', path: '/candidate-agent', category: 'Governance', keywords: 'candidate agent observer tally live results' },
   { id: 'course-reg', title: 'Course Registration', path: '#course-reg', category: 'Academics', keywords: 'register courses classes semester' },
   { id: 'reg-slip', title: 'Registration Slip', path: '#reg-slip', category: 'Academics', keywords: 'print slip courses verification' },
-  { id: 'results', title: 'Check Results', path: '#results', category: 'Academics', keywords: 'grades cwa gpa marks exam' },
+  { id: 'results', title: 'Check Results', path: '/results', category: 'Academics', keywords: 'grades cwa gpa marks exam results check' },
   { id: 'bills', title: 'Bill & Payment', path: '#bills', category: 'Finance', keywords: 'pay fees tuition bill bank receipt' },
   { id: 'fees', title: 'Fees Status', path: '#fees', category: 'Finance', keywords: 'balance fees payment status' },
   { id: 'status', title: 'Status Checker', path: '#status', category: 'Utilities', keywords: 'student status verification portal' },
@@ -47,7 +48,7 @@ const iconMap = {
   'admission': Award
 };
 
-export default function SidebarSearch({ navigate, onNavigate, onSecureVoteClick }) {
+export default function SidebarSearch({ navigate, onNavigate, onSecureVoteClick, isCollapsed }) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
@@ -68,7 +69,7 @@ export default function SidebarSearch({ navigate, onNavigate, onSecureVoteClick 
   }, []);
 
   const handleFocus = () => {
-    setIsOpen(true);
+    if (!isCollapsed) setIsOpen(true);
   };
 
   const handleChange = (e) => {
@@ -97,6 +98,7 @@ export default function SidebarSearch({ navigate, onNavigate, onSecureVoteClick 
     }
 
     if (item.path.startsWith('#')) {
+      showToast(`AIM Portal Simulator: "${item.title}" is a placeholder representing the integration of Secure Vote within the KNUST AIM App.`, 'info');
       if (typeof onNavigate === 'function') onNavigate(item.path);
       return;
     }
@@ -129,6 +131,17 @@ export default function SidebarSearch({ navigate, onNavigate, onSecureVoteClick 
       </>
     );
   };
+
+  if (isCollapsed) {
+    return (
+      <div 
+        className="flex items-center justify-center py-2.5 text-[#66716C] dark:text-slate-400 cursor-pointer hover:text-[#075C42] dark:hover:text-emerald-400 transition-colors"
+        title="Search Modules"
+      >
+        <SearchIcon size={15} />
+      </div>
+    );
+  }
 
   return (
     <div className="sidebar-search-container" ref={containerRef} style={{ position: 'relative', width: '100%' }}>
@@ -189,11 +202,15 @@ export default function SidebarSearch({ navigate, onNavigate, onSecureVoteClick 
                     </span>
                     <span className="sv-search-result-category">{item.category}</span>
                   </div>
-                  {item.badge && (
+                  {item.badge ? (
                     <span className={`sv-badge-${item.badge.toLowerCase()} sv-search-result-badge`}>
                       {item.badge}
                     </span>
-                  )}
+                  ) : item.path.startsWith('#') ? (
+                    <span className="sidebar-placeholder-tag text-[7px] py-0.5 px-1 ml-auto">
+                      Mock
+                    </span>
+                  ) : null}
                 </li>
               ))}
             </ul>

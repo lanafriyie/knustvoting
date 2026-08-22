@@ -25,6 +25,7 @@ import {
 import { supabase } from '../lib/supabaseClient';
 import { submitAnonymousVote } from '../lib/votingService';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { mockElections } from '../lib/eligibility';
 import '../styles/SecureVote.css';
 
 // SHA-256 Cryptographic Hash Helper
@@ -442,6 +443,24 @@ export default function Ballot({ electionId, student, onBack }) {
   // Confirmation View state
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [voteReceipt, setVoteReceipt] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(null);
+
+  useEffect(() => {
+    const targetMock = mockElections.find(e => e.id === electionId) || mockElections[0];
+    const endTime = targetMock.endTime ? new Date(targetMock.endTime).getTime() : Date.now() + 2 * 3600 * 1000;
+    
+    const interval = setInterval(() => {
+      const remaining = endTime - Date.now();
+      if (remaining <= 0) {
+        setTimeLeft(0);
+        clearInterval(interval);
+      } else {
+        setTimeLeft(remaining);
+      }
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [electionId]);
 
   useEffect(() => {
     let mounted = true;
@@ -612,7 +631,7 @@ export default function Ballot({ electionId, student, onBack }) {
           </p>
 
           {/* Cryptographic Receipt Box */}
-          <div className="w-full bg-slate-900 text-slate-100 rounded-2xl p-4 text-left flex flex-col gap-3 font-mono text-xs shadow-inner border border-slate-800">
+          <div id="knust-printable-receipt" className="w-full bg-slate-900 text-slate-100 rounded-2xl p-4 text-left flex flex-col gap-3 font-mono text-xs shadow-inner border border-slate-800">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
               <span className="text-[#D4AF37] font-bold flex items-center gap-1.5 text-[11px] tracking-wide">
                 <Lock size={12} />
@@ -649,18 +668,26 @@ export default function Ballot({ electionId, student, onBack }) {
           <div className="flex flex-col sm:flex-row w-full gap-3 pt-2">
             <button
               type="button"
-              className="flex-1 py-3 px-4 rounded-xl bg-[#006B3F] hover:bg-[#005A35] text-white font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer border-0"
+              className="flex-1 py-3 px-3 rounded-xl bg-[#006B3F] hover:bg-[#005A35] text-white font-bold text-[11px] transition-all shadow-md flex items-center justify-center gap-1 cursor-pointer border-0"
               onClick={downloadReceiptJSON}
             >
-              <Download size={14} />
-              <span>Download Receipt</span>
+              <Download size={12} />
+              <span>Download JSON</span>
             </button>
             <button
               type="button"
-              className="flex-1 py-3 px-4 rounded-xl border border-gray-300 dark:border-slate-650 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 font-bold text-xs transition-colors cursor-pointer bg-white dark:bg-slate-800"
+              className="flex-1 py-3 px-3 rounded-xl border border-gray-300 dark:border-slate-650 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 font-bold text-[11px] transition-colors cursor-pointer bg-white dark:bg-slate-800 flex items-center justify-center gap-1"
+              onClick={() => window.print()}
+            >
+              <Scroll size={12} />
+              <span>Print Slip</span>
+            </button>
+            <button
+              type="button"
+              className="flex-1 py-3 px-3 rounded-xl border border-gray-350 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 text-slate-750 dark:text-slate-250 font-bold text-[11px] transition-colors cursor-pointer bg-slate-50 dark:bg-slate-805"
               onClick={onBack}
             >
-              Return to Portal
+              Done
             </button>
           </div>
         </div>
@@ -721,6 +748,25 @@ export default function Ballot({ electionId, student, onBack }) {
           )}
         </div>
       </div>
+
+      {/* Live Countdown Banner */}
+      {timeLeft !== null && timeLeft > 0 && (
+        <div className="p-3 px-4 bg-rose-50 dark:bg-rose-950/20 border border-rose-250 dark:border-rose-900/60 rounded-2xl flex items-center justify-between text-xs font-bold text-rose-800 dark:text-rose-350 shadow-2xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            <span>POLLS CLOSING SOON: CAST YOUR BALLOT BEFORE TIMER EXPIRES</span>
+          </div>
+          <span className="font-mono text-xs tracking-wider bg-rose-100 dark:bg-rose-900/60 px-3 py-1 rounded-xl text-rose-700 dark:text-rose-300">
+            {(() => {
+              const totalSecs = Math.floor(timeLeft / 1000);
+              const hrs = String(Math.floor(totalSecs / 3600)).padStart(2, '0');
+              const mins = String(Math.floor((totalSecs % 3600) / 60)).padStart(2, '0');
+              const secs = String(totalSecs % 60).padStart(2, '0');
+              return `${hrs}h : ${mins}m : ${secs}s`;
+            })()}
+          </span>
+        </div>
+      )}
 
       {/* ── Officer Conflict Protocol Banner ── */}
       {isManagedByOfficer && (
