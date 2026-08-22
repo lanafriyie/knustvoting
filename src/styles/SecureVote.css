@@ -63,7 +63,9 @@
   --sv-success-bg: #D1FAE5;
   --sv-success-text: #16845B;
   --sv-success-border: #A7F3D0;
-  --sv-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --sv-font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --sv-font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+  --sv-font-mono: 'Fira Code', ui-monospace, monospace;
 
   /* State Badges */
   --sv-warning-bg: #FFFBEB;
@@ -168,6 +170,14 @@ body {
   background-color: var(--sv-bg-app);
   color: var(--sv-text-main);
   -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--sv-font-display);
+}
+
+code, pre, .font-mono {
+  font-family: var(--sv-font-mono) !important;
 }
 
 .app-root {
