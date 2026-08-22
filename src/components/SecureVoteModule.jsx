@@ -95,7 +95,7 @@ function StudentProfilePopover({ student }) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-2xl z-50 p-4 animate-fadeIn font-sans text-slate-950 dark:text-slate-100">
+        <div className="absolute right-0 mt-2 w-[calc(100vw-32px)] max-w-xs rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-2xl z-50 p-4 animate-fadeIn font-sans text-slate-950 dark:text-slate-100">
           <div className="flex items-center gap-3 border-b border-gray-100 dark:border-slate-800 pb-3 mb-3">
             <div className="w-10 h-10 rounded-full bg-[#004D40] text-white flex items-center justify-center text-sm font-bold border border-[#D4AF37]">
               {initials}
@@ -448,23 +448,30 @@ export default function SecureVoteModule({ navigate }) {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto bg-[#F3F6F8] dark:bg-slate-900 text-[#171717] dark:text-slate-100 transition-colors duration-200 min-h-screen">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto bg-[#F3F6F8] dark:bg-slate-900 text-[#171717] dark:text-slate-100 transition-colors duration-200 min-h-screen">
       {/* ── 1. Secure Vote Banner ── */}
-      <div className="mb-6 p-6 knust-hero-card rounded-2xl shadow-2xs flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-[#D4AF37] text-white">
-            <Vote size={24} className="text-[#007A4D]" />
+      <div className="mb-6 p-5 md:p-8 knust-hero-card rounded-2xl shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b-4 border-r-2 border-[#D4AF37]/50 relative overflow-visible">
+        <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap">
+          <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border-2 border-[#D4AF37] text-white shadow-inner flex-shrink-0">
+            <Vote size={28} className="text-[#D4AF37] drop-shadow-sm" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-              Secure Vote Portal
-            </h1>
-            <p className="text-sm font-medium text-emerald-100/90 mt-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl font-black text-white tracking-tight">
+                Secure Vote Portal
+              </h1>
+              {student && (
+                <span className="bg-white/15 dark:bg-slate-950/40 text-[#D4AF37] border border-[#D4AF37]/40 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider">
+                  Voter: {student.shortName || student.name?.split(' ')[0]}
+                </span>
+              )}
+            </div>
+            <p className="text-sm font-medium text-emerald-100/90 mt-1.5 leading-relaxed">
               KNUST Electoral Management &amp; Student Verification System
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3 flex-wrap mr-12">
+        <div className="flex items-center gap-3 flex-wrap relative overflow-visible z-10">
           {/* Quick Demo Profile Switcher */}
           <DemoProfileSwitcher onProfileChange={setStudent} />
 
@@ -472,11 +479,11 @@ export default function SecureVoteModule({ navigate }) {
           <StudentProfilePopover student={student} />
 
           <button
-            className="bg-[#E2F3E9] dark:bg-slate-700 hover:bg-[#BDE3D2] dark:hover:bg-slate-600 text-[#006B3F] dark:text-emerald-400 text-xs font-bold rounded-xl px-3.5 py-2 border border-[#BDE3D2] dark:border-slate-600 shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
+            className="bg-white/10 hover:bg-white/20 dark:bg-slate-700/60 dark:hover:bg-slate-750 text-white dark:text-emerald-450 text-xs font-bold rounded-xl px-3.5 py-2 border border-white/20 dark:border-slate-600 shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
             onClick={toggleBiometricsState}
             title="Toggle biometrics verification state to test valid/missing branches"
           >
-            <RefreshCw size={12} />
+            <RefreshCw size={12} className="text-[#D4AF37]" />
             <span>Dev Test: Biometrics {biometricsOk ? 'Valid' : 'Missing'}</span>
           </button>
         </div>

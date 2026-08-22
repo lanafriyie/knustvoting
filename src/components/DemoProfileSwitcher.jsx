@@ -74,7 +74,7 @@ export default function DemoProfileSwitcher({ onProfileChange, className = '' })
       {/* Floating Dropdown Card */}
       {isOpen && (
         <div
-          className="absolute right-0 sm:right-auto sm:left-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-2xl z-50 p-2 animate-fadeIn"
+          className="absolute right-0 mt-2 w-[calc(100vw-32px)] max-w-sm sm:w-96 rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-2xl z-50 p-2 animate-fadeIn"
           role="menu"
           aria-orientation="vertical"
         >
