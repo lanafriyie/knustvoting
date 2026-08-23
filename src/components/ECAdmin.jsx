@@ -7,6 +7,28 @@ import RoomCreationModal from './RoomCreationModal';
 import RoomMembersPanel from './RoomMembersPanel';
 import { CandidateAgentObserverDemo } from './CandidateAgentRoom';
 import { mockElections, mergeWithMockElections } from '../lib/eligibility';
+import { 
+  BarChart3, 
+  Users, 
+  FileText, 
+  Zap, 
+  TrendingUp, 
+  ShieldCheck, 
+  Building2, 
+  Play, 
+  Pause, 
+  Lock, 
+  Unlock, 
+  Clock, 
+  CheckCircle2, 
+  X, 
+  RefreshCw, 
+  User, 
+  Activity, 
+  ArrowRight,
+  ShieldAlert,
+  ArrowUpRight
+} from 'lucide-react';
 import '../styles/SecureVote.css';
 
 const DEFAULT_POSITIONS_BY_TIER = {
@@ -809,10 +831,10 @@ export default function ECAdmin({ navigate }) {
     <div className="ec-admin-dashboard max-w-7xl mx-auto space-y-6 pb-20 text-[#202522] dark:text-slate-100">
 
       {/* ── TOP HEADER BAR: Institutional Identity & EC Admin Role Switcher ── */}
-      <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-14 h-14 rounded-2xl bg-[#007A4D] text-white flex items-center justify-center text-3xl font-black shadow-md border border-[#0B7A53] flex-shrink-0">
-            {ecAdminProfile.avatar}
+          <div className="w-14 h-14 rounded-2xl bg-[#007A4D] text-white flex items-center justify-center shadow-md border border-[#0B7A53] flex-shrink-0">
+            <User size={26} className="text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
@@ -858,7 +880,7 @@ export default function ECAdmin({ navigate }) {
       </div>
 
       {/* ── Election Scope Selector Bar & Jurisdiction Boundaries Notice ── */}
-      <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+      <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
         <div className="flex items-center gap-2.5 w-full sm:w-auto">
           <span className="text-xs font-extrabold uppercase tracking-wide text-[#66716C] dark:text-slate-400 whitespace-nowrap">
             Selected Election:
@@ -872,7 +894,7 @@ export default function ECAdmin({ navigate }) {
               const inScope = isElectionInScope(el);
               return (
                 <option key={el.id} value={el.id}>
-                  {inScope ? '✓ ' : '🔒 [Restricted - Outside Scope] '} {el.title} [{el.status || 'ACTIVE'}]
+                  {inScope ? '✓ ' : '[Locked - Outside Scope] '} {el.title} [{el.status || 'ACTIVE'}]
                 </option>
               );
             })}
@@ -890,11 +912,22 @@ export default function ECAdmin({ navigate }) {
                 : 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-600'
             }`}
           >
-            {currentElectionStatus === 'ACTIVE'
-              ? '🟢 POLLS OPEN'
-              : currentElectionStatus === 'PAUSED'
-              ? '⏸️ POLLS PAUSED'
-              : '⏹️ POLLS CLOSED'}
+            {currentElectionStatus === 'ACTIVE' ? (
+              <span className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1" />
+                <span>POLLS OPEN</span>
+              </span>
+            ) : currentElectionStatus === 'PAUSED' ? (
+              <span className="flex items-center gap-1 text-amber-800 dark:text-amber-300">
+                <Pause size={10} className="inline mr-1" />
+                <span>POLLS PAUSED</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-slate-700 dark:text-slate-400">
+                <Lock size={10} className="inline mr-1" />
+                <span>POLLS CLOSED</span>
+              </span>
+            )}
           </span>
         </div>
       </div>
@@ -902,7 +935,7 @@ export default function ECAdmin({ navigate }) {
       {/* ── RESTRICTION BANNER (When viewing Out-of-Scope Election) ── */}
       {!isCurrentElectionInScope && (
         <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-400 dark:border-amber-700 flex items-start gap-3.5 shadow-sm animate-fadeIn">
-          <div className="text-2xl flex-shrink-0">🔒</div>
+          <ShieldAlert size={20} className="text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
           <div className="space-y-1 text-xs">
             <h4 className="font-black text-amber-900 dark:text-amber-300 uppercase tracking-wide">
               Restricted — Outside Assigned Jurisdiction ({ecAdminProfile.assignedJurisdiction.name} Only)
@@ -917,15 +950,16 @@ export default function ECAdmin({ navigate }) {
       {/* ── Navigation Tab Bar ── */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-[#DDE5E1] dark:border-slate-700">
         {[
-          { key: 'analytics', label: 'Live Turnout Analytics', icon: '📊' },
-          { key: 'candidates', label: 'Candidate Roster & Vetting', icon: '👥' },
-          { key: 'ballot-creator', label: 'Ballot Creator', icon: '📝' },
-          { key: 'status-overrides', label: 'Poll Status Overrides', icon: '⚡' },
-          { key: 'live-tally', label: 'Anonymized Vote Counting', icon: '📈' },
-          { key: 'health-logs', label: 'System Health & Audit Logs', icon: '🛡️' },
-          { key: 'rooms', label: 'Observer Rooms', icon: '🏢' },
+          { key: 'analytics', label: 'Live Turnout Analytics', icon: BarChart3 },
+          { key: 'candidates', label: 'Candidate Roster & Vetting', icon: Users },
+          { key: 'ballot-creator', label: 'Ballot Creator', icon: FileText },
+          { key: 'status-overrides', label: 'Poll Status Overrides', icon: Zap },
+          { key: 'live-tally', label: 'Anonymized Vote Counting', icon: TrendingUp },
+          { key: 'health-logs', label: 'System Health & Audit Logs', icon: ShieldCheck },
+          { key: 'rooms', label: 'Observer Rooms', icon: Building2 },
         ].map((tab) => {
           const isActive = activeTab === tab.key;
+          const IconComponent = tab.icon;
           return (
             <button
               key={tab.key}
@@ -937,12 +971,13 @@ export default function ECAdmin({ navigate }) {
                   : 'bg-white dark:bg-slate-800 text-[#66716C] dark:text-slate-300 hover:text-[#007A4D] dark:hover:text-emerald-400 hover:bg-[#F3FAF6] dark:hover:bg-slate-700/50 border border-transparent'
               }`}
             >
-              <span>{tab.icon}</span>
+              <IconComponent size={14} className={isActive ? 'text-white' : 'text-[#66716C] dark:text-slate-400'} />
               <span>{tab.label}</span>
             </button>
           );
         })}
       </div>
+
 
       {/* ═══════════════════════════════════════════════════════════════════════
           TAB 1: LIVE TURNOUT ANALYTICS
@@ -961,13 +996,13 @@ export default function ECAdmin({ navigate }) {
 
           {/* Key Metric KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#66716C] dark:text-slate-400 uppercase tracking-wider">
                   Live Turnout
                 </span>
                 <span className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm">
-                  %
+                  <Activity size={15} />
                 </span>
               </div>
               <div className="mt-3">
@@ -975,7 +1010,7 @@ export default function ECAdmin({ navigate }) {
                   {dynamicTurnout.turnoutPercent}%
                 </div>
                 <div className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1 flex items-center gap-1">
-                  <span>▲ Active Pace</span> <span className="text-slate-400 font-normal">in assigned scope</span>
+                  <span className="text-xs">▲ Active Pace</span> <span className="text-slate-400 font-normal">in assigned scope</span>
                 </div>
               </div>
               <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full mt-3 overflow-hidden">
@@ -986,13 +1021,13 @@ export default function ECAdmin({ navigate }) {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#66716C] dark:text-slate-400 uppercase tracking-wider">
                   Ballots Cast
                 </span>
                 <span className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">
-                  🗳️
+                  <FileText size={15} />
                 </span>
               </div>
               <div className="mt-3">
@@ -1008,13 +1043,13 @@ export default function ECAdmin({ navigate }) {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#66716C] dark:text-slate-400 uppercase tracking-wider">
                   Active Sessions
                 </span>
                 <span className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-sm">
-                  ⚡
+                  <Zap size={15} />
                 </span>
               </div>
               <div className="mt-3">
@@ -1030,13 +1065,13 @@ export default function ECAdmin({ navigate }) {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#66716C] dark:text-slate-400 uppercase tracking-wider">
                   Voting Velocity
                 </span>
                 <span className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-sm">
-                  🚀
+                  <TrendingUp size={15} />
                 </span>
               </div>
               <div className="mt-3">
@@ -1055,7 +1090,7 @@ export default function ECAdmin({ navigate }) {
 
           {/* Regional & Constituency Turnout Progress Breakdown */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
+            <div className="lg:col-span-2 knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100">
@@ -1068,9 +1103,10 @@ export default function ECAdmin({ navigate }) {
                 <button
                   type="button"
                   onClick={() => setLastRefreshedAt(new Date())}
-                  className="px-3 py-1 bg-[#F3FAF6] dark:bg-slate-900 hover:bg-[#EAF6F0] text-xs font-bold text-[#007A4D] dark:text-emerald-400 rounded-lg border border-[#DDE5E1] dark:border-slate-700 cursor-pointer"
+                  className="px-3 py-1 bg-[#F3FAF6] dark:bg-slate-900 hover:bg-[#EAF6F0] text-xs font-bold text-[#007A4D] dark:text-emerald-400 rounded-lg border border-[#DDE5E1] dark:border-slate-700 cursor-pointer flex items-center gap-1"
                 >
-                  ↻ Refresh
+                  <RefreshCw size={11} className="animate-spin-slow" />
+                  <span>Refresh</span>
                 </button>
               </div>
 
@@ -1095,7 +1131,7 @@ export default function ECAdmin({ navigate }) {
             </div>
 
             {/* Voting Activity Timeline Sparkline & Summary */}
-            <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4 flex flex-col justify-between">
+            <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4 flex flex-col justify-between">
               <div>
                 <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100">
                   Hourly Polling Activity
@@ -1104,24 +1140,43 @@ export default function ECAdmin({ navigate }) {
                   Hourly voter check-in distribution
                 </p>
 
-                <div className="grid grid-cols-6 gap-2 mt-6 h-32 items-end">
-                  {[
-                    { hour: '08:00', val: 35 },
-                    { hour: '10:00', val: 68 },
-                    { hour: '12:00', val: 95 },
-                    { hour: '14:00', val: 82 },
-                    { hour: '16:00', val: 74 },
-                    { hour: '18:00', val: 40 },
-                  ].map((bar) => (
-                    <div key={bar.hour} className="flex flex-col items-center gap-1.5 h-full justify-end">
-                      <div
-                        className="w-full bg-[#007A4D]/80 hover:bg-[#007A4D] rounded-t-md transition-all duration-300"
-                        style={{ height: `${bar.val}%` }}
-                        title={`${bar.hour}: ~${bar.val * 120} votes`}
-                      />
-                      <span className="text-[10px] font-mono text-slate-500">{bar.hour}</span>
-                    </div>
-                  ))}
+                <div className="relative mt-6 p-2 pb-0 bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-700/60 rounded-xl overflow-hidden">
+                  {/* Subtle Gridlines */}
+                  <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-[0.07] py-4 px-2">
+                    <div className="border-t border-dashed border-slate-500 w-full" />
+                    <div className="border-t border-dashed border-slate-500 w-full" />
+                    <div className="border-t border-dashed border-slate-500 w-full" />
+                  </div>
+                  
+                  <div className="relative grid grid-cols-6 gap-3 h-32 items-end z-10 px-2">
+                    {[
+                      { hour: '08:00', val: 35, peak: false },
+                      { hour: '10:00', val: 68, peak: false },
+                      { hour: '12:00', val: 95, peak: true },
+                      { hour: '14:00', val: 82, peak: false },
+                      { hour: '16:00', val: 74, peak: false },
+                      { hour: '18:00', val: 40, peak: false },
+                    ].map((bar) => (
+                      <div key={bar.hour} className="flex flex-col items-center gap-1.5 h-full justify-end group">
+                        {/* Value indicator on top */}
+                        <span className={`text-[9px] font-mono font-extrabold ${bar.peak ? 'text-[#991B1B] dark:text-red-400' : 'text-slate-400 dark:text-slate-500'} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
+                          {bar.val}%
+                        </span>
+                        <div
+                          className={`w-full rounded-t-lg transition-all duration-500 cursor-pointer shadow-inner ${
+                            bar.peak
+                              ? 'bg-gradient-to-t from-[#991B1B] via-[#007A4D] to-[#D4AF37]'
+                              : 'bg-gradient-to-t from-[#063B2A] to-[#0B7A53]'
+                          }`}
+                          style={{ height: `${bar.val - 12}%` }}
+                          title={`${bar.hour}: ${bar.val}% Turnout (~${(bar.val * (dynamicTurnout.expectedVoters / 100)).toFixed(0)} votes)`}
+                        />
+                        <span className={`text-[9px] font-bold font-mono pb-1 ${bar.peak ? 'text-[#991B1B] dark:text-red-400' : 'text-slate-500'}`}>
+                          {bar.hour}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -1140,7 +1195,7 @@ export default function ECAdmin({ navigate }) {
       {activeTab === 'candidates' && (
         <div className="space-y-6 animate-fadeIn">
           {/* Position Mapping & Portfolio Manager */}
-          <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100">
@@ -1186,15 +1241,16 @@ export default function ECAdmin({ navigate }) {
           </div>
 
           {/* Candidate Roster Filter & Table */}
-          <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#DDE5E1] dark:border-slate-700">
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100">
                   Candidate Roster &amp; Vetting Controls ({filteredCandidates.length})
                 </h3>
                 {!isCurrentElectionInScope && (
-                  <span className="text-[11px] bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 px-2 py-0.5 rounded font-bold border border-amber-300">
-                    🔒 Read-Only (Outside Assigned Jurisdiction)
+                  <span className="text-[11px] bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 px-2.5 py-0.5 rounded font-bold border border-amber-300 flex items-center gap-1">
+                    <Lock size={10} />
+                    <span>Read-Only (Outside Assigned Jurisdiction)</span>
                   </span>
                 )}
               </div>
@@ -1286,19 +1342,22 @@ export default function ECAdmin({ navigate }) {
 
                         <td className="py-3 px-3">
                           {isVerified && (
-                            <span className="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 font-extrabold text-[10px] border border-emerald-300 dark:border-emerald-700">
-                              ✓ VERIFIED ON BALLOT
+                            <span className="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 font-extrabold text-[10px] border border-emerald-300 dark:border-emerald-700 flex items-center gap-1 w-max">
+                              <CheckCircle2 size={10} />
+                              <span>VERIFIED ON BALLOT</span>
                             </span>
                           )}
                           {isPending && (
-                            <span className="px-2.5 py-1 rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 font-extrabold text-[10px] border border-amber-300 dark:border-amber-700">
-                              ⏳ PENDING VETTING
+                            <span className="px-2.5 py-1 rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 font-extrabold text-[10px] border border-amber-300 dark:border-amber-700 flex items-center gap-1 w-max">
+                              <Clock size={10} />
+                              <span>PENDING VETTING</span>
                             </span>
                           )}
                           {isDisqualified && (
                             <div className="space-y-0.5">
-                              <span className="px-2.5 py-1 rounded-md bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 font-extrabold text-[10px] border border-red-300 dark:border-red-700">
-                                ✕ DISQUALIFIED
+                              <span className="px-2.5 py-1 rounded-md bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 font-extrabold text-[10px] border border-red-300 dark:border-red-700 flex items-center gap-1 w-max">
+                                <X size={10} />
+                                <span>DISQUALIFIED</span>
                               </span>
                               {cand.disqualification_reason && (
                                 <p className="text-[10px] text-red-600 dark:text-red-400 italic max-w-xs truncate">
@@ -1319,7 +1378,7 @@ export default function ECAdmin({ navigate }) {
                                 className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-lg text-[11px] cursor-pointer transition-colors shadow-2xs"
                                 title={!isCurrentElectionInScope ? 'Action Disabled: Outside Assigned Jurisdiction Scope' : 'Approve candidate for ballot appearance'}
                               >
-                                {!isCurrentElectionInScope ? '🔒 Verify' : '✓ Verify'}
+                                Verify
                               </button>
                             )}
 
@@ -1331,7 +1390,7 @@ export default function ECAdmin({ navigate }) {
                                 className="px-2.5 py-1 bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-lg text-[11px] cursor-pointer transition-colors shadow-2xs"
                                 title={!isCurrentElectionInScope ? 'Action Disabled: Outside Assigned Jurisdiction Scope' : 'Strike candidate from official ballot'}
                               >
-                                {!isCurrentElectionInScope ? '🔒 Disqualify' : '✕ Disqualify'}
+                                Disqualify
                               </button>
                             )}
 
@@ -1343,7 +1402,7 @@ export default function ECAdmin({ navigate }) {
                                 className="px-2.5 py-1 bg-slate-700 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-lg text-[11px] cursor-pointer transition-colors shadow-2xs"
                                 title={!isCurrentElectionInScope ? 'Action Disabled: Outside Assigned Jurisdiction Scope' : 'Reinstate candidate after appeal clearance'}
                               >
-                                {!isCurrentElectionInScope ? '🔒 Reinstate' : '↺ Reinstate'}
+                                Reinstate
                               </button>
                             )}
                           </div>
@@ -1357,14 +1416,15 @@ export default function ECAdmin({ navigate }) {
           </div>
 
           {/* Add Candidate Form Accordion */}
-          <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100">
                 Enroll Candidate onto Official Roster
               </h3>
               {!isCurrentElectionInScope && (
-                <span className="text-xs text-amber-600 font-bold">
-                  🔒 Locked (Outside assigned {ecAdminProfile.assignedJurisdiction.tier} scope)
+                <span className="text-xs text-amber-600 font-bold flex items-center gap-1">
+                  <Lock size={12} />
+                  <span>Locked (Outside assigned {ecAdminProfile.assignedJurisdiction.tier} scope)</span>
                 </span>
               )}
             </div>
@@ -1496,7 +1556,7 @@ export default function ECAdmin({ navigate }) {
       ═══════════════════════════════════════════════════════════════════════ */}
       {activeTab === 'ballot-creator' && (
         <div className="space-y-6 animate-fadeIn">
-          <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-5">
+          <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-5">
             <div>
               <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100">
                 Ballot Creation Controls &amp; Rule Engine
@@ -1734,8 +1794,9 @@ export default function ECAdmin({ navigate }) {
                   <p className="text-xs text-slate-500">
                     Target: {ballotForm.jurisdiction_name || 'All Registered Voters'} · Tier: {ballotForm.tier}
                   </p>
-                  <div className="p-3 bg-[#EAF6F0] dark:bg-slate-900 rounded-lg text-xs text-[#075C42] dark:text-emerald-400 font-semibold">
-                    🔒 Zero-Knowledge Cryptographic Envelope active. Each ballot receipt generated with SHA-256 hash stamp.
+                  <div className="p-3 bg-[#EAF6F0] dark:bg-slate-900 rounded-lg text-xs text-[#075C42] dark:text-emerald-400 font-semibold flex items-center gap-1.5">
+                    <Lock size={12} />
+                    <span>Zero-Knowledge Cryptographic Envelope active. Each ballot receipt generated with SHA-256 hash stamp.</span>
                   </div>
                 </div>
               </div>
@@ -1744,12 +1805,10 @@ export default function ECAdmin({ navigate }) {
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          TAB 4: REAL-TIME ELECTION STATUS & POLLING OVERRIDES
-      ═══════════════════════════════════════════════════════════════════════ */}
+      {/* ── Navigation Tab Content: Real-Time Status Overrides ── */}
       {activeTab === 'status-overrides' && (
         <div className="space-y-6 animate-fadeIn">
-          <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-5">
+          <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-5">
             <div>
               <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100">
                 Real-Time Polling Status &amp; Emergency Overrides
@@ -1788,7 +1847,22 @@ export default function ECAdmin({ navigate }) {
                       : 'bg-slate-800 text-white'
                   }`}
                 >
-                  {currentElectionStatus === 'ACTIVE' ? '🟢 LIVE POLLS OPEN' : currentElectionStatus === 'PAUSED' ? '⏸️ POLLS PAUSED' : '⏹️ POLLS CLOSED'}
+                  {currentElectionStatus === 'ACTIVE' ? (
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      <span>LIVE POLLS OPEN</span>
+                    </span>
+                  ) : currentElectionStatus === 'PAUSED' ? (
+                    <span className="flex items-center gap-1.5">
+                      <Pause size={12} />
+                      <span>POLLS PAUSED</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5">
+                      <Lock size={12} />
+                      <span>POLLS CLOSED</span>
+                    </span>
+                  )}
                 </span>
               </div>
             </div>
@@ -1814,9 +1888,9 @@ export default function ECAdmin({ navigate }) {
                 type="button"
                 disabled={actionLoading || currentElectionStatus === 'ACTIVE' || !isCurrentElectionInScope || !hasPermission('OVERRIDE_POLLS')}
                 onClick={() => handleStatusOverride('OPEN_POLLS')}
-                className="p-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs flex flex-col items-center gap-1 cursor-pointer transition-all shadow-xs"
+                className="p-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs flex flex-col items-center gap-2 cursor-pointer transition-all shadow-xs"
               >
-                <span className="text-lg">{isCurrentElectionInScope ? '🟢' : '🔒'}</span>
+                {isCurrentElectionInScope ? <Play size={18} /> : <Lock size={18} />}
                 <span>{isCurrentElectionInScope ? 'OPEN / RESUME POLLS' : 'LOCKED (Outside Scope)'}</span>
                 <span className="text-[10px] font-normal opacity-80">Enable voting across all stations</span>
               </button>
@@ -1825,9 +1899,9 @@ export default function ECAdmin({ navigate }) {
                 type="button"
                 disabled={actionLoading || currentElectionStatus === 'PAUSED' || currentElectionStatus === 'CLOSED' || !isCurrentElectionInScope || !hasPermission('OVERRIDE_POLLS')}
                 onClick={() => handleStatusOverride('PAUSE_POLLS')}
-                className="p-4 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs flex flex-col items-center gap-1 cursor-pointer transition-all shadow-xs"
+                className="p-4 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs flex flex-col items-center gap-2 cursor-pointer transition-all shadow-xs"
               >
-                <span className="text-lg">{isCurrentElectionInScope ? '⏸️' : '🔒'}</span>
+                {isCurrentElectionInScope ? <Pause size={18} /> : <Lock size={18} />}
                 <span>{isCurrentElectionInScope ? 'PAUSE POLLS' : 'LOCKED (Outside Scope)'}</span>
                 <span className="text-[10px] font-normal opacity-80">Temporary hold / sync freeze</span>
               </button>
@@ -1836,9 +1910,9 @@ export default function ECAdmin({ navigate }) {
                 type="button"
                 disabled={actionLoading || !isCurrentElectionInScope || !hasPermission('OVERRIDE_POLLS')}
                 onClick={() => handleStatusOverride('EXTEND_1H')}
-                className="p-4 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs flex flex-col items-center gap-1 cursor-pointer transition-all shadow-xs"
+                className="p-4 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs flex flex-col items-center gap-2 cursor-pointer transition-all shadow-xs"
               >
-                <span className="text-lg">{isCurrentElectionInScope ? '⏱️' : '🔒'}</span>
+                {isCurrentElectionInScope ? <Clock size={18} /> : <Lock size={18} />}
                 <span>{isCurrentElectionInScope ? 'EXTEND TIME (+1 HOUR)' : 'LOCKED (Outside Scope)'}</span>
                 <span className="text-[10px] font-normal opacity-80">Push back deadline with audit stamp</span>
               </button>
@@ -1847,9 +1921,9 @@ export default function ECAdmin({ navigate }) {
                 type="button"
                 disabled={actionLoading || currentElectionStatus === 'CLOSED' || !isCurrentElectionInScope || !hasPermission('OVERRIDE_POLLS')}
                 onClick={() => handleStatusOverride('CLOSE_POLLS')}
-                className="p-4 rounded-xl bg-slate-800 hover:bg-slate-900 disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs flex flex-col items-center gap-1 cursor-pointer transition-all shadow-xs"
+                className="p-4 rounded-xl bg-slate-800 hover:bg-slate-900 disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs flex flex-col items-center gap-2 cursor-pointer transition-all shadow-xs"
               >
-                <span className="text-lg">{isCurrentElectionInScope ? '⏹️' : '🔒'}</span>
+                {isCurrentElectionInScope ? <Lock size={18} /> : <Lock size={18} />}
                 <span>{isCurrentElectionInScope ? 'CONCLUDE & CLOSE POLLS' : 'LOCKED (Outside Scope)'}</span>
                 <span className="text-[10px] font-normal opacity-80">Lock voting ledger for decryption</span>
               </button>
@@ -1865,7 +1939,7 @@ export default function ECAdmin({ navigate }) {
         <div className="space-y-6 animate-fadeIn">
           {/* Zero-Knowledge Anonymity Guarantee Banner */}
           <div className="p-4 rounded-2xl bg-[#EAF6F0] dark:bg-slate-900 border border-[#007A4D]/30 flex items-start gap-3.5">
-            <div className="text-2xl flex-shrink-0 mt-0.5">🛡️</div>
+            <ShieldCheck size={20} className="text-emerald-700 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
             <div className="space-y-1">
               <h4 className="font-black text-xs uppercase tracking-wide text-[#075C42] dark:text-emerald-400">
                 Zero-Knowledge Voter Anonymity Protocol Enforced
@@ -1877,7 +1951,7 @@ export default function ECAdmin({ navigate }) {
           </div>
 
           {/* Decryption & Tally Trigger Control */}
-          <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100">
@@ -1894,7 +1968,7 @@ export default function ECAdmin({ navigate }) {
                   onClick={handleTallyAndDecrypt}
                   className="px-4 py-2 bg-[#007A4D] hover:bg-[#075C42] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer transition-colors flex items-center gap-1.5"
                 >
-                  <span>🔓</span>
+                  <Unlock size={12} />
                   <span>Tally &amp; Decrypt Ledger</span>
                 </button>
               </div>
@@ -1963,7 +2037,7 @@ export default function ECAdmin({ navigate }) {
 
             {/* Official Tally Results Modal / Publication Card */}
             {tallyDecrypted && tallyResults && (
-              <div className="mt-6 p-5 rounded-2xl bg-white dark:bg-slate-800 border-2 border-[#007A4D] shadow-md space-y-4">
+              <div className="mt-6 p-5 rounded-2xl knust-glass-card border-2 border-[#007A4D] shadow-md space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-[#DDE5E1] dark:border-slate-700">
                   <div>
                     <h4 className="font-black text-base text-[#007A4D] dark:text-emerald-400">
@@ -1994,7 +2068,7 @@ export default function ECAdmin({ navigate }) {
                     onClick={handlePublishResults}
                     className="px-5 py-2.5 bg-[#007A4D] hover:bg-[#075C42] disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer transition-colors"
                   >
-                    {isCurrentElectionInScope ? '📢 Broadcast Results to Student AIM' : '🔒 Broadcast Restricted (Outside Scope)'}
+                    {isCurrentElectionInScope ? 'Broadcast Results to Student AIM' : 'Broadcast Restricted (Outside Scope)'}
                   </button>
                 </div>
               </div>
@@ -2003,14 +2077,12 @@ export default function ECAdmin({ navigate }) {
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          TAB 6: SYSTEM HEALTH & AUDIT LOGS
-      ═══════════════════════════════════════════════════════════════════════ */}
+      {/* ── Navigation Tab Content: System Health & Audit Logs ── */}
       {activeTab === 'health-logs' && (
         <div className="space-y-6 animate-fadeIn">
           {/* System Health Telemetry Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-4 shadow-xs">
+            <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-4 shadow-xs">
               <div className="flex items-center justify-between text-xs font-bold text-slate-500">
                 <span>Database Engine</span>
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
@@ -2021,7 +2093,7 @@ export default function ECAdmin({ navigate }) {
               <div className="text-xs text-emerald-600 font-semibold mt-1">Status: OK (Ping 16ms)</div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-4 shadow-xs">
+            <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-4 shadow-xs">
               <div className="flex items-center justify-between text-xs font-bold text-slate-500">
                 <span>Ledger Integrity</span>
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
@@ -2032,7 +2104,7 @@ export default function ECAdmin({ navigate }) {
               <div className="text-xs text-emerald-600 font-semibold mt-1">0 Tampering Detected</div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-4 shadow-xs">
+            <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-4 shadow-xs">
               <div className="flex items-center justify-between text-xs font-bold text-slate-500">
                 <span>WebSocket Stream</span>
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
@@ -2043,7 +2115,7 @@ export default function ECAdmin({ navigate }) {
               <div className="text-xs text-emerald-600 font-semibold mt-1">0% Packet Loss</div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-4 shadow-xs">
+            <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-4 shadow-xs">
               <div className="flex items-center justify-between text-xs font-bold text-slate-500">
                 <span>Anonymity Shield</span>
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
@@ -2056,7 +2128,7 @@ export default function ECAdmin({ navigate }) {
           </div>
 
           {/* Tamper-Evident Audit Logs Table */}
-          <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#DDE5E1] dark:border-slate-700">
               <div>
                 <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100">
@@ -2176,7 +2248,7 @@ export default function ECAdmin({ navigate }) {
       ═══════════════════════════════════════════════════════════════════════ */}
       {activeTab === 'rooms' && (
         <div className="space-y-6 animate-fadeIn">
-          <div className="bg-white dark:bg-slate-800 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100">
@@ -2220,12 +2292,14 @@ export default function ECAdmin({ navigate }) {
                       </td>
                       <td className="py-3 px-3">
                         {room.is_locked ? (
-                          <span className="px-2 py-0.5 bg-red-100 text-red-800 dark:bg-red-950/80 dark:text-red-300 font-bold rounded text-[10px]">
-                            🔒 LOCKED
+                          <span className="px-2 py-1 bg-red-100 text-red-800 dark:bg-red-950/80 dark:text-red-300 font-extrabold rounded text-[10px] inline-flex items-center gap-1 border border-red-300">
+                            <Lock size={10} />
+                            <span>LOCKED</span>
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold rounded text-[10px]">
-                            🔓 OPEN
+                          <span className="px-2 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-extrabold rounded text-[10px] inline-flex items-center gap-1 border border-emerald-300">
+                            <Unlock size={10} />
+                            <span>OPEN</span>
                           </span>
                         )}
                       </td>
@@ -2257,7 +2331,7 @@ export default function ECAdmin({ navigate }) {
                                 : 'bg-red-600 hover:bg-red-700 text-white'
                             }`}
                           >
-                            {room.is_locked ? '🔓 Unlock' : '🔒 Lock'}
+                            {room.is_locked ? 'Unlock' : 'Lock'}
                           </button>
 
                           <button

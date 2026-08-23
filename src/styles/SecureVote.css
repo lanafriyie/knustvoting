@@ -1624,3 +1624,30 @@ code, pre, .font-mono {
   transform: scale(0.97);
   transition: transform 0.1s ease;
 }
+
+/* Glassmorphism Premium Cards */
+.knust-glass-card {
+  background: rgba(255, 255, 255, 0.65) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(221, 229, 225, 0.6) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.dark .knust-glass-card {
+  background: rgba(30, 41, 59, 0.5) !important;
+  border: 1px solid rgba(51, 65, 85, 0.4) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+
+.knust-glass-card:hover {
+  border-color: rgba(0, 122, 77, 0.25) !important;
+  box-shadow: 0 12px 40px rgba(0, 77, 64, 0.04) !important;
+  transform: translateY(-2px);
+}
+
+.dark .knust-glass-card:hover {
+  border-color: rgba(16, 185, 129, 0.2) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25) !important;
+}
