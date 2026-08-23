@@ -831,7 +831,7 @@ export default function ECAdmin({ navigate }) {
     <div className="ec-admin-dashboard max-w-7xl mx-auto space-y-6 pb-20 text-[#202522] dark:text-slate-100">
 
       {/* ── TOP HEADER BAR: Institutional Identity & EC Admin Role Switcher ── */}
-      <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="knust-glass-card relative z-30 border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-14 h-14 rounded-2xl bg-[#007A4D] text-white flex items-center justify-center shadow-md border border-[#0B7A53] flex-shrink-0">
             <User size={26} className="text-white" />
@@ -880,7 +880,7 @@ export default function ECAdmin({ navigate }) {
       </div>
 
       {/* ── Election Scope Selector Bar & Jurisdiction Boundaries Notice ── */}
-      <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+      <div className="knust-glass-card relative z-20 border border-[#DDE5E1] dark:border-slate-700 rounded-xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
         <div className="flex items-center gap-2.5 w-full sm:w-auto">
           <span className="text-xs font-extrabold uppercase tracking-wide text-[#66716C] dark:text-slate-400 whitespace-nowrap">
             Selected Election:
