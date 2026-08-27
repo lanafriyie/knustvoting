@@ -366,182 +366,121 @@ export default function RoomMembersPanel({ room, election, candidates, isHeadOnl
   const isAddDisabled = roomIsLocked || !effectiveUser || (selectedRole === 'CANDIDATE_AGENT' && !selectedCandidate) || isAdding || !isHeadOnly;
 
   return (
-    <div className="ec-panel ec-card" style={{ padding: 20 }}>
-      <h2>Election Observer Room Management</h2>
-      <p style={{ color: '#666', marginTop: 8 }}>Invite and assign accredited candidate observers (agents) to this polling station observer room.</p>
+    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xs text-slate-900 dark:text-slate-100">
+      <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 m-0">Election Observer Room Management</h2>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 m-0">Invite and assign accredited candidate observers (agents) to this polling station observer room.</p>
 
       {/* Room Lock Control */}
-      <div style={{
-        marginTop: 16,
-        padding: 16,
-        background: roomIsLocked ? '#ffebee' : '#e8f5e9',
-        borderLeft: `4px solid ${roomIsLocked ? '#c62828' : '#2e7d32'}`,
-        borderRadius: 6,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className={`mt-4 p-4 rounded-2xl border ${
+        roomIsLocked
+          ? 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800/60 text-rose-900 dark:text-rose-200'
+          : 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-200'
+      }`}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <div style={{ fontWeight: 600, fontSize: 14, color: roomIsLocked ? '#c62828' : '#2e7d32' }}>
-              {roomIsLocked ? '🔒 ROOM LOCKED' : '🔓 ROOM UNLOCKED'}
+            <div className="font-extrabold text-sm flex items-center gap-1.5">
+              <span>{roomIsLocked ? '🔒 ROOM LOCKED' : '🔓 ROOM UNLOCKED'}</span>
             </div>
-            <div style={{ fontSize: 13, color: roomIsLocked ? '#991b1b' : '#15803d', marginTop: 4, fontWeight: 500 }}>
+            <div className="text-xs mt-1 leading-relaxed opacity-90 font-medium">
               {roomIsLocked
-                ? '🔒 Room is LOCKED: Adding new members, reassigning roles, or revoking/leaving membership is strictly prevented.'
-                : '🔓 Room is UNLOCKED: EC Head can assign accredited agents, adjust roles, or manage roster.'}
+                ? 'Room is LOCKED: Adding new members, reassigning roles, or revoking access is strictly prevented.'
+                : 'Room is UNLOCKED: EC Head can assign accredited agents, adjust roles, or manage roster.'}
             </div>
           </div>
           <button
             onClick={handleToggleRoomLock}
             disabled={!isHeadOnly || isToggling}
-            style={{
-              padding: '8px 16px',
-              background: roomIsLocked ? '#2e7d32' : '#c62828',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 4,
-              cursor: isHeadOnly && !isToggling ? 'pointer' : 'not-allowed',
-              fontSize: 13,
-              fontWeight: 600,
-              opacity: isHeadOnly ? 1 : 0.5,
-              whiteSpace: 'nowrap',
-              marginLeft: 16,
-            }}
+            className={`w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer min-h-[44px] touch-active text-white border-0 shadow-xs shrink-0 ${
+              roomIsLocked ? 'bg-[#007A4D] hover:bg-[#075C42]' : 'bg-rose-600 hover:bg-rose-700'
+            } disabled:opacity-40 disabled:cursor-not-allowed`}
           >
-            {isToggling ? 'Changing...' : roomIsLocked ? 'UNLOCK ROOM' : 'LOCK ROOM'}
+            {isToggling ? 'Updating...' : roomIsLocked ? 'UNLOCK ROOM' : 'LOCK ROOM'}
           </button>
         </div>
         {!isHeadOnly && (
-          <div style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 font-medium">
             🔐 Only EC Head can change room lock status.
           </div>
         )}
         {lockError && (
-          <div style={{ fontSize: 12, color: '#c62828', marginTop: 8 }}>
+          <div className="text-xs text-rose-600 dark:text-rose-400 mt-2 font-bold">
             ⚠️ {lockError}
           </div>
         )}
       </div>
 
       {/* Add Member Section */}
-      <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid #e5e7eb' }}>
-        <h3 style={{ marginBottom: 16 }}>Add Room Member</h3>
+      <div className="mt-6 pt-6 border-t border-gray-100 dark:border-slate-800 space-y-4">
+        <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 m-0">Add Room Member</h3>
 
         {error && (
-          <div style={{ marginBottom: 16, padding: 12, background: '#ffebee', borderRadius: 6, color: '#c62828', fontSize: 13 }}>
+          <div className="p-3 bg-rose-50 dark:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-800/60 text-xs text-rose-700 dark:text-rose-300 font-bold">
             ⚠️ {error}
           </div>
         )}
 
         {success && (
-          <div style={{ marginBottom: 16, padding: 12, background: '#e8f5e9', borderRadius: 6, color: '#2e7d32', fontSize: 13 }}>
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800/60 text-xs text-emerald-700 dark:text-emerald-300 font-bold">
             ✓ {success}
           </div>
         )}
 
         {!isHeadOnly && (
-          <div style={{ marginBottom: 16, padding: 12, background: '#fff3e0', borderRadius: 6, color: '#e65100', fontSize: 13 }}>
+          <div className="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800/60 text-xs text-amber-800 dark:text-amber-300 font-medium">
             🔐 Only EC Head can manage room members.
           </div>
         )}
 
         {/* User Search */}
-        <div style={{ marginBottom: 16, position: 'relative' }}>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 14 }}>Search Student (by Email)</label>
+        <div className="relative flex flex-col gap-1.5">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Search Student (by Email / ID)</label>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Type student email to search..."
-            disabled={!isHeadOnly}
-            style={{
-              width: '100%',
-              padding: '10px 12px',
-              border: '1px solid #ddd',
-              borderRadius: 6,
-              fontSize: 14,
-              opacity: isHeadOnly ? 1 : 0.6,
-            }}
+            placeholder="Type student email or ID..."
+            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#007A4D] min-h-[44px]"
           />
 
-          {/* Search Results Dropdown */}
           {searchResults.length > 0 && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                background: '#fff',
-                border: '1px solid #ddd',
-                borderTop: 'none',
-                borderRadius: '0 0 6px 6px',
-                maxHeight: 200,
-                overflowY: 'auto',
-                zIndex: 1000,
-                marginTop: -1,
-              }}
-            >
-              {searchResults.map((result) => (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 divide-y divide-slate-100 dark:divide-slate-700 text-xs max-h-48 overflow-y-auto">
+              {searchResults.map((user) => (
                 <div
-                  key={result.id}
-                  onClick={() => handleSelectUser(result)}
-                  style={{
-                    padding: 12,
-                    cursor: 'pointer',
-                    borderBottom: '1px solid #f0f0f0',
-                    backgroundColor: selectedUser?.id === result.id ? '#e8f5e9' : '#fff',
-                  }}
-                  onMouseEnter={(e) => (e.target.style.backgroundColor = '#f5f5f5')}
-                  onMouseLeave={(e) =>
-                    (e.target.style.backgroundColor = selectedUser?.id === result.id ? '#e8f5e9' : '#fff')
-                  }
+                  key={user.id}
+                  onClick={() => handleSelectUser(user)}
+                  className="p-3 hover:bg-slate-50 dark:hover:bg-slate-700/60 cursor-pointer text-slate-800 dark:text-slate-200 font-medium"
                 >
-                  <div style={{ fontWeight: 500 }}>{result.displayName}</div>
-                  <div style={{ fontSize: 12, color: '#666' }}>{result.email}</div>
+                  {user.displayName} {user.isDirectInput ? '' : `(${user.email})`}
                 </div>
               ))}
             </div>
           )}
-
-          {isSearching && <div style={{ marginTop: 8, color: '#666', fontSize: 13 }}>Searching...</div>}
         </div>
 
         {selectedUser && (
-          <div style={{ marginBottom: 16, padding: 12, background: '#e8f5e9', borderRadius: 6, fontSize: 13 }}>
-            Selected: <strong>{selectedUser.displayName}</strong>
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+            Selected: {selectedUser.displayName}
           </div>
         )}
 
         {/* Observer Role Display */}
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 14 }}>Observer Role</label>
-          <div style={{
-            padding: '10px 14px',
-            borderRadius: 8,
-            background: '#ecfdf5',
-            border: '1px solid #a7f3d0',
-            color: '#047857',
-            fontSize: 13,
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-          }}>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Observer Role</label>
+          <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-xs text-emerald-800 dark:text-emerald-300 font-semibold flex items-center gap-2">
             <span>🔍</span>
-            <div>
-              <strong>Candidate Representative (Observer Agent):</strong> Read-Only Live Turnout & Integrity Analytics Observer
-            </div>
+            <span><strong>Candidate Representative:</strong> Read-Only Live Turnout &amp; Integrity Analytics Observer</span>
           </div>
         </div>
 
-        {/* Candidate Selection (only for CANDIDATE_AGENT role) */}
+        {/* Candidate Selection */}
         {selectedRole === 'CANDIDATE_AGENT' && (
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <label style={{ fontWeight: 600, fontSize: 14 }}>
-                Represented Candidate <span style={{ color: '#d32f2f' }}>*</span>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                Represented Candidate <span className="text-rose-600">*</span>
               </label>
-              <span style={{ fontSize: 12, color: '#047857', fontWeight: 600 }}>
-                Entitlement: 1 Agent per Candidate ({assignedAgentsCount} / {candidates?.length || 0} assigned)
+              <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold">
+                {assignedAgentsCount} / {candidates?.length || 0} assigned
               </span>
             </div>
 
@@ -549,35 +488,18 @@ export default function RoomMembersPanel({ room, election, candidates, isHeadOnl
               value={selectedCandidate}
               onChange={(e) => setSelectedCandidate(e.target.value)}
               disabled={!isHeadOnly || !election}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '1px solid #ddd',
-                borderRadius: 6,
-                fontSize: 14,
-                opacity: isHeadOnly && election ? 1 : 0.6,
-              }}
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#007A4D] min-h-[44px]"
             >
               <option value="">-- Select a candidate --</option>
               {candidates && Array.isArray(candidates) && candidates.map((candidate) => {
                 const existingAgent = assignedAgentMap[candidate.id];
                 return (
                   <option key={candidate.id} value={candidate.id} disabled={Boolean(existingAgent)}>
-                    {candidate.full_name} ({candidate.position}) {existingAgent ? `🔒 — [Agent Assigned: ${existingAgent.student_id}]` : '✓ — [Agent Slot Available]'}
+                    {candidate.full_name} ({candidate.position}) {existingAgent ? `🔒 — [Agent Assigned: ${existingAgent.student_id}]` : '✓ — [Slot Available]'}
                   </option>
                 );
               })}
             </select>
-
-            <div style={{ marginTop: 6, fontSize: 12, color: '#666' }}>
-              💡 Each registered candidate in this election is entitled to <strong>exactly ONE official Candidate Agent</strong> in the room.
-            </div>
-
-            {(!candidates || candidates.length === 0) && (
-              <div style={{ marginTop: 8, color: '#d32f2f', fontSize: 13 }}>
-                No candidates found. Add candidates to the election first.
-              </div>
-            )}
           </div>
         )}
 
@@ -585,95 +507,86 @@ export default function RoomMembersPanel({ room, election, candidates, isHeadOnl
         <button
           onClick={handleAddMember}
           disabled={isAddDisabled}
-          style={{
-            padding: '10px 20px',
-          background: isAddDisabled ? '#ccc' : '#8B0000',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            cursor: isAddDisabled ? 'not-allowed' : 'pointer',
-            fontSize: 14,
-            fontWeight: 600,
-          }}
+          className="w-full sm:w-auto px-6 py-2.5 bg-[#007A4D] hover:bg-[#075C42] text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px] touch-active"
         >
-          {isAdding ? 'Adding...' : 'Add Member'}
+          {isAdding ? 'Adding Member...' : 'Add Member'}
         </button>
       </div>
 
       {/* Members List */}
       {members.length > 0 && (
-        <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid #e5e7eb' }}>
-          <h3 style={{ marginBottom: 16 }}>Current Members ({members.length})</h3>
-          <div className="ec-table-scroll">
-            <table className="ec-table" style={{ width: '100%' }}>
+        <div className="mt-6 pt-6 border-t border-gray-100 dark:border-slate-800 space-y-4">
+          <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 m-0">Current Members ({members.length})</h3>
+
+          {/* ── MOBILE MEMBER CARDS (< md) ── */}
+          <div className="flex flex-col gap-3 md:hidden">
+            {members.map((member) => (
+              <div key={member.id} className="p-3.5 rounded-xl border border-gray-200 dark:border-slate-700/80 bg-white dark:bg-slate-800/80 flex flex-col gap-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <strong className="text-xs font-bold text-slate-900 dark:text-slate-100 block">{member.student_id}</strong>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
+                      Rep: <strong>{member.role_in_room === 'CANDIDATE_AGENT' && member.candidates ? member.candidates.full_name : 'General'}</strong>
+                    </span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 text-[10px] font-bold">
+                    Observer Agent
+                  </span>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-700 text-xs">
+                  <span className="text-[11px] text-slate-400 font-mono">{new Date(member.assigned_at).toLocaleDateString()}</span>
+                  <button
+                    onClick={() => handleRevokeMember(member.id, member.student_id)}
+                    disabled={roomIsLocked || !isHeadOnly || isRevoking === member.id}
+                    className="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 font-bold text-xs border border-rose-200 dark:border-rose-800/60 cursor-pointer disabled:opacity-40 min-h-[36px]"
+                  >
+                    {isRevoking === member.id ? 'Revoking...' : 'Revoke'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── DESKTOP MEMBER TABLE (>= md) ── */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr>
-                  <th>User Email</th>
-                  <th>Role</th>
-                  <th>Represented Candidate</th>
-                  <th>Assigned At</th>
-                  <th>Action</th>
+                <tr className="border-b border-gray-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[10px]">
+                  <th className="py-2.5 px-3">User Email</th>
+                  <th className="py-2.5 px-3">Role</th>
+                  <th className="py-2.5 px-3">Represented Candidate</th>
+                  <th className="py-2.5 px-3">Assigned At</th>
+                  <th className="py-2.5 px-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody>
-                {members.map((member) => {
-                  const roleKey = String(member.role_in_room || '').toUpperCase();
-                  const cfg = ROLE_CONFIGS[roleKey] || {
-                    label: member.role_in_room,
-                    desc: '',
-                    badgeBg: '#f3e5f5',
-                    badgeColor: '#6a1b9a',
-                    icon: '👤',
-                  };
-                  return (
-                    <tr key={member.id}>
-                      <td style={{ fontSize: 13 }}>{member.student_id}</td>
-                      <td>
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 6,
-                          padding: '4px 8px',
-                          borderRadius: 6,
-                          background: cfg.badgeBg,
-                          color: cfg.badgeColor,
-                          fontSize: 12,
-                          fontWeight: 600,
-                        }}>
-                          <span>{cfg.icon}</span>
-                          <span>{cfg.label}</span>
-                        </span>
-                      </td>
-                      <td style={{ fontSize: 13 }}>
-                        {member.role_in_room === 'CANDIDATE_AGENT' && member.candidates
-                          ? member.candidates.full_name
-                          : '—'}
-                      </td>
-                    <td style={{ fontSize: 13 }}>
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-700/60 font-medium">
+                {members.map((member) => (
+                  <tr key={member.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <td className="py-2.5 px-3 font-semibold">{member.student_id}</td>
+                    <td className="py-2.5 px-3">
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold text-[11px]">
+                        🔍 Candidate Representative
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300">
+                      {member.role_in_room === 'CANDIDATE_AGENT' && member.candidates
+                        ? member.candidates.full_name
+                        : '—'}
+                    </td>
+                    <td className="py-2.5 px-3 text-slate-400 font-mono text-[11px]">
                       {new Date(member.assigned_at).toLocaleString()}
                     </td>
-                    <td>
+                    <td className="py-2.5 px-3 text-right">
                       <button
                         onClick={() => handleRevokeMember(member.id, member.student_id)}
                         disabled={roomIsLocked || !isHeadOnly || isRevoking === member.id}
-                        style={{
-                          padding: '6px 12px',
-                          background: (roomIsLocked || !isHeadOnly) ? '#ccc' : '#dc2626',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: 4,
-                          cursor: (roomIsLocked || !isHeadOnly || isRevoking === member.id) ? 'not-allowed' : 'pointer',
-                          fontSize: 12,
-                          fontWeight: 500,
-                          opacity: (roomIsLocked || !isHeadOnly || isRevoking === member.id) ? 0.6 : 1,
-                        }}
+                        className="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 font-bold text-xs border border-rose-200 dark:border-rose-800 cursor-pointer disabled:opacity-40"
                       >
                         {isRevoking === member.id ? 'Revoking...' : 'Revoke'}
                       </button>
                     </td>
                   </tr>
-                );
-              })}
+                ))}
               </tbody>
             </table>
           </div>
@@ -681,7 +594,7 @@ export default function RoomMembersPanel({ room, election, candidates, isHeadOnl
       )}
 
       {members.length === 0 && (
-        <div style={{ marginTop: 24, padding: 16, background: '#f5f5f5', borderRadius: 6, color: '#666', textAlign: 'center' }}>
+        <div className="mt-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-center text-xs text-slate-500 dark:text-slate-400 font-medium">
           No members assigned to this room yet.
         </div>
       )}

@@ -141,31 +141,31 @@ export default function StudentResultsPortal({ onBack }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 font-sans">
+    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 font-sans pb-12">
 
       {/* Header Banner */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-[#007A4D] dark:text-emerald-400 border border-emerald-250 dark:border-emerald-800 text-xs font-bold uppercase tracking-wider mb-2">
             <ShieldCheck size={14} />
             <span>Certified Public Ledger</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight m-0">
             Student Public Election Results Portal
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 m-0">
             Real-time certified vote counts, visual position breakdown, and ballot receipt verification.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
           <select
             value={selectedElectionKey}
             onChange={(e) => {
               setSelectedElectionKey(e.target.value);
               setReceiptResult(null);
             }}
-            className="px-3.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#007A4D] shadow-2xs"
+            className="w-full sm:w-auto px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#007A4D] shadow-2xs min-h-[44px]"
           >
             <option value="src">🏛️ SRC Executive Council</option>
             <option value="dept">🏢 College of Engineering</option>
@@ -175,9 +175,9 @@ export default function StudentResultsPortal({ onBack }) {
           {onBack && (
             <button
               onClick={onBack}
-              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-650 text-slate-750 dark:text-slate-250 font-bold text-xs rounded-xl transition-all cursor-pointer border-0 flex items-center gap-1"
+              className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-650 text-slate-750 dark:text-slate-250 font-bold text-xs rounded-xl transition-all cursor-pointer border-0 flex items-center justify-center gap-1.5 min-h-[44px] touch-active"
             >
-              <ArrowLeft size={12} />
+              <ArrowLeft size={14} />
               <span>Back</span>
             </button>
           )}
@@ -185,14 +185,14 @@ export default function StudentResultsPortal({ onBack }) {
       </div>
 
       {/* Turnout & Mathematical Integrity Card */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
             <span>Total Ballots Cast</span>
             <Vote size={14} className="text-slate-400" />
           </div>
           <div className="mt-2">
-            <span className="text-3xl font-black text-slate-900 dark:text-slate-100 font-mono">
+            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 font-mono">
               {activeData.totalVotesCast.toLocaleString()}
             </span>
             <span className="text-xs text-slate-500 block mt-1 font-medium">
@@ -204,7 +204,7 @@ export default function StudentResultsPortal({ onBack }) {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
             <span>Turnout Progress</span>
             <Activity size={14} className="text-slate-400 animate-pulse" />
@@ -226,13 +226,13 @@ export default function StudentResultsPortal({ onBack }) {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
             <span>Tally Checksum</span>
             <Hash size={14} className="text-slate-400" />
           </div>
           <div className="mt-2">
-            <div className="text-xs font-mono bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-2 rounded-lg text-slate-800 dark:text-slate-200 break-all font-bold">
+            <div className="text-[11px] font-mono bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-2 rounded-lg text-slate-800 dark:text-slate-200 break-all font-bold">
               {activeData.systemHash}
             </div>
           </div>
@@ -243,28 +243,28 @@ export default function StudentResultsPortal({ onBack }) {
       </div>
 
       {/* ── Ballot Receipt Verification Lookup Box ── */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
         <div>
-          <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2 uppercase tracking-wide">
+          <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2 uppercase tracking-wide m-0">
             <Search size={16} className="text-[#007A4D]" />
             <span>Verify Personal Ballot Receipt</span>
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed m-0">
             Enter or paste your anonymous Ballot Receipt Hash (e.g. <code>REC-89A0F2B</code>) issued upon vote submission to confirm your vote was counted.
           </p>
         </div>
 
-        <form onSubmit={handleVerifyReceipt} className="flex flex-col sm:flex-row gap-3">
+        <form onSubmit={handleVerifyReceipt} className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
           <input
             type="text"
             value={receiptSearch}
             onChange={(e) => setReceiptSearch(e.target.value)}
             placeholder="Paste Ballot Receipt Hash (e.g. REC-89A0F2B)..."
-            className="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#007A4D]"
+            className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#007A4D] min-h-[44px]"
           />
           <button
             type="submit"
-            className="px-6 py-2.5 bg-[#007A4D] hover:bg-[#075C42] text-white font-extrabold text-xs rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap border-0 flex items-center gap-1.5"
+            className="px-6 py-3 bg-[#007A4D] hover:bg-[#075C42] active:bg-[#004D40] text-white font-extrabold text-xs rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap border-0 flex items-center justify-center gap-1.5 min-h-[44px] touch-active"
           >
             <Search size={14} />
             <span>Verify Receipt</span>

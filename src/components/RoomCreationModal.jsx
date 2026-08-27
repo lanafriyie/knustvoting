@@ -150,89 +150,48 @@ export default function RoomCreationModal({ election, candidates, isOpen, onClos
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 9999,
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
+      role="dialog"
+      aria-modal="true"
       onClick={onClose}
     >
       <div
-        style={{
-          background: '#fff',
-          borderRadius: 12,
-          padding: 28,
-          maxWidth: 500,
-          width: '90%',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-        }}
+        className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-2xl w-full max-w-md flex flex-col gap-4 text-slate-900 dark:text-slate-100 max-h-[calc(100dvh-32px)] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 style={{ margin: '0 0 12px 0', fontSize: 20, fontWeight: 600 }}>Create Election Room</h2>
-        <p style={{ margin: '0 0 20px 0', color: '#666', fontSize: 14 }}>
-          Election: <strong>{election?.title || 'N/A'}</strong>
-        </p>
+        <div className="border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h2 className="m-0 text-base sm:text-lg font-black text-slate-900 dark:text-slate-100">Create Election Room</h2>
+          <p className="m-0 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Election: <strong className="text-[#007A4D] dark:text-emerald-400">{election?.title || 'N/A'}</strong>
+          </p>
+        </div>
 
         {/* Room Name Input with Autocomplete */}
-        <div style={{ position: 'relative', marginBottom: 20 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 14 }}>Room Name</label>
+        <div className="relative flex flex-col gap-1.5">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Room Name</label>
           <input
             type="text"
             value={roomName}
             onChange={handleInputChange}
             onFocus={() => setShowSuggestions(true)}
-            placeholder="Type or select from suggestions below..."
-            style={{
-              width: '100%',
-              padding: '10px 12px',
-              border: '1px solid #ddd',
-              borderRadius: 6,
-              fontSize: 14,
-              fontFamily: 'inherit',
-              boxSizing: 'border-box',
-            }}
+            placeholder="Type or select from suggestions..."
+            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#007A4D] min-h-[44px]"
           />
 
           {/* Autocomplete Dropdown */}
           {showSuggestions && filteredSuggestions.length > 0 && (
             <div
-              style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                background: '#fff',
-                border: '1px solid #ddd',
-                borderTop: 'none',
-                borderRadius: '0 0 6px 6px',
-                maxHeight: 200,
-                overflowY: 'auto',
-                zIndex: 10000,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              }}
+              className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl max-h-48 overflow-y-auto z-50 shadow-xl divide-y divide-slate-100 dark:divide-slate-700 text-xs"
             >
               {filteredSuggestions.map((suggestion, index) => (
                 <div
                   key={index}
                   onClick={() => handleSelectSuggestion(suggestion)}
-                  style={{
-                    padding: '12px',
-                    cursor: 'pointer',
-                    background: selectedSuggestion === suggestion ? '#e8f5e9' : '#fff',
-                    borderBottom: index < filteredSuggestions.length - 1 ? '1px solid #f0f0f0' : 'none',
-                    transition: 'background 0.2s',
-                  }}
-                  onMouseEnter={(e) => (e.target.style.background = '#f5f5f5')}
-                  onMouseLeave={(e) =>
-                    (e.target.style.background = selectedSuggestion === suggestion ? '#e8f5e9' : '#fff')
-                  }
+                  className={`p-3 cursor-pointer transition-colors ${
+                    selectedSuggestion === suggestion
+                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-[#007A4D] dark:text-emerald-400 font-bold'
+                      : 'hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-800 dark:text-slate-200'
+                  }`}
                 >
                   {suggestion}
                 </div>
@@ -243,57 +202,38 @@ export default function RoomCreationModal({ election, candidates, isOpen, onClos
 
         {/* Suggestion Help Text */}
         {!showSuggestions && suggestions.length > 0 && (
-          <div style={{ marginBottom: 20, padding: 12, background: '#f0f7ff', borderRadius: 6, fontSize: 13, color: '#0066cc' }}>
-            💡 <strong>Tip:</strong> Click the input field to see suggested room names
+          <div className="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl text-xs text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 font-medium">
+            💡 <strong>Tip:</strong> Tap the input to see recommended naming templates.
           </div>
         )}
 
         {/* Error Message */}
         {error && (
-          <div style={{ marginBottom: 20, padding: 12, background: '#ffebee', borderRadius: 6, fontSize: 13, color: '#c62828' }}>
+          <div className="p-3 bg-rose-50 dark:bg-rose-950/40 rounded-xl text-xs text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 font-bold">
             ⚠️ {error}
           </div>
         )}
 
         {/* Authorization Notice */}
         {!isHeadOnly && (
-          <div style={{ marginBottom: 20, padding: 12, background: '#fff3e0', borderRadius: 6, fontSize: 13, color: '#e65100' }}>
-            🔐 Only EC Head can create election rooms. Your current role cannot perform this action.
+          <div className="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl text-xs text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 font-medium">
+            🔐 Only EC Head can create election rooms.
           </div>
         )}
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+        <div className="flex items-center gap-2.5 justify-end pt-2 border-t border-gray-100 dark:border-slate-800">
           <button
             onClick={onClose}
             disabled={isCreating}
-            style={{
-              padding: '10px 16px',
-              border: '1px solid #ddd',
-              background: '#fff',
-              borderRadius: 6,
-              cursor: isCreating ? 'not-allowed' : 'pointer',
-              fontSize: 14,
-              fontWeight: 500,
-              opacity: isCreating ? 0.6 : 1,
-            }}
+            className="flex-1 sm:flex-initial px-4 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all cursor-pointer min-h-[44px]"
           >
             Cancel
           </button>
           <button
             onClick={handleCreateRoom}
             disabled={isCreating || !isHeadOnly || !roomName.trim()}
-            style={{
-              padding: '10px 20px',
-          background: isHeadOnly && !isCreating ? '#8B0000' : '#ccc',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 6,
-              cursor: isHeadOnly && !isCreating && roomName.trim() ? 'pointer' : 'not-allowed',
-              fontSize: 14,
-              fontWeight: 600,
-              opacity: isCreating ? 0.7 : 1,
-            }}
+            className="flex-1 sm:flex-initial px-5 py-2.5 bg-[#007A4D] hover:bg-[#075C42] text-white rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px] touch-active shadow-xs"
           >
             {isCreating ? 'Creating...' : 'Create Room'}
           </button>

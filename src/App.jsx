@@ -12,6 +12,7 @@ import Unauthorized from './components/Unauthorized';
 import AppBarRoleSwitcher from './components/AppBarRoleSwitcher';
 import ThemeToggle from './components/ThemeToggle';
 import ToastContainer from './components/ToastContainer';
+import MobileHeader from './components/MobileHeader';
 import useECAuthorization from './hooks/useECAuthorization';
 import { AdminAuthProvider } from './context/AdminAuthContext';
 import { mockElections, mergeWithMockElections, getElectionStatus, checkElectionEligibility, formatUnlockDate } from './lib/eligibility';
@@ -41,6 +42,7 @@ export default function App() {
   const [isCandidateAgent, setIsCandidateAgent] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
   const [currentView, setCurrentView] = useState('student');  // 'student' or 'ec-admin'
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   // Use EC authorization hook for dual-identity detection
   const { hasECAccess, ecRole, ecJurisdictionName, checkVoteStatus, voteStatus, currentElectionId } = useECAuthorization();
@@ -106,7 +108,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const onPop = () => setRoute(window.location.pathname || '/');
+    const onPop = () => {
+      setRoute(window.location.pathname || '/');
+      setIsMobileDrawerOpen(false);
+    };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
@@ -115,6 +120,7 @@ export default function App() {
     if (to === route) return;
     window.history.pushState({}, '', to);
     setRoute(to);
+    setIsMobileDrawerOpen(false);
   }
 
   // Handle dual-view route logic
@@ -141,13 +147,24 @@ export default function App() {
   // If checking role or is candidate agent and not on candidate-agent route, show loading
   if (checkingRole) {
     return (
-      <div className="app-root flex flex-row h-screen overflow-hidden bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 transition-colors duration-200 relative">
-        {/* Fixed Top Right Toggle Icon */}
-        <div className="fixed top-4 right-5 z-50">
+      <div className="app-root flex flex-col md:flex-row h-screen overflow-hidden bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 transition-colors duration-200 relative">
+        <MobileHeader
+          route={route}
+          isDrawerOpen={isMobileDrawerOpen}
+          onToggleDrawer={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}
+          hasECAccess={hasECAccess}
+          currentView={currentView}
+          onViewChange={handleViewChange}
+        />
+        <div className="hidden md:block fixed top-4 right-5 z-50">
           <ThemeToggle />
         </div>
-        <Sidebar navigate={navigate} />
-        <main className="flex-1 p-6 bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 overflow-y-auto">
+        <Sidebar
+          navigate={navigate}
+          isMobileDrawerOpen={isMobileDrawerOpen}
+          onCloseMobileDrawer={() => setIsMobileDrawerOpen(false)}
+        />
+        <main className="flex-1 p-4 sm:p-6 bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 overflow-y-auto">
           <div style={{ textAlign: 'center', paddingTop: 40 }}>
             <p className="text-slate-600 dark:text-slate-400">Loading your portal...</p>
           </div>
@@ -158,13 +175,24 @@ export default function App() {
 
   return (
     <AdminAuthProvider>
-      <div className="app-root flex flex-row h-screen overflow-hidden bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 transition-colors duration-200 relative">
-        {/* Fixed Top Right Toggle Icon */}
-        <div className="fixed top-4 right-5 z-50">
+      <div className="app-root flex flex-col md:flex-row h-screen overflow-hidden bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 transition-colors duration-200 relative">
+        {/* Mobile Sticky Header */}
+        <MobileHeader
+          route={route}
+          isDrawerOpen={isMobileDrawerOpen}
+          onToggleDrawer={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}
+          hasECAccess={hasECAccess}
+          currentView={currentView}
+          onViewChange={handleViewChange}
+        />
+
+        {/* Desktop Fixed Top Right Theme Toggle */}
+        <div className="hidden md:block fixed top-4 right-5 z-50">
           <ThemeToggle />
         </div>
         <ToastContainer />
 
+        {/* Responsive Sidebar / Mobile Drawer */}
         <Sidebar
           navigate={navigate}
           hasECAccess={hasECAccess}
@@ -172,9 +200,12 @@ export default function App() {
           ecJurisdictionName={ecJurisdictionName}
           currentView={currentView}
           onViewChange={handleViewChange}
+          isMobileDrawerOpen={isMobileDrawerOpen}
+          onCloseMobileDrawer={() => setIsMobileDrawerOpen(false)}
         />
 
-        <main className="app-main-content flex-1 p-6 bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 overflow-y-auto transition-colors duration-200">
+        {/* Main Content Area */}
+        <main className="app-main-content flex-1 p-3 sm:p-5 md:p-6 bg-[#F5F7F8] dark:bg-slate-900 text-[#202522] dark:text-slate-100 overflow-y-auto transition-colors duration-200">
           {isBallot ? (
             <BallotGuard ballotId={ballotId} navigate={navigate} />
           ) : route === '/ec-admin' ? (
@@ -195,4 +226,5 @@ export default function App() {
     </AdminAuthProvider>
   );
 }
+
 

@@ -28,6 +28,15 @@ import { useAdminAuth } from '../context/AdminAuthContext';
 import { mockElections } from '../lib/eligibility';
 import '../styles/SecureVote.css';
 
+// Tactile Haptic Feedback Helper (HCI standard)
+function triggerHaptic(pattern = [15]) {
+  if (typeof window !== 'undefined' && typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate(pattern);
+    } catch (e) { }
+  }
+}
+
 // SHA-256 Cryptographic Hash Helper
 async function generateSHA256Hash(text) {
   try {
@@ -522,6 +531,7 @@ export default function Ballot({ electionId, student, onBack }) {
   const isComplete = positionsList.length > 0 && positionsList.every(pos => selections[pos] != null);
 
   function handleSelectCandidate(position, candidateId) {
+    triggerHaptic([15]);
     setSelections(prev => ({ ...prev, [position]: candidateId }));
   }
 
@@ -530,6 +540,7 @@ export default function Ballot({ electionId, student, onBack }) {
       alert('Please make a selection for every position before submitting.');
       return;
     }
+    triggerHaptic([25, 40, 25]);
     setSubmitting(true);
     setError(null);
 
@@ -699,24 +710,24 @@ export default function Ballot({ electionId, student, onBack }) {
      RENDER: BALLOT SCREEN
   ───────────────────────────────────────────── */
   return (
-    <div className="max-w-6xl mx-auto px-4 pt-6 pb-32 flex flex-col gap-8">
+    <div className="max-w-6xl mx-auto px-2 sm:px-4 pt-2 sm:pt-6 pb-36 sm:pb-32 flex flex-col gap-6 sm:gap-8">
 
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pb-4 border-b border-gray-250 dark:border-slate-850">
-        <div className="flex flex-col gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 pb-4 border-b border-gray-200 dark:border-slate-800">
+        <div className="flex flex-col gap-1.5 sm:gap-2">
           <button
             type="button"
-            className="self-start flex items-center gap-1.5 text-xs font-bold text-gray-500 dark:text-slate-400 hover:text-maroon-700 dark:hover:text-amber-400 transition-colors cursor-pointer bg-transparent border-none p-0 mb-1"
+            className="self-start flex items-center gap-1 text-xs font-bold text-gray-500 dark:text-slate-400 hover:text-maroon-700 dark:hover:text-amber-400 transition-colors cursor-pointer bg-transparent border-none p-1.5 -ml-1.5 rounded-lg touch-target-44"
             onClick={onBack}
           >
-            <ChevronLeft size={14} />
+            <ChevronLeft size={16} />
             <span>Back to Dashboard</span>
           </button>
-          <h1 className="m-0 text-2xl sm:text-3xl font-black text-gray-950 dark:text-slate-100 tracking-tight flex items-center gap-2.5">
-            <div className="p-1.5 bg-[#EAF6F0] dark:bg-slate-800 rounded-lg text-[#007A4D]">
-              <Vote size={24} />
+          <h1 className="m-0 text-xl sm:text-2xl md:text-3xl font-black text-gray-950 dark:text-slate-100 tracking-tight flex items-center gap-2.5">
+            <div className="p-1.5 bg-[#EAF6F0] dark:bg-slate-800 rounded-xl text-[#007A4D] shrink-0">
+              <Vote size={22} className="sm:w-6 sm:h-6" />
             </div>
-            <span>
+            <span className="leading-tight">
               {isDeptBallot
                 ? 'Department & College Official Ballot'
                 : isConstituencyBallot
@@ -736,13 +747,13 @@ export default function Ballot({ electionId, student, onBack }) {
         {/* Overall progress badge */}
         <div className="shrink-0 self-start sm:self-center">
           {isComplete ? (
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-800">
-              <CheckCircle2 size={12} />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-800 shadow-2xs">
+              <CheckCircle2 size={13} />
               <span>All Positions Selected</span>
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 text-xs font-bold border border-amber-200 dark:border-amber-800">
-              <Clock size={12} />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 text-xs font-bold border border-amber-200 dark:border-amber-800 shadow-2xs">
+              <Clock size={13} />
               <span>{Object.keys(selections).length} / {positionsList.length} Selected</span>
             </span>
           )}
@@ -794,9 +805,9 @@ export default function Ballot({ electionId, student, onBack }) {
         </div>
       )}
 
-      {/* ── Loading State ── */}
+      {/* ── Candidate Sections Grid ── */}
       {loading ? (
-        <div className="flex items-center justify-center py-20 text-xs font-bold text-gray-500 dark:text-slate-400 gap-3">
+        <div className="flex items-center justify-center p-12 text-sm text-slate-500 font-semibold gap-3">
           <svg className="animate-spin w-6 h-6 text-[#007A4D] dark:text-[#D4AF37]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
@@ -804,7 +815,7 @@ export default function Ballot({ electionId, student, onBack }) {
           <span>Loading official candidate ballot…</span>
         </div>
       ) : (
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-8 sm:gap-10">
           {positionsList.map(position => {
             const candidateList = grouped[position];
             const hasSelection = selections[position] != null;
@@ -813,10 +824,10 @@ export default function Ballot({ electionId, student, onBack }) {
               <section key={position} aria-labelledby={`section-${position}`} className="flex flex-col">
 
                 {/* ── Sticky Section Header ── */}
-                <div className="sticky top-0 z-10 bg-[#F3F6F8]/95 dark:bg-slate-900/95 backdrop-blur-sm flex items-center justify-between gap-3 border-b border-gray-200 dark:border-slate-800 pb-2 mb-4 pt-2">
+                <div className="sticky top-0 z-10 bg-[#F3F6F8]/95 dark:bg-slate-900/95 backdrop-blur-sm flex items-center justify-between gap-3 border-b border-gray-200 dark:border-slate-800 pb-2.5 mb-4 pt-2">
                   <h2
                     id={`section-${position}`}
-                    className="m-0 text-base sm:text-lg font-extrabold text-gray-900 dark:text-slate-100 tracking-tight"
+                    className="m-0 text-sm sm:text-base md:text-lg font-extrabold text-gray-900 dark:text-slate-100 tracking-tight uppercase"
                   >
                     {position}
                   </h2>
@@ -830,13 +841,13 @@ export default function Ballot({ electionId, student, onBack }) {
                   ) : (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-xs font-bold border border-rose-200 dark:border-rose-800 whitespace-nowrap shadow-xs">
                       <AlertTriangle size={12} />
-                      <span>Selection Required</span>
+                      <span>Required</span>
                     </span>
                   )}
                 </div>
 
                 {/* ── Responsive Candidate Card Grid ── */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {candidateList.map(c => {
                     const isChecked = selections[position] === c.candidate_id;
 
@@ -846,19 +857,19 @@ export default function Ballot({ electionId, student, onBack }) {
                         className={[
                           'ballot-candidate-card-new',
                           isChecked ? 'selected' : '',
-                          'flex flex-col justify-between gap-4'
+                          'flex flex-col justify-between gap-4 p-4 sm:p-5 rounded-2xl transition-all'
                         ].join(' ')}
                         onClick={() => handleSelectCandidate(position, c.candidate_id)}
                       >
                         {/* ── Top: Avatar + Candidate Details ── */}
-                        <div className="flex items-start gap-4">
+                        <div className="flex items-start gap-3.5 sm:gap-4">
                           <ClickableCandidateAvatar
                             candidate={c}
                             onClick={(cand) => setPhotoCandidate(cand)}
                           />
 
                           <div className="flex flex-col gap-1 min-w-0 flex-1">
-                            <h3 className="m-0 font-extrabold text-base text-gray-950 dark:text-slate-150 leading-snug">
+                            <h3 className="m-0 font-extrabold text-sm sm:text-base text-gray-950 dark:text-slate-100 leading-snug">
                               {c.full_name}
                             </h3>
 
@@ -868,13 +879,13 @@ export default function Ballot({ electionId, student, onBack }) {
 
                             <button
                               type="button"
-                              className="self-start mt-2 text-xs text-[#007A4D] dark:text-[#D4AF37] font-semibold hover:underline bg-transparent border-none cursor-pointer p-0 leading-none text-left flex items-center gap-1"
+                              className="self-start mt-2 text-xs text-[#007A4D] dark:text-[#D4AF37] font-semibold hover:underline bg-transparent border-none cursor-pointer p-0 leading-none text-left flex items-center gap-1 touch-target-44"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setManifestoCandidate(c);
                               }}
                             >
-                              <FileText size={12} />
+                              <FileText size={13} />
                               <span>Read Manifesto</span>
                             </button>
                           </div>
@@ -884,9 +895,9 @@ export default function Ballot({ electionId, student, onBack }) {
                         <button
                           type="button"
                           className={[
-                            'w-full py-2.5 rounded-xl font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 text-xs tracking-wider border-0 uppercase',
+                            'w-full py-3 rounded-xl font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 text-xs tracking-wider border-0 uppercase min-h-[44px] touch-active',
                             isChecked
-                              ? 'bg-[#007A4D] text-white hover:bg-[#075C42] shadow-2xs'
+                              ? 'bg-[#007A4D] text-white hover:bg-[#075C42] shadow-2xs font-extrabold'
                               : 'bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-650 text-slate-800 dark:text-slate-200',
                           ].join(' ')}
                           onClick={(e) => {
@@ -896,8 +907,8 @@ export default function Ballot({ electionId, student, onBack }) {
                         >
                           {isChecked ? (
                             <span className="flex items-center gap-1">
-                              <CheckCircle2 size={12} />
-                              <span>Selected</span>
+                              <CheckCircle2 size={14} />
+                              <span>Selected Candidate</span>
                             </span>
                           ) : (
                             <span>Select Candidate</span>
@@ -937,12 +948,12 @@ export default function Ballot({ electionId, student, onBack }) {
         </div>
       )}
 
-      {/* ── Fixed Bottom Submit Dock ── */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-gray-200 dark:border-slate-800 flex justify-center items-center z-30 shadow-2xl">
+      {/* ── Fixed Bottom Submit Dock (Safe-Area Aware) ── */}
+      <div className="fixed bottom-0 left-0 right-0 p-3.5 sm:p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-gray-200 dark:border-slate-800 flex justify-center items-center z-40 shadow-2xl safe-pb">
         <button
           type="button"
           className={[
-            'max-w-md w-full py-3.5 px-6 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-150 shadow-md flex items-center justify-center gap-2 cursor-pointer border-0',
+            'max-w-md w-full py-3.5 px-6 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-150 shadow-md flex items-center justify-center gap-2 cursor-pointer border-0 min-h-[48px] touch-active',
             !isComplete || submitting
               ? 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-500 cursor-not-allowed border border-gray-300 dark:border-slate-700 shadow-none'
               : 'bg-[#007A4D] hover:bg-[#075C42] active:bg-[#004D40] text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 dark:text-white shadow-lg hover:shadow-xl active:scale-[0.98]',
@@ -955,28 +966,28 @@ export default function Ballot({ electionId, student, onBack }) {
         </button>
       </div>
 
-      {/* ── Pre-Submission Confirmation Modal ── */}
+      {/* ── Pre-Submission Review Slip Modal ── */}
       {showConfirmModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn"
           role="dialog"
           aria-modal="true"
           onClick={() => setShowConfirmModal(false)}
         >
           <div
-            className="relative max-w-sm w-full p-6 bg-white dark:bg-slate-900 border-2 border-[#007A4D] dark:border-emerald-500 rounded-2xl shadow-2xl flex flex-col gap-5 text-slate-900 dark:text-slate-100 animate-modal-pop"
+            className="relative max-w-md w-full p-5 sm:p-6 bg-white dark:bg-slate-900 border-2 border-[#007A4D] dark:border-emerald-500 rounded-3xl shadow-2xl flex flex-col gap-4 text-slate-900 dark:text-slate-100 animate-modal-pop max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-              <div className="flex items-center gap-2 text-[#007A4D]">
-                <Vote size={18} />
-                <h3 className="m-0 text-sm font-extrabold uppercase tracking-wider">
-                  Confirm Submission
+              <div className="flex items-center gap-2 text-[#007A4D] dark:text-emerald-400">
+                <Vote size={20} />
+                <h3 className="m-0 text-sm sm:text-base font-extrabold uppercase tracking-wide">
+                  Review Official Ballot Slip
                 </h3>
               </div>
               <button
                 type="button"
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-transparent border-0 cursor-pointer p-0"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-transparent border-0 cursor-pointer p-1"
                 onClick={() => setShowConfirmModal(false)}
               >
                 <X size={18} />
@@ -985,18 +996,22 @@ export default function Ballot({ electionId, student, onBack }) {
 
             <div className="flex flex-col gap-2">
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Review Your Selected Candidates
+                Verified Selections ({positionsList.length} Portfolios)
               </span>
-              <div className="bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col gap-2.5 max-h-40 overflow-y-auto">
+              <div className="bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl p-3 flex flex-col gap-2.5 max-h-56 overflow-y-auto">
                 {positionsList.map(pos => {
                   const selectedId = selections[pos];
                   const candObj = candidates.find(c => c.candidate_id === selectedId);
                   return (
-                    <div key={pos} className="flex justify-between items-center text-xs pb-1.5 border-b border-slate-200/60 dark:border-slate-700/60 last:border-0 last:pb-0">
-                      <span className="font-semibold text-slate-550 dark:text-slate-400">{pos}:</span>
-                      <span className="font-bold text-[#007A4D] dark:text-emerald-400">
-                        {candObj ? candObj.full_name : 'Selected'}
-                      </span>
+                    <div key={pos} className="flex items-center gap-3 p-2 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-700/60 shadow-2xs">
+                      <CandidateAvatar src={candObj?.photo_url} name={candObj?.full_name} sizeClass="w-9 h-9" textSizeClass="text-xs" />
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase leading-none">{pos}</span>
+                        <span className="text-xs font-black text-slate-900 dark:text-slate-100 truncate mt-0.5">
+                          {candObj ? candObj.full_name : 'Selected'}
+                        </span>
+                      </div>
+                      <CheckCircle2 size={16} className="text-[#007A4D] dark:text-emerald-400 shrink-0" />
                     </div>
                   );
                 })}
@@ -1004,29 +1019,29 @@ export default function Ballot({ electionId, student, onBack }) {
             </div>
 
             <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 rounded-xl text-xs font-semibold flex items-start gap-2">
-              <AlertTriangle size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
-              <span>
-                Once submitted, your vote is encrypted with SHA-256 zero-knowledge proof and permanently recorded on the ledger.
+              <AlertTriangle size={15} className="text-amber-600 flex-shrink-0 mt-0.5" />
+              <span className="leading-snug text-[11px]">
+                Upon confirmation, your ballot is irreversibly encrypted with a SHA-256 zero-knowledge proof.
               </span>
             </div>
 
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex items-center gap-2.5 pt-1">
               <button
                 type="button"
-                className="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold text-xs transition-colors cursor-pointer bg-white dark:bg-slate-900"
+                className="flex-1 py-3 px-4 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold text-xs transition-colors cursor-pointer bg-white dark:bg-slate-900 min-h-[44px]"
                 onClick={() => setShowConfirmModal(false)}
                 disabled={submitting}
               >
-                Cancel
+                Edit Ballot
               </button>
               <button
                 type="button"
-                className="flex-1 py-2.5 px-4 rounded-xl bg-[#007A4D] hover:bg-[#075C42] text-white font-bold text-xs transition-all shadow-md cursor-pointer border-0 flex items-center justify-center gap-1"
+                className="flex-1 py-3 px-4 rounded-xl bg-[#007A4D] hover:bg-[#075C42] text-white font-extrabold text-xs transition-all shadow-md cursor-pointer border-0 flex items-center justify-center gap-1.5 min-h-[44px]"
                 onClick={handleSubmitBallot}
                 disabled={submitting}
               >
-                <span>Confirm</span>
-                <ChevronRight size={12} />
+                <span>Encrypt &amp; Cast</span>
+                <ChevronRight size={14} />
               </button>
             </div>
           </div>

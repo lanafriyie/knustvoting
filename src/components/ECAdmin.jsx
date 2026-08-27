@@ -948,7 +948,7 @@ export default function ECAdmin({ navigate }) {
       )}
 
       {/* ── Navigation Tab Bar ── */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-[#DDE5E1] dark:border-slate-700">
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar touch-pan-x pb-2 pt-1 border-b border-[#DDE5E1] dark:border-slate-700 -mx-1 px-1">
         {[
           { key: 'analytics', label: 'Live Turnout Analytics', icon: BarChart3 },
           { key: 'candidates', label: 'Candidate Roster & Vetting', icon: Users },
@@ -965,7 +965,7 @@ export default function ECAdmin({ navigate }) {
               key={tab.key}
               type="button"
               onClick={() => setActiveTab(tab.key)}
-              className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
+              className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer min-h-[44px] touch-active shrink-0 ${
                 isActive
                   ? 'bg-[#007A4D] text-white shadow-xs'
                   : 'bg-white dark:bg-slate-800 text-[#66716C] dark:text-slate-300 hover:text-[#007A4D] dark:hover:text-emerald-400 hover:bg-[#F3FAF6] dark:hover:bg-slate-700/50 border border-transparent'
@@ -1195,32 +1195,32 @@ export default function ECAdmin({ navigate }) {
       {activeTab === 'candidates' && (
         <div className="space-y-6 animate-fadeIn">
           {/* Position Mapping & Portfolio Manager */}
-          <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100">
+                <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100 m-0">
                   Position Portfolio Mapping ({currentTier} Tier)
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 m-0">
                   Designate and map required ballot portfolios for candidate contestation
                 </p>
               </div>
 
-              <form onSubmit={handleAddCustomPosition} className="flex items-center gap-2">
+              <form onSubmit={handleAddCustomPosition} className="flex items-center gap-2 w-full sm:w-auto">
                 <input
                   type="text"
                   disabled={!isCurrentElectionInScope}
                   placeholder={isCurrentElectionInScope ? "e.g. PUBLIC_RELATIONS_OFFICER" : "Locked: Outside Scope"}
                   value={newCustomPosition}
                   onChange={(e) => setNewCustomPosition(e.target.value)}
-                  className="bg-[#F3FAF6] dark:bg-slate-900 border border-[#DDE5E1] dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-[#202522] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#007A4D] disabled:opacity-50"
+                  className="flex-1 sm:w-auto bg-[#F3FAF6] dark:bg-slate-900 border border-[#DDE5E1] dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-[#202522] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#007A4D] disabled:opacity-50 min-h-[44px]"
                 />
                 <button
                   type="submit"
                   disabled={!isCurrentElectionInScope}
-                  className="px-3.5 py-1.5 bg-[#007A4D] hover:bg-[#075C42] disabled:opacity-50 text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-xs"
+                  className="px-3.5 py-2 bg-[#007A4D] hover:bg-[#075C42] disabled:opacity-50 text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-xs min-h-[44px] touch-active shrink-0"
                 >
-                  + Add Portfolio
+                  + Add
                 </button>
               </form>
             </div>
@@ -1241,10 +1241,10 @@ export default function ECAdmin({ navigate }) {
           </div>
 
           {/* Candidate Roster Filter & Table */}
-          <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="knust-glass-card border border-[#DDE5E1] dark:border-slate-700 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#DDE5E1] dark:border-slate-700">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100">
+                <h3 className="text-base font-extrabold text-[#202522] dark:text-slate-100 m-0">
                   Candidate Roster &amp; Vetting Controls ({filteredCandidates.length})
                 </h3>
                 {!isCurrentElectionInScope && (
@@ -1256,19 +1256,19 @@ export default function ECAdmin({ navigate }) {
               </div>
 
               {/* Filters */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                 <input
                   type="text"
                   placeholder="Search candidate or ID..."
                   value={candidateSearch}
                   onChange={(e) => setCandidateSearch(e.target.value)}
-                  className="bg-[#F3FAF6] dark:bg-slate-900 border border-[#DDE5E1] dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-[#202522] dark:text-slate-100 focus:outline-none"
+                  className="bg-[#F3FAF6] dark:bg-slate-900 border border-[#DDE5E1] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#202522] dark:text-slate-100 focus:outline-none min-h-[44px]"
                 />
 
                 <select
                   value={candidateFilter}
                   onChange={(e) => setCandidateFilter(e.target.value)}
-                  className="bg-[#F3FAF6] dark:bg-slate-900 border border-[#DDE5E1] dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-bold text-[#202522] dark:text-slate-100 focus:outline-none"
+                  className="bg-[#F3FAF6] dark:bg-slate-900 border border-[#DDE5E1] dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-[#202522] dark:text-slate-100 focus:outline-none min-h-[44px]"
                 >
                   <option value="ALL">All Portfolios</option>
                   {availablePositions.map((pos) => (
@@ -1280,8 +1280,140 @@ export default function ECAdmin({ navigate }) {
               </div>
             </div>
 
-            {/* Candidate Roster Table */}
-            <div className="overflow-x-auto">
+            {/* ── MOBILE CANDIDATES CARD LIST (< md) ── */}
+            <div className="flex flex-col gap-3.5 md:hidden">
+              {filteredCandidates.map((cand) => {
+                const isDisqualified = cand.status === 'DISQUALIFIED';
+                const isPending = cand.status === 'PENDING_REVIEW';
+                const isVerified = cand.status === 'VERIFIED';
+
+                return (
+                  <div
+                    key={cand.id}
+                    className={`p-4 rounded-2xl border ${
+                      isDisqualified
+                        ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-800/60'
+                        : 'bg-white dark:bg-slate-800/90 border-slate-200 dark:border-slate-700'
+                    } flex flex-col gap-3`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#007A4D] text-white flex items-center justify-center font-bold text-xs overflow-hidden shrink-0">
+                        {cand.photo_url ? (
+                          <img src={cand.photo_url} alt={cand.full_name} className="w-full h-full object-cover" />
+                        ) : (
+                          cand.full_name
+                            .split(' ')
+                            .map((w) => w[0])
+                            .join('')
+                            .slice(0, 2)
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-extrabold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-1.5 flex-wrap">
+                          <span>{cand.full_name}</span>
+                          {isDisqualified && (
+                            <span className="text-[10px] px-1.5 py-0.2 bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 font-bold rounded">
+                              Disqualified
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs font-bold text-[#007A4D] dark:text-emerald-400 mt-0.5">
+                          {cand.position.replace(/_/g, ' ')}
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-0.5 font-mono">
+                          <span>ID: {cand.student_id}</span>
+                          <span>•</span>
+                          <span>{cand.slate}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Vetting Status Badge */}
+                    <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-700/60 text-xs">
+                      <span className="text-slate-500 dark:text-slate-400 font-medium">Status:</span>
+                      {isVerified && (
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 font-extrabold text-[10px] border border-emerald-300 dark:border-emerald-700 flex items-center gap-1">
+                          <CheckCircle2 size={10} />
+                          <span>VERIFIED ON BALLOT</span>
+                        </span>
+                      )}
+                      {isPending && (
+                        <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 font-extrabold text-[10px] border border-amber-300 dark:border-amber-700 flex items-center gap-1">
+                          <Clock size={10} />
+                          <span>PENDING REVIEW</span>
+                        </span>
+                      )}
+                      {isDisqualified && (
+                        <span className="px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 font-extrabold text-[10px] border border-rose-300 dark:border-rose-700 flex items-center gap-1">
+                          <AlertTriangle size={10} />
+                          <span>DISQUALIFIED</span>
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Disqualification Reason */}
+                    {cand.disqualification_reason && (
+                      <div className="text-[11px] text-rose-700 dark:text-rose-300 bg-rose-100/60 dark:bg-rose-950/40 p-2 rounded-xl border border-rose-200 dark:border-rose-900/60">
+                        <strong>Reason:</strong> {cand.disqualification_reason}
+                      </div>
+                    )}
+
+                    {/* Touch Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                      {isVerified && (
+                        <button
+                          type="button"
+                          disabled={!isCurrentElectionInScope}
+                          onClick={() => handleDisqualifyCandidate(cand.id)}
+                          className="flex-1 py-2.5 px-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 text-rose-700 dark:text-rose-300 font-bold text-xs border border-rose-200 dark:border-rose-800 transition-colors disabled:opacity-40 min-h-[44px] touch-active flex items-center justify-center gap-1.5"
+                        >
+                          <AlertTriangle size={13} />
+                          <span>Disqualify Candidate</span>
+                        </button>
+                      )}
+
+                      {isPending && (
+                        <div className="flex flex-col sm:flex-row gap-2 w-full">
+                          <button
+                            type="button"
+                            disabled={!isCurrentElectionInScope}
+                            onClick={() => handleApproveCandidate(cand.id)}
+                            className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors disabled:opacity-40 min-h-[44px] touch-active flex items-center justify-center gap-1.5"
+                          >
+                            <CheckCircle2 size={13} />
+                            <span>Approve &amp; Verify</span>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={!isCurrentElectionInScope}
+                            onClick={() => handleDisqualifyCandidate(cand.id)}
+                            className="flex-1 py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition-colors disabled:opacity-40 min-h-[44px] touch-active flex items-center justify-center gap-1.5"
+                          >
+                            <AlertTriangle size={13} />
+                            <span>Disqualify</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {isDisqualified && (
+                        <button
+                          type="button"
+                          disabled={!isCurrentElectionInScope}
+                          onClick={() => handleReinstateCandidate(cand.id)}
+                          className="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-300 dark:border-slate-600 transition-colors disabled:opacity-40 min-h-[44px] touch-active flex items-center justify-center gap-1.5"
+                        >
+                          <RefreshCw size={13} />
+                          <span>Reinstate to Ballot</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* ── DESKTOP CANDIDATES TABLE (>= md) ── */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="border-b border-[#DDE5E1] dark:border-slate-700 text-[#66716C] dark:text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
@@ -1350,19 +1482,19 @@ export default function ECAdmin({ navigate }) {
                           {isPending && (
                             <span className="px-2.5 py-1 rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 font-extrabold text-[10px] border border-amber-300 dark:border-amber-700 flex items-center gap-1 w-max">
                               <Clock size={10} />
-                              <span>PENDING VETTING</span>
+                              <span>PENDING REVIEW</span>
                             </span>
                           )}
                           {isDisqualified && (
-                            <div className="space-y-0.5">
+                            <div>
                               <span className="px-2.5 py-1 rounded-md bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 font-extrabold text-[10px] border border-red-300 dark:border-red-700 flex items-center gap-1 w-max">
-                                <X size={10} />
+                                <AlertTriangle size={10} />
                                 <span>DISQUALIFIED</span>
                               </span>
                               {cand.disqualification_reason && (
-                                <p className="text-[10px] text-red-600 dark:text-red-400 italic max-w-xs truncate">
-                                  Reason: {cand.disqualification_reason}
-                                </p>
+                                <div className="text-[10px] text-red-600 dark:text-red-400 mt-1 max-w-xs leading-tight">
+                                  {cand.disqualification_reason}
+                                </div>
                               )}
                             </div>
                           )}
@@ -1370,37 +1502,44 @@ export default function ECAdmin({ navigate }) {
 
                         <td className="py-3 px-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            {!isVerified && (
+                            {isVerified && (
                               <button
                                 type="button"
-                                disabled={!isCurrentElectionInScope || !hasPermission('VERIFY_CANDIDATES')}
-                                onClick={() => handleVerifyCandidate(cand.id)}
-                                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-lg text-[11px] cursor-pointer transition-colors shadow-2xs"
-                                title={!isCurrentElectionInScope ? 'Action Disabled: Outside Assigned Jurisdiction Scope' : 'Approve candidate for ballot appearance'}
-                              >
-                                Verify
-                              </button>
-                            )}
-
-                            {!isDisqualified && (
-                              <button
-                                type="button"
-                                disabled={!isCurrentElectionInScope || !hasPermission('DISQUALIFY_CANDIDATES')}
-                                onClick={() => openDisqualifyModal(cand)}
-                                className="px-2.5 py-1 bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-lg text-[11px] cursor-pointer transition-colors shadow-2xs"
-                                title={!isCurrentElectionInScope ? 'Action Disabled: Outside Assigned Jurisdiction Scope' : 'Strike candidate from official ballot'}
+                                disabled={!isCurrentElectionInScope}
+                                onClick={() => handleDisqualifyCandidate(cand.id)}
+                                className="px-2.5 py-1 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-red-700 dark:text-red-300 font-bold rounded-lg border border-red-200 dark:border-red-800 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 Disqualify
                               </button>
                             )}
 
+                            {isPending && (
+                              <>
+                                <button
+                                  type="button"
+                                  disabled={!isCurrentElectionInScope}
+                                  onClick={() => handleApproveCandidate(cand.id)}
+                                  className="px-2.5 py-1 bg-[#007A4D] hover:bg-[#075C42] text-white font-bold rounded-lg transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-xs"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={!isCurrentElectionInScope}
+                                  onClick={() => handleDisqualifyCandidate(cand.id)}
+                                  className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 font-bold rounded-lg border border-red-200 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                  Disqualify
+                                </button>
+                              </>
+                            )}
+
                             {isDisqualified && (
                               <button
                                 type="button"
-                                disabled={!isCurrentElectionInScope || !hasPermission('DISQUALIFY_CANDIDATES')}
+                                disabled={!isCurrentElectionInScope}
                                 onClick={() => handleReinstateCandidate(cand.id)}
-                                className="px-2.5 py-1 bg-slate-700 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-lg text-[11px] cursor-pointer transition-colors shadow-2xs"
-                                title={!isCurrentElectionInScope ? 'Action Disabled: Outside Assigned Jurisdiction Scope' : 'Reinstate candidate after appeal clearance'}
+                                className="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-800 dark:text-slate-200 font-bold rounded-lg border border-slate-300 dark:border-slate-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 Reinstate
                               </button>

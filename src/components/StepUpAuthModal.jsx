@@ -261,8 +261,8 @@ export default function StepUpAuthModal({ isOpen, onClose, onSuccess, onVerifySu
   if (!isOpen) return null;
 
   return (
-    <div className="sv-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="sv-modal-title">
-      <div className="sv-modal bg-white dark:bg-slate-900 text-[#202522] dark:text-slate-100 border border-[#DDE5E1] dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transition-all">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-sm animate-fadeIn" role="dialog" aria-modal="true" aria-labelledby="sv-modal-title">
+      <div className="bg-white dark:bg-slate-900 text-[#202522] dark:text-slate-100 border border-[#DDE5E1] dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transition-all animate-modal-pop">
 
         {/* ── Header ── */}
         <header className="px-6 py-4 flex items-center justify-between bg-[#075C42] dark:bg-slate-900 border-b border-[#063F2D] dark:border-slate-800 text-white">

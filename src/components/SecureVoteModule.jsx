@@ -504,7 +504,7 @@ export default function SecureVoteModule({ navigate }) {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto bg-[#F3F6F8] dark:bg-slate-900 text-[#171717] dark:text-slate-100 transition-colors duration-200 min-h-screen relative overflow-hidden">
+    <div className="p-2 sm:p-4 md:p-6 max-w-6xl mx-auto bg-[#F3F6F8] dark:bg-slate-900 text-[#171717] dark:text-slate-100 transition-colors duration-200 min-h-screen relative overflow-hidden">
       {/* ── Subtle Crest Watermark Background ── */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.035] dark:opacity-[0.02] z-0 select-none">
         <img 
@@ -514,65 +514,71 @@ export default function SecureVoteModule({ navigate }) {
         />
       </div>
       {/* ── 1. Secure Vote Banner ── */}
-      <div className="mb-6 p-5 md:p-8 knust-hero-card rounded-2xl shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b-4 border-r-2 border-[#D4AF37]/50 relative overflow-visible">
-        <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap">
-          <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border-2 border-[#D4AF37] text-white shadow-inner flex-shrink-0">
-            <Vote size={28} className="text-[#D4AF37] drop-shadow-sm" />
+      <div className="mb-4 sm:mb-6 p-4 sm:p-5 md:p-7 knust-hero-card rounded-2xl shadow-md flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-5 border-b-4 border-r-2 border-[#D4AF37]/50 relative overflow-visible">
+        {/* Left: Branding & Voter Status */}
+        <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 flex-1">
+          <div className="w-11 h-11 sm:w-13 sm:h-13 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border-2 border-[#D4AF37] text-white shadow-inner shrink-0 mt-0.5 sm:mt-0">
+            <Vote size={22} className="text-[#D4AF37] drop-shadow-sm sm:w-6 sm:h-6" />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl font-black text-white tracking-tight">
+              <h1 className="text-lg sm:text-2xl font-black text-white tracking-tight m-0 break-normal">
                 Secure Vote Portal
               </h1>
               {student && (
-                <span className="bg-[#991B1B] text-white border border-[#D4AF37]/40 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider shadow-2xs">
+                <span className="bg-[#991B1B] text-white border border-[#D4AF37]/40 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider shadow-2xs shrink-0">
                   Voter: {student.shortName || student.name?.split(' ')[0]}
                 </span>
               )}
             </div>
-            <p className="text-sm font-medium text-emerald-100/90 mt-1.5 leading-relaxed">
+            <p className="text-xs sm:text-sm font-medium text-emerald-100/90 mt-1 leading-snug m-0 break-normal">
               KNUST Electoral Management &amp; Student Verification System
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3 flex-wrap relative overflow-visible z-10">
+
+        {/* Right: Simulation & Profile Toolbar */}
+        <div className="flex items-center gap-2 flex-wrap pt-3 border-t border-white/10 xl:border-t-0 xl:pt-0 shrink-0">
           {/* Quick Demo Profile Switcher */}
-          <DemoProfileSwitcher onProfileChange={setStudent} />
+          <div className="shrink-0">
+            <DemoProfileSwitcher onProfileChange={setStudent} />
+          </div>
 
           {/* Student Profile popover details */}
           <StudentProfilePopover student={student} />
 
+          {/* Biometrics Toggle Button */}
           <button
-            className="bg-white/10 hover:bg-white/20 dark:bg-slate-700/60 dark:hover:bg-slate-750 text-white dark:text-emerald-450 text-xs font-bold rounded-xl px-3.5 py-2 border border-white/20 dark:border-slate-600 shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
+            className="bg-white/10 hover:bg-white/20 dark:bg-slate-700/60 dark:hover:bg-slate-750 text-white text-xs font-bold rounded-xl px-3 py-1.5 border border-white/20 dark:border-slate-600 shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 min-h-[36px] shrink-0"
             onClick={toggleBiometricsState}
             title="Toggle biometrics verification state to test valid/missing branches"
           >
-            <RefreshCw size={12} className="text-[#D4AF37]" />
-            <span>Dev Test: Biometrics {biometricsOk ? 'Valid' : 'Missing'}</span>
+            <RefreshCw size={11} className="text-[#D4AF37] shrink-0" />
+            <span>Biometrics: {biometricsOk ? 'Verified' : 'Pending'}</span>
           </button>
         </div>
       </div>
 
       {/* ── EC Officer Persona & Student Profile Binding Banner ── */}
       {ecAdminProfile && (
-        <div className="mb-6 p-4 bg-[#F3FAF6] dark:bg-slate-800/90 border-2 border-[#007A4D] rounded-2xl text-slate-800 dark:text-slate-100 flex flex-wrap items-center justify-between gap-4 shadow-sm animate-fadeIn">
+        <div className="mb-4 sm:mb-6 p-3.5 sm:p-4 bg-[#F3FAF6] dark:bg-slate-800/90 border-2 border-[#007A4D] rounded-2xl text-slate-800 dark:text-slate-100 flex flex-wrap items-center justify-between gap-3 shadow-sm animate-fadeIn">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#007A4D]/15 flex items-center justify-center text-[#007A4D] dark:text-emerald-400 font-bold">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#007A4D]/15 flex items-center justify-center text-[#007A4D] dark:text-emerald-400 font-bold shrink-0">
               {ecAdminProfile.avatar || <User size={20} />}
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-black uppercase tracking-wider text-[#007A4D] dark:text-emerald-400">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[11px] font-black uppercase tracking-wider text-[#007A4D] dark:text-emerald-400">
                   Officer Identity &amp; Student Profile Bound
                 </span>
                 <span className="bg-[#007A4D] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md">
                   {ecAdminProfile.roleTier}
                 </span>
               </div>
-              <div className="text-sm font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">
-                {student.name || ecAdminProfile.name} | Level {student.level || (yearOfStudy * 100)} | {student.college || 'CoE'} | {student.constituency_locked || student.constituency || 'Ayeduase'} Constituency
+              <div className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">
+                {student.name || ecAdminProfile.name} | Level {student.level || (yearOfStudy * 100)} | {student.college || 'CoE'}
               </div>
-              <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
+              <div className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">
                 Scope: {ecAdminProfile.assignedJurisdiction?.name}
               </div>
             </div>
@@ -587,67 +593,67 @@ export default function SecureVoteModule({ navigate }) {
       {/* ── 2. Clean Biometric & Status Checker Card ── */}
       <div
         onClick={handleBiometricsClick}
-        className="bg-white dark:bg-slate-800 border border-[#E1E7E4] dark:border-slate-700 text-[#171717] dark:text-slate-100 rounded-2xl p-6 shadow-2xs mb-6 knust-glass-card cursor-pointer hover:border-[#007A4D]/50 hover:shadow-xs transition-all"
+        className="bg-white dark:bg-slate-800 border border-[#E1E7E4] dark:border-slate-700 text-[#171717] dark:text-slate-100 rounded-2xl p-4 sm:p-6 shadow-2xs mb-6 knust-glass-card cursor-pointer hover:border-[#007A4D]/50 hover:shadow-xs transition-all"
         role="button"
         aria-label="Biometric & Status Checker"
       >
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4 mb-4">
-          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3 mb-3">
+          <h2 className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5 m-0">
             <Fingerprint size={18} className="text-[#007A4D]" />
             <span>Biometric &amp; Status Checker</span>
           </h2>
           {biometricsOk ? (
-            <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
+            <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 text-[11px] font-bold rounded-full px-2.5 py-0.5 inline-flex items-center gap-1">
               <CheckCircle2 size={12} />
-              <span>Current Semester Verified</span>
+              <span>Verified</span>
             </span>
           ) : (
-            <span className="bg-amber-50 dark:bg-slate-700 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30 text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1.5">
+            <span className="bg-amber-50 dark:bg-slate-700 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30 text-[11px] font-bold rounded-full px-2.5 py-0.5 inline-flex items-center gap-1">
               <ShieldAlert size={12} />
-              <span>Biometrics Pending</span>
+              <span>Pending</span>
             </span>
           )}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
           <div>
-            <span className="block text-xs text-slate-400 dark:text-slate-400 font-medium">Name:</span>
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{student.name}</span>
+            <span className="block text-[11px] text-slate-400 dark:text-slate-400 font-medium">Name:</span>
+            <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 truncate block">{student.name}</span>
           </div>
           <div>
-            <span className="block text-xs text-slate-400 dark:text-slate-400 font-medium">Student ID:</span>
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{student.studentId}</span>
+            <span className="block text-[11px] text-slate-400 dark:text-slate-400 font-medium">Student ID:</span>
+            <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">{student.studentId}</span>
           </div>
           <div>
-            <span className="block text-xs text-slate-400 dark:text-slate-400 font-medium">Program:</span>
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{student.program}</span>
+            <span className="block text-[11px] text-slate-400 dark:text-slate-400 font-medium">Program:</span>
+            <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 truncate block">{student.program}</span>
           </div>
           <div>
-            <span className="block text-xs text-slate-400 dark:text-slate-400 font-medium">Academic Level:</span>
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-              {yearOfStudy === 1 ? 'Year 1 (100 Level)' : yearOfStudy === 2 ? 'Year 2 (200 Level)' : yearOfStudy === 3 ? 'Year 3 (300 Level)' : yearOfStudy === 4 ? 'Year 4 (400 Level)' : `Year ${yearOfStudy}`}
+            <span className="block text-[11px] text-slate-400 dark:text-slate-400 font-medium">Academic Level:</span>
+            <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">
+              {yearOfStudy === 1 ? 'Year 1 (Level 100)' : `Year ${yearOfStudy} (Level ${student.level || yearOfStudy * 100})`}
             </span>
           </div>
           <div>
-            <span className="block text-xs text-slate-400 dark:text-slate-400 font-medium">College:</span>
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{student.college}</span>
+            <span className="block text-[11px] text-slate-400 dark:text-slate-400 font-medium">College:</span>
+            <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">{student.college}</span>
           </div>
           <div>
-            <span className="block text-xs text-slate-400 dark:text-slate-400 font-medium">Department:</span>
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{student.department}</span>
+            <span className="block text-[11px] text-slate-400 dark:text-slate-400 font-medium">Department:</span>
+            <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 truncate block">{student.department}</span>
           </div>
           <div>
-            <span className="block text-xs text-slate-400 dark:text-slate-400 font-medium">Assigned Hall:</span>
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
+            <span className="block text-[11px] text-slate-400 dark:text-slate-400 font-medium">Assigned Hall:</span>
+            <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 truncate block">
               {student.hall || '—'} {yearOfStudy === 1 ? '(First-Year)' : ''}
             </span>
           </div>
           <div>
-            <span className="block text-xs text-slate-400 dark:text-slate-400 font-medium">Locked Constituency:</span>
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-100 font-mono">
+            <span className="block text-[11px] text-slate-400 dark:text-slate-400 font-medium">Locked Constituency:</span>
+            <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 font-mono truncate block">
               {(() => {
                 const cVal = student ? (student.constituency || student.constituency_locked || null) : null;
-                if (!cVal) return 'Constituency Not Assigned';
+                if (!cVal) return 'Not Assigned';
                 return cVal.toLowerCase().includes('constituency') ? cVal : `${cVal} Constituency`;
               })()}
             </span>

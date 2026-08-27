@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import useStudentSession from '../hooks/useStudentSession';
-import StepUpAuthModal from './StepUpAuthModal';
 import ConstituencyModal from './ConstituencyModal';
 import DemoProfileSwitcher from './DemoProfileSwitcher';
 import { deriveYearOfStudy, isBiometricVerified, checkElectionEligibility, getElectionStatus, mockElections, mergeWithMockElections, formatUnlockDate } from '../lib/eligibility';
@@ -53,9 +52,7 @@ export default function Dashboard({ navigate }) {
   const [elections, setElections] = useState(() => mockElections);
   const [loadingElections, setLoadingElections] = useState(false);
   const [now, setNow] = useState(Date.now());
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showConstituencyModal, setShowConstituencyModal] = useState(false);
-  const [authModalError, setAuthModalError] = useState(null);
   const [votedTick, setVotedTick] = useState(0);
   const [notification, setNotification] = useState(null);
 
@@ -148,33 +145,9 @@ export default function Dashboard({ navigate }) {
     return () => clearInterval(interval);
   }, []);
 
-  // CTA Button Guard: Check active user/session before opening voting module
-  const handleCtaClick = async (e) => {
+  // CTA Button: Direct navigation to Secure Vote Portal
+  const handleCtaClick = (e) => {
     if (e) e.preventDefault();
-
-    let activeUser = getActiveUser();
-
-    try {
-      const { data: userData } = await supabase.auth.getUser();
-      if (userData?.user) activeUser = userData.user;
-    } catch (err) {
-      /* ignore */
-    }
-
-    if (!activeUser) {
-      // Prevent navigation & trigger Auth Modal with explicit error message
-      setAuthModalError("No active session. Please log in first.");
-      setIsAuthModalOpen(true);
-      return;
-    }
-
-    // Active session exists: trigger Step-Up Auth modal
-    setAuthModalError(null);
-    setIsAuthModalOpen(true);
-  };
-
-  const handleAuthSuccess = () => {
-    setIsAuthModalOpen(false);
     goTo('/secure-vote', navigate);
   };
 
@@ -238,27 +211,27 @@ export default function Dashboard({ navigate }) {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
             {/* Card Metadata Columns */}
-            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs bg-black/15 backdrop-blur-xs p-3.5 rounded-xl border border-white/5 font-semibold text-white/90">
+            <div className="grid grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-1.5 text-xs bg-black/20 backdrop-blur-xs p-3 sm:p-3.5 rounded-xl border border-white/10 font-semibold text-white/90">
               <div className="text-white/60">COLLEGE:</div>
               <div className="text-white font-extrabold">{student?.college_code || student?.college || 'COE'}</div>
               <div className="text-white/60">PROGRAM:</div>
-              <div className="text-white font-extrabold max-w-[150px] truncate">{student?.program || 'BSc. Computer Eng.'}</div>
+              <div className="text-white font-extrabold max-w-[140px] sm:max-w-[150px] truncate">{student?.program || 'BSc. Computer Eng.'}</div>
               <div className="text-white/60">HALL:</div>
               <div className="text-white font-extrabold">{student?.hall || 'Unity Hall'}</div>
             </div>
 
-            <div className="flex flex-col gap-2 flex-shrink-0">
-              <DemoProfileSwitcher onProfileChange={setStudent} />
+            <div className="flex flex-col sm:flex-col gap-2 flex-shrink-0 w-full sm:w-auto">
+              <DemoProfileSwitcher onProfileChange={setStudent} className="w-full" />
               <button
                 id="dashboard-cta-btn"
-                className="px-5 py-2.5 rounded-xl bg-[#D4AF37] hover:bg-[#C5A030] text-slate-900 font-extrabold text-xs shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3 sm:py-2.5 px-5 rounded-xl bg-[#D4AF37] hover:bg-[#C5A030] active:bg-[#B89220] text-slate-900 font-extrabold text-xs shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 min-h-[44px] touch-active"
                 onClick={handleCtaClick}
               >
-                <Vote size={14} className="flex-shrink-0" />
+                <Vote size={15} className="flex-shrink-0" />
                 <span>Go to Secure Vote</span>
-                <ChevronRight size={14} className="flex-shrink-0" />
+                <ChevronRight size={15} className="flex-shrink-0" />
               </button>
             </div>
           </div>
@@ -338,11 +311,14 @@ export default function Dashboard({ navigate }) {
       <div className="sv-dash-grid">
         {/* Active Elections Card */}
         <div className="sv-card sv-elections-card knust-glass-card shadow-xs">
-          <div className="sv-card-title-bar">
-            <h2 className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-100">
-              <Vote className="w-5 h-5 text-[#007A4D]" />
+          <div className="sv-card-title-bar flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-slate-800">
+            <h2 className="flex items-center gap-2 font-bold text-base sm:text-lg text-slate-900 dark:text-slate-100 m-0">
+              <Vote className="w-5 h-5 text-[#007A4D] dark:text-emerald-400" />
               <span>Active &amp; Upcoming Elections</span>
             </h2>
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#EAF6F0] dark:bg-slate-800 text-[#007A4D] dark:text-emerald-400">
+              {elections.length} Scheduled
+            </span>
           </div>
           {loadingElections ? (
             <p style={{ padding: 16, color: 'var(--sv-text-mid)' }}>
@@ -353,151 +329,301 @@ export default function Dashboard({ navigate }) {
               No elections scheduled at this time.
             </p>
           ) : (
-            <div className="sv-elections-table-wrap">
-              <table className="sv-elections-table">
-                <thead>
-                  <tr>
-                    <th className="py-3 px-3">Election</th>
-                    <th className="py-3 px-3 min-w-[140px] flex-shrink-0">Status</th>
-                    <th className="py-3 px-3 min-w-[140px] flex-shrink-0">Polling Closes</th>
-                    <th className="py-3 px-3">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {elections.map((e) => {
-                    const hasVoted = isElectionVoted(e.id, e.type);
-                    const isConstituency = e.type === 'constituency' || e.tier === 'CONSTITUENCY';
-                    const cVal = student ? (student.constituency || student.constituency_locked || null) : null;
-                    const hasConstituency = Boolean(cVal);
-                    const elig = checkElectionEligibility(student || {}, e);
-                    const statusInfo = getElectionStatus(e, e.endTime, now);
+            <>
+              {/* ── MOBILE CARDS VIEW (Displayed on < md / < 768px) ── */}
+              <div className="flex flex-col gap-3.5 md:hidden">
+                {elections.map((e) => {
+                  const hasVoted = isElectionVoted(e.id, e.type);
+                  const isConstituency = e.type === 'constituency' || e.tier === 'CONSTITUENCY';
+                  const cVal = student ? (student.constituency || student.constituency_locked || null) : null;
+                  const hasConstituency = Boolean(cVal);
+                  const elig = checkElectionEligibility(student || {}, e);
+                  const statusInfo = getElectionStatus(e, e.endTime, now);
 
-                    return (
-                      <tr key={e.id}>
-                        <td className="py-3.5 px-3">
-                          <strong className="text-slate-800 dark:text-slate-200">{e.title}</strong>
+                  return (
+                    <div
+                      key={e.id}
+                      className="p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-gray-200 dark:border-slate-700 shadow-xs flex flex-col gap-3 transition-all"
+                    >
+                      {/* Top: Title, Tier & Status */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h3 className="font-extrabold text-sm text-slate-900 dark:text-slate-100 m-0 leading-snug">
+                            {e.title}
+                          </h3>
                           {e.jurisdiction?.name && (
-                            <span className="sv-elec-juris">
-                              {e.jurisdiction.name}
+                            <span className="inline-block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                              📍 {e.jurisdiction.name}
                             </span>
                           )}
-                          {!elig.eligible && !hasVoted && elig.reason && (
-                            <div className="text-[11px] text-rose-600 dark:text-rose-400 font-medium mt-0.5 flex items-center gap-1">
-                              <ShieldAlert size={11} />
-                              <span>{elig.reason}</span>
-                            </div>
-                          )}
-                        </td>
-                        <td className="py-3.5 px-3 min-w-[140px] flex-shrink-0">
+                        </div>
+
+                        {/* Status Pill */}
+                        <div className="shrink-0">
                           {hasVoted ? (
-                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1 shadow-2xs">
+                            <span className="whitespace-nowrap inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/70 dark:text-emerald-400 dark:border-emerald-800">
                               <CheckCircle2 size={12} />
                               Voted
                             </span>
                           ) : !elig.eligible ? (
-                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800/60 gap-1" title={elig.reason}>
+                            <span className="whitespace-nowrap inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/70 dark:text-rose-400 dark:border-rose-800" title={elig.reason}>
                               <AlertTriangle size={12} />
                               Ineligible
                             </span>
                           ) : statusInfo.isLive ? (
-                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-2 shadow-2xs font-black">
-                              <span className="live-pulse-container">
-                                <span className="live-pulse-dot" />
-                              </span>
-                              <span>LIVE — BALLOT OPEN</span>
+                            <span className="whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/70 dark:text-emerald-400 dark:border-emerald-800 animate-pulse">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+                              LIVE
                             </span>
                           ) : statusInfo.isUpcoming ? (
-                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60 gap-1">
+                            <span className="whitespace-nowrap inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/70 dark:text-amber-400 dark:border-amber-800">
                               <Clock size={12} />
-                              <span>Upcoming</span>
+                              Upcoming
                             </span>
                           ) : (
-                            <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 gap-1">
+                            <span className="whitespace-nowrap inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
                               <Lock size={12} />
-                              <span>Closed</span>
+                              Closed
                             </span>
                           )}
-                        </td>
-                        <td className="py-3.5 px-3 min-w-[140px] flex-shrink-0">
+                        </div>
+                      </div>
+
+                      {/* Ineligibility Reason Note */}
+                      {!elig.eligible && !hasVoted && elig.reason && (
+                        <div className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 p-2 rounded-xl flex items-center gap-1.5">
+                          <ShieldAlert size={13} className="shrink-0" />
+                          <span>{elig.reason}</span>
+                        </div>
+                      )}
+
+                      {/* Countdown Timer Row */}
+                      <div className="flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 px-3 py-2 rounded-xl">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">
+                          {statusInfo.isLive ? 'Polling Window Closes:' : statusInfo.isUpcoming ? 'Voting Starts In:' : 'Poll Status:'}
+                        </span>
+                        <span className="font-mono font-bold text-slate-800 dark:text-slate-100">
                           {statusInfo.isLive ? (
-                            <span className="text-xs font-bold text-[#08754B] dark:text-emerald-400 flex items-center gap-1.5 whitespace-nowrap">
-                              <Clock size={12} />
-                              <span className="text-[#202522] dark:text-slate-100 font-bold font-mono">
-                                {statusInfo.countdownText.includes('left') ? statusInfo.countdownText : `${statusInfo.countdownText} left`}
-                              </span>
+                            <span className="text-emerald-700 dark:text-emerald-400 font-black">
+                              {statusInfo.countdownText.includes('left') ? statusInfo.countdownText : `${statusInfo.countdownText} left`}
                             </span>
                           ) : statusInfo.isUpcoming ? (
-                            <span className="text-xs font-semibold text-[#66716C] dark:text-slate-400 flex items-center gap-1.5 whitespace-nowrap">
-                              <Clock size={12} />
-                              <span>Starts in {statusInfo.countdownText}</span>
-                            </span>
+                            statusInfo.countdownText
                           ) : (
-                            <span className="text-xs font-medium text-[#66716C] dark:text-slate-500 inline-flex items-center gap-1.5 whitespace-nowrap">
-                              <Lock size={12} />
-                              <span>Polls Closed</span>
-                            </span>
+                            'Polls Concluded'
                           )}
-                        </td>
-                        <td>
-                          {hasVoted ? (
+                        </span>
+                      </div>
+
+                      {/* Action Button */}
+                      <div>
+                        {hasVoted ? (
+                          <button
+                            className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 cursor-default flex items-center justify-center gap-1.5 min-h-[44px]"
+                            disabled
+                          >
+                            <CheckCircle2 size={14} />
+                            <span>Ballot Recorded &amp; Certified</span>
+                          </button>
+                        ) : isConstituency && !hasConstituency ? (
+                          <div className="flex flex-col sm:flex-row gap-2">
                             <button
-                              className="sv-btn-card secondary sv-polling-btn"
+                              className="flex-1 py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1.5 min-h-[44px] touch-active"
+                              onClick={() => setShowConstituencyModal(true)}
+                            >
+                              <span>Select Constituency</span>
+                              <ChevronRight size={14} />
+                            </button>
+                            <button
+                              className="py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs font-semibold border border-slate-200 dark:border-slate-700 cursor-not-allowed"
                               disabled
-                              style={{ background: '#EAF6F0', color: '#08754B', borderColor: '#C3E8D7', cursor: 'default' }}
                             >
-                              Voted
+                              Unlocks {formatUnlockDate(e)}
                             </button>
-                          ) : isConstituency && !hasConstituency ? (
-                            <div className="flex items-center gap-2">
-                              <button
-                                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all cursor-pointer shadow-2xs"
-                                onClick={() => setShowConstituencyModal(true)}
-                              >
-                                Select Constituency
-                              </button>
-                              <button
-                                className="bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"
-                                disabled={true}
-                              >
-                                Unlocks {formatUnlockDate(e)}
-                              </button>
-                            </div>
-                          ) : statusInfo.isClosed ? (
-                            <button
-                              className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
-                              onClick={() => goTo('/results', navigate)}
-                            >
-                              <span>View Results</span>
-                              <BarChart3 size={12} />
-                            </button>
-                          ) : (
-                            <button
-                              className={
-                                elig.eligible && statusInfo.isLive
-                                  ? "bg-[#007A4D] hover:bg-[#075C42] text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5"
-                                  : "bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"
-                              }
-                              disabled={!(elig.eligible && statusInfo.isLive)}
-                              title={!elig.eligible ? elig.reason : undefined}
-                              onClick={(elig.eligible && statusInfo.isLive) ? () => goTo(`/ballot/${e.id}`, navigate) : undefined}
-                            >
-                              {elig.eligible && statusInfo.isLive ? (
-                                <span className="flex items-center gap-1">
-                                  <span>Enter Polling Station</span>
-                                  <ChevronRight size={12} />
+                          </div>
+                        ) : statusInfo.isClosed ? (
+                          <button
+                            className="w-full py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px] touch-active"
+                            onClick={() => goTo('/results', navigate)}
+                          >
+                            <span>View Final Results</span>
+                            <BarChart3 size={14} />
+                          </button>
+                        ) : (
+                          <button
+                            className={`w-full py-3 px-4 rounded-xl text-xs font-extrabold transition-all shadow-xs flex items-center justify-center gap-2 min-h-[44px] ${
+                              elig.eligible && statusInfo.isLive
+                                ? "bg-[#007A4D] hover:bg-[#075C42] text-white cursor-pointer touch-active"
+                                : "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-slate-300 dark:border-slate-700"
+                            }`}
+                            disabled={!(elig.eligible && statusInfo.isLive)}
+                            title={!elig.eligible ? elig.reason : undefined}
+                            onClick={(elig.eligible && statusInfo.isLive) ? () => goTo(`/ballot/${e.id}`, navigate) : undefined}
+                          >
+                            {elig.eligible && statusInfo.isLive ? (
+                              <>
+                                <Vote size={15} />
+                                <span>Enter Polling Station</span>
+                                <ChevronRight size={14} />
+                              </>
+                            ) : (
+                              <span>Unlocks {formatUnlockDate(e)}</span>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* ── DESKTOP TABLE VIEW (Displayed on md+ / >= 768px) ── */}
+              <div className="hidden md:block sv-elections-table-wrap">
+                <table className="sv-elections-table w-full">
+                  <thead>
+                    <tr>
+                      <th className="py-3 px-3 text-left">Election</th>
+                      <th className="py-3 px-3 min-w-[140px] text-center">Status</th>
+                      <th className="py-3 px-3 min-w-[140px] text-left">Polling Closes</th>
+                      <th className="py-3 px-3 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {elections.map((e) => {
+                      const hasVoted = isElectionVoted(e.id, e.type);
+                      const isConstituency = e.type === 'constituency' || e.tier === 'CONSTITUENCY';
+                      const cVal = student ? (student.constituency || student.constituency_locked || null) : null;
+                      const hasConstituency = Boolean(cVal);
+                      const elig = checkElectionEligibility(student || {}, e);
+                      const statusInfo = getElectionStatus(e, e.endTime, now);
+
+                      return (
+                        <tr key={e.id}>
+                          <td className="py-3.5 px-3">
+                            <strong className="text-slate-800 dark:text-slate-200">{e.title}</strong>
+                            {e.jurisdiction?.name && (
+                              <span className="sv-elec-juris block text-xs text-slate-500 dark:text-slate-400">
+                                {e.jurisdiction.name}
+                              </span>
+                            )}
+                            {!elig.eligible && !hasVoted && elig.reason && (
+                              <div className="text-[11px] text-rose-600 dark:text-rose-400 font-medium mt-0.5 flex items-center gap-1">
+                                <ShieldAlert size={11} />
+                                <span>{elig.reason}</span>
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-3 min-w-[140px] text-center">
+                            {hasVoted ? (
+                              <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-1 shadow-2xs">
+                                <CheckCircle2 size={12} />
+                                Voted
+                              </span>
+                            ) : !elig.eligible ? (
+                              <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800/60 gap-1" title={elig.reason}>
+                                <AlertTriangle size={12} />
+                                Ineligible
+                              </span>
+                            ) : statusInfo.isLive ? (
+                              <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 gap-2 shadow-2xs font-black">
+                                <span className="live-pulse-container">
+                                  <span className="live-pulse-dot" />
                                 </span>
-                              ) : (
-                                <span>Unlocks {formatUnlockDate(e)}</span>
-                              )}
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                                <span>LIVE — BALLOT OPEN</span>
+                              </span>
+                            ) : statusInfo.isUpcoming ? (
+                              <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60 gap-1">
+                                <Clock size={12} />
+                                <span>Upcoming</span>
+                              </span>
+                            ) : (
+                              <span className="whitespace-nowrap inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 gap-1">
+                                <Lock size={12} />
+                                <span>Closed</span>
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-3 min-w-[140px]">
+                            {statusInfo.isLive ? (
+                              <span className="text-xs font-bold text-[#08754B] dark:text-emerald-400 flex items-center gap-1.5 whitespace-nowrap">
+                                <Clock size={12} />
+                                <span className="text-[#202522] dark:text-slate-100 font-bold font-mono">
+                                  {statusInfo.countdownText.includes('left') ? statusInfo.countdownText : `${statusInfo.countdownText} left`}
+                                </span>
+                              </span>
+                            ) : statusInfo.isUpcoming ? (
+                              <span className="text-xs font-semibold text-[#66716C] dark:text-slate-400 flex items-center gap-1.5 whitespace-nowrap">
+                                <Clock size={12} />
+                                <span>Starts in {statusInfo.countdownText}</span>
+                              </span>
+                            ) : (
+                              <span className="text-xs font-medium text-[#66716C] dark:text-slate-500 inline-flex items-center gap-1.5 whitespace-nowrap">
+                                <Lock size={12} />
+                                <span>Polls Closed</span>
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-3 text-right">
+                            {hasVoted ? (
+                              <button
+                                className="sv-btn-card secondary sv-polling-btn"
+                                disabled
+                                style={{ background: '#EAF6F0', color: '#08754B', borderColor: '#C3E8D7', cursor: 'default' }}
+                              >
+                                Voted
+                              </button>
+                            ) : isConstituency && !hasConstituency ? (
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                                  onClick={() => setShowConstituencyModal(true)}
+                                >
+                                  Select Constituency
+                                </button>
+                                <button
+                                  className="bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"
+                                  disabled={true}
+                                >
+                                  Unlocks {formatUnlockDate(e)}
+                                </button>
+                              </div>
+                            ) : statusInfo.isClosed ? (
+                              <button
+                                className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 ml-auto"
+                                onClick={() => goTo('/results', navigate)}
+                              >
+                                <span>View Results</span>
+                                <BarChart3 size={12} />
+                              </button>
+                            ) : (
+                              <button
+                                className={
+                                  elig.eligible && statusInfo.isLive
+                                    ? "bg-[#007A4D] hover:bg-[#075C42] text-white cursor-pointer px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 ml-auto"
+                                    : "bg-gray-700/50 text-gray-400 cursor-not-allowed border border-gray-600 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 ml-auto"
+                                }
+                                disabled={!(elig.eligible && statusInfo.isLive)}
+                                title={!elig.eligible ? elig.reason : undefined}
+                                onClick={(elig.eligible && statusInfo.isLive) ? () => goTo(`/ballot/${e.id}`, navigate) : undefined}
+                              >
+                                {elig.eligible && statusInfo.isLive ? (
+                                  <span className="flex items-center gap-1">
+                                    <span>Enter Polling Station</span>
+                                    <ChevronRight size={12} />
+                                  </span>
+                                ) : (
+                                  <span>Unlocks {formatUnlockDate(e)}</span>
+                                )}
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
 
@@ -533,14 +659,6 @@ export default function Dashboard({ navigate }) {
           </div>
         </div>
       </div>
-
-      {/* Step-Up Auth Modal */}
-      <StepUpAuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        initialError={authModalError}
-        onSuccess={handleAuthSuccess}
-      />
 
       {/* Constituency Selection Modal */}
       <ConstituencyModal
