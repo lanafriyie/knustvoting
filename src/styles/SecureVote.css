@@ -212,7 +212,6 @@ code, pre, .font-mono {
   background-color: var(--sidebar-bg);
   color: var(--sidebar-text);
   height: 100vh;
-  position: relative;
   overflow-y: auto;
   box-sizing: border-box;
   flex-shrink: 0;
