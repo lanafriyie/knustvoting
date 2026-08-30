@@ -4,6 +4,7 @@ import {
   Camera,
   Check,
   ChevronLeft,
+  ChevronRight,
   ShieldAlert,
   Award,
   FileText,
@@ -20,7 +21,8 @@ import {
   CheckSquare,
   AlertTriangle,
   Download,
-  Scroll
+  Scroll,
+  Clock
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { submitAnonymousVote } from '../lib/votingService';
