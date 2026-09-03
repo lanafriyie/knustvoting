@@ -1641,8 +1641,8 @@ code, pre, .font-mono {
   height: calc(var(--mobile-header-height) + var(--sat));
   padding-top: var(--sat);
   z-index: 40;
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
 }
 
 /* Mobile Bottom Navigation Bar */
@@ -1654,8 +1654,8 @@ code, pre, .font-mono {
   height: calc(var(--mobile-bottom-nav-height) + var(--sab));
   padding-bottom: var(--sab);
   z-index: 40;
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
 }
 
